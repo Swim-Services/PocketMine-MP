@@ -126,12 +126,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/GameParrot/BedrockData.git",
-                "reference": "444c3b7d57fc55ea7e4233c119abb75ee4d794c8"
+                "reference": "fe7a1fc463ced9809d4383d3d769ef15850922e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GameParrot/BedrockData/zipball/444c3b7d57fc55ea7e4233c119abb75ee4d794c8",
-                "reference": "444c3b7d57fc55ea7e4233c119abb75ee4d794c8",
+                "url": "https://api.github.com/repos/GameParrot/BedrockData/zipball/fe7a1fc463ced9809d4383d3d769ef15850922e8",
+                "reference": "fe7a1fc463ced9809d4383d3d769ef15850922e8",
                 "shasum": ""
             },
             "default-branch": true,
@@ -151,12 +151,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/GameParrot/BedrockProtocol.git",
-                "reference": "6b49ab1e62ceab8a8e70b05db858d7c48db95172"
+                "reference": "7b8de6b98577bab165794c8127e7c616e4290e1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GameParrot/BedrockProtocol/zipball/6b49ab1e62ceab8a8e70b05db858d7c48db95172",
-                "reference": "6b49ab1e62ceab8a8e70b05db858d7c48db95172",
+                "url": "https://api.github.com/repos/GameParrot/BedrockProtocol/zipball/7b8de6b98577bab165794c8127e7c616e4290e1a",
+                "reference": "7b8de6b98577bab165794c8127e7c616e4290e1a",
                 "shasum": ""
             },
             "require": {
