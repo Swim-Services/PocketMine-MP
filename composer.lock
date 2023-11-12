@@ -121,17 +121,17 @@
             "time": "2023-01-15T23:15:59+00:00"
         },
         {
-            "name": "nethergamesmc/bedrock-data",
+            "name": "GameParrot/bedrock-data",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/NetherGamesMC/BedrockData.git",
-                "reference": "90efc80585d47bcfc1a4a878f9c2bd1731f9d834"
+                "url": "https://github.com/GameParrot/BedrockData.git",
+                "reference": "444c3b7d57fc55ea7e4233c119abb75ee4d794c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NetherGamesMC/BedrockData/zipball/90efc80585d47bcfc1a4a878f9c2bd1731f9d834",
-                "reference": "90efc80585d47bcfc1a4a878f9c2bd1731f9d834",
+                "url": "https://api.github.com/repos/GameParrot/BedrockData/zipball/444c3b7d57fc55ea7e4233c119abb75ee4d794c8",
+                "reference": "444c3b7d57fc55ea7e4233c119abb75ee4d794c8",
                 "shasum": ""
             },
             "default-branch": true,
@@ -141,22 +141,22 @@
             ],
             "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
             "support": {
-                "source": "https://github.com/NetherGamesMC/BedrockData/tree/master"
+                "source": "https://github.com/GameParrot/BedrockData/tree/master"
             },
             "time": "2023-10-26T11:23:24+00:00"
         },
         {
-            "name": "nethergamesmc/bedrock-protocol",
+            "name": "GameParrot/bedrock-protocol",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/NetherGamesMC/BedrockProtocol.git",
-                "reference": "24523cd9a133b69bf62bc9edf26b9cb588819e15"
+                "url": "https://github.com/GameParrot/BedrockProtocol.git",
+                "reference": "6b49ab1e62ceab8a8e70b05db858d7c48db95172"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NetherGamesMC/BedrockProtocol/zipball/24523cd9a133b69bf62bc9edf26b9cb588819e15",
-                "reference": "24523cd9a133b69bf62bc9edf26b9cb588819e15",
+                "url": "https://api.github.com/repos/GameParrot/BedrockProtocol/zipball/6b49ab1e62ceab8a8e70b05db858d7c48db95172",
+                "reference": "6b49ab1e62ceab8a8e70b05db858d7c48db95172",
                 "shasum": ""
             },
             "require": {
@@ -197,7 +197,7 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
-                "source": "https://github.com/NetherGamesMC/BedrockProtocol/tree/master"
+                "source": "https://github.com/GameParrot/BedrockProtocol/tree/master"
             },
             "time": "2023-10-26T11:19:10+00:00"
         },
@@ -2938,8 +2938,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "nethergamesmc/bedrock-data": 20,
-        "nethergamesmc/bedrock-protocol": 20
+        "GameParrot/bedrock-data": 20,
+        "GameParrot/bedrock-protocol": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
