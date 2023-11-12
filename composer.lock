@@ -121,7 +121,7 @@
             "time": "2023-01-15T23:15:59+00:00"
         },
         {
-            "name": "GameParrot/bedrock-data",
+            "name": "gameparrot/bedrock-data",
             "version": "dev-master",
             "source": {
                 "type": "git",
@@ -146,7 +146,7 @@
             "time": "2023-10-26T11:23:24+00:00"
         },
         {
-            "name": "GameParrot/bedrock-protocol",
+            "name": "gameparrot/bedrock-protocol",
             "version": "dev-master",
             "source": {
                 "type": "git",
@@ -2938,8 +2938,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "GameParrot/bedrock-data": 20,
-        "GameParrot/bedrock-protocol": 20
+        "gameparrot/bedrock-data": 20,
+        "gameparrot/bedrock-protocol": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
