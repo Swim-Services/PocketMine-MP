@@ -72,6 +72,7 @@ class TypeConverter{
 	private BlockTranslator $blockTranslator;
 	private ItemTranslator $itemTranslator;
 	private ItemTypeDictionary $itemTypeDictionary;
+	private ItemIdMetaDowngrader $itemDataDowngrader;
 	private int $shieldRuntimeId;
 
 	private SkinAdapter $skinAdapter;
@@ -85,6 +86,7 @@ class TypeConverter{
 		$this->blockTranslator = BlockTranslator::loadFromProtocolId($protocolId);
 
 		$this->itemTypeDictionary = ItemTypeDictionaryFromDataHelper::loadFromProtocolId($protocolId);
+		$this->itemDataDowngrader = new ItemIdMetaDowngrader($this->itemTypeDictionary, ItemTranslator::getItemSchemaId($protocolId));
 		$this->shieldRuntimeId = $this->itemTypeDictionary->fromStringId("minecraft:shield");
 
 		$this->itemTranslator = new ItemTranslator(
@@ -93,7 +95,7 @@ class TypeConverter{
 			GlobalItemDataHandlers::getSerializer(),
 			GlobalItemDataHandlers::getDeserializer(),
 			$this->blockItemIdMap,
-			new ItemIdMetaDowngrader($this->itemTypeDictionary, ItemTranslator::getItemSchemaId($protocolId))
+			$this->itemDataDowngrader
 		);
 
 		$this->skinAdapter = new LegacySkinAdapter();
@@ -145,8 +147,11 @@ class TypeConverter{
 			return new ProtocolRecipeIngredient(null, 0);
 		}
 		if($ingredient instanceof MetaWildcardRecipeIngredient){
-			$id = $this->itemTypeDictionary->fromStringId($ingredient->getItemId());
-			$meta = self::RECIPE_INPUT_WILDCARD_META;
+			$oldStringId = $ingredient->getItemId();
+			[$stringId, $meta] = $this->itemDataDowngrader->downgrade($oldStringId, 0);
+
+			$id = $this->itemTypeDictionary->fromStringId($stringId);
+			$meta = $meta === 0 && $stringId === $oldStringId ? self::RECIPE_INPUT_WILDCARD_META : $meta; // downgrader returns the same meta
 			$descriptor = new IntIdMetaItemDescriptor($id, $meta);
 		}elseif($ingredient instanceof ExactRecipeIngredient){
 			$item = $ingredient->getItem();
