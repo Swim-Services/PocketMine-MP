@@ -111,6 +111,7 @@ use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
 use pocketmine\world\format\Chunk;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use function array_push;
 use function count;
 use function fmod;
@@ -713,7 +714,11 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 				return false;
 		}
 
-		$this->player->setUsingItem(false);
+		if($this->session->getProtocolId() > ProtocolInfo::PROTOCOL_1_16_100){
+			if($action === PlayerAction::STOP_BREAK || PlayerBlockActionWithBlockInfo::isValidActionType($action)){
+				$this->player->setUsingItem(false);
+			}
+		}
 
 		return true;
 	}

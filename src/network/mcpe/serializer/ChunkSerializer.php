@@ -44,6 +44,7 @@ use pocketmine\world\format\SubChunk;
 use function count;
 
 final class ChunkSerializer{
+	public const LOWER_PADDING_SIZE = 4;
 	private function __construct(){
 		//NOOP
 	}
@@ -57,7 +58,7 @@ final class ChunkSerializer{
 			if($chunk->getSubChunk($y)->isEmptyFast()){
 				continue;
 			}
-			return $count;
+			return min($count, 16);
 		}
 
 		return 0;
@@ -66,7 +67,7 @@ final class ChunkSerializer{
 	/**
 	 * @return string[]
 	 */
-	public static function serializeSubChunks(Chunk $chunk, BlockTranslator $blockTranslator, PacketSerializerContext $encoderContext) : array
+	public static function serializeSubChunks(Chunk $chunk, BlockTranslator $blockTranslator, PacketSerializerContext $encoderContext, int $mappingProtocol) : array
 	{
 		$stream = PacketSerializer::encoder($encoderContext);
 		$subChunks = [];
@@ -81,24 +82,55 @@ final class ChunkSerializer{
 		return $subChunks;
 	}
 
-	public static function serializeFullChunk(Chunk $chunk, TypeConverter $converter, PacketSerializerContext $encoderContext, ?string $tiles = null) : string{
-		$stream = PacketSerializer::encoder($encoderContext);
+	public static function serializeFullChunk(Chunk $chunk, TypeConverter $converter, PacketSerializerContext $encoderContext, int $mappingProtocol, ?string $tiles = null) : string{
 
-		foreach(self::serializeSubChunks($chunk, $converter->getBlockTranslator(), $encoderContext) as $subChunk){
-			$stream->put($subChunk);
+		if ($converter->getProtocolId() >= ProtocolInfo::PROTOCOL_1_18_0) {
+			$stream = PacketSerializer::encoder($encoderContext);
+
+			foreach(self::serializeSubChunks($chunk, $converter->getBlockTranslator(), $encoderContext, $mappingProtocol) as $subChunk){
+				$stream->put($subChunk);
+			}
+
+			self::serializeBiomes($chunk, $stream);
+			self::serializeChunkData($chunk, $stream, $converter, $tiles);
+
+			return $stream->getBuffer();
+		} else {
+			$stream = PacketSerializer::encoder($encoderContext);
+			$subChunkCount = self::getSubChunkCount($chunk);
+			for($y = 0; $y < $subChunkCount; ++$y){
+				self::serializeSubChunk($chunk->getSubChunk($y), $converter->getBlockTranslator(), $stream, false);
+			}
+	
+			$biome = str_repeat(chr(BiomeIds::OCEAN), 256); //2d biome array
+			for($x = 0; $x < 16; ++$x){
+				for($z = 0; $z < 16; ++$z){
+					$biome[($z << 4) | $x] = chr($chunk->getBiomeId($x, $chunk->getHighestBlockAt($x, $z) ?? BiomeIds::OCEAN, $z));
+				}
+			}
+			$stream->put($biome);
+	
+			$stream->putByte(0); //border block array count
+			//Border block entry format: 1 byte (4 bits X, 4 bits Z). These are however useless since they crash the regular client.
+	
+			if($tiles !== null){
+				$stream->put($tiles);
+			}else{
+				$stream->put(self::serializeTiles($chunk, $converter));
+			}
+			return $stream->getBuffer();
 		}
-
-		self::serializeBiomes($chunk, $stream);
-		self::serializeChunkData($chunk, $stream, $converter, $tiles);
-
-		return $stream->getBuffer();
 	}
 
 	public static function serializeBiomes(Chunk $chunk, PacketSerializer $stream) : void{
-		$biomeIdMap = LegacyBiomeIdToStringIdMap::getInstance();
-		//all biomes must always be written :(
-		for($y = Chunk::MIN_SUBCHUNK_INDEX; $y <= Chunk::MAX_SUBCHUNK_INDEX; ++$y){
-			self::serializeBiomePalette($chunk->getSubChunk($y)->getBiomeArray(), $biomeIdMap, $stream);
+		if($stream->getProtocolId() >= ProtocolInfo::PROTOCOL_1_18_0){
+			$biomeIdMap = LegacyBiomeIdToStringIdMap::getInstance();
+			//all biomes must always be written :(
+			for($y = Chunk::MIN_SUBCHUNK_INDEX; $y <= Chunk::MAX_SUBCHUNK_INDEX; ++$y){
+				self::serializeBiomePalette($chunk->getSubChunk($y)->getBiomeArray(), $biomeIdMap, $stream);
+			}
+		} else {
+			$stream->put("");
 		}
 	}
 

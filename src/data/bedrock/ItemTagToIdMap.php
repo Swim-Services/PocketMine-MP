@@ -50,6 +50,33 @@ final class ItemTagToIdMap{
 		ProtocolInfo::PROTOCOL_1_20_30 => "-1.20.0",
 		ProtocolInfo::PROTOCOL_1_20_10 => "-1.20.0",
 		ProtocolInfo::PROTOCOL_1_20_0 => "-1.20.0",
+		
+
+		ProtocolInfo::CURRENT_PROTOCOL => "",
+
+		ProtocolInfo::PROTOCOL_1_19_80 => "-1.20.0",
+
+		ProtocolInfo::PROTOCOL_1_19_70 => "-1.20.0",
+
+		ProtocolInfo::PROTOCOL_1_19_63 => "-1.20.0",
+		ProtocolInfo::PROTOCOL_1_19_60 => "-1.20.0",
+
+		ProtocolInfo::PROTOCOL_1_19_50 => "-1.20.0",
+
+		ProtocolInfo::PROTOCOL_1_19_40 => "-1.20.0",
+		ProtocolInfo::PROTOCOL_1_19_30 => "-1.20.0",
+		ProtocolInfo::PROTOCOL_1_19_21 => "-1.20.0",
+		ProtocolInfo::PROTOCOL_1_19_20 => "-1.20.0",
+		ProtocolInfo::PROTOCOL_1_19_10 => "-1.20.0",
+
+		ProtocolInfo::PROTOCOL_1_19_0 => "-1.20.0",
+
+		ProtocolInfo::PROTOCOL_1_18_30 => "-1.20.0",
+
+		ProtocolInfo::PROTOCOL_1_18_10 => "-1.20.0",
+
+		ProtocolInfo::PROTOCOL_1_18_0 => "-1.20.0",
+		ProtocolInfo::PROTOCOL_1_16_100 => "-1.20.0",
 	];
 
 	private static function make(int $protocolId) : self{

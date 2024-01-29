@@ -442,7 +442,7 @@ class NetworkSession{
 				$count = 0;
 				foreach(PacketBatch::decodeRaw($stream) as $buffer){
 					$this->gamePacketLimiter->decrement();
-					if(++$count > 100){
+					if(++$count > 200){
 						throw new PacketHandlingException("Too many packets in batch");
 					}
 					$packet = $this->packetPool->getPacket($buffer);
@@ -872,7 +872,11 @@ class NetworkSession{
 				}
 				$this->sendDataPacket(ServerToClientHandshakePacket::create($handshakeJwt), true); //make sure this gets sent before encryption is enabled
 
-				$this->cipher = EncryptionContext::fakeGCM($encryptionKey);
+				if($this->protocolId > ProtocolInfo::PROTOCOL_1_16_100){
+					$this->cipher = EncryptionContext::fakeGCM($encryptionKey);
+				}else{
+					$this->cipher = EncryptionContext::cfb8($encryptionKey);
+				}
 
 				$this->setHandler(new HandshakePacketHandler($this->onServerLoginSuccess(...)));
 				$this->logger->debug("Enabled encryption");
