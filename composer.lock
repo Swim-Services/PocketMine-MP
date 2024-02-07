@@ -203,16 +203,16 @@
         },
         {
             "name": "pocketmine/bedrock-block-upgrade-schema",
-            "version": "3.4.0",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockBlockUpgradeSchema.git",
-                "reference": "9872eb37f15080b19c2b7861085e549c48dda92d"
+                "reference": "1ed4ba738333c4b4afe4fef8e9326a45c89f12e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockBlockUpgradeSchema/zipball/9872eb37f15080b19c2b7861085e549c48dda92d",
-                "reference": "9872eb37f15080b19c2b7861085e549c48dda92d",
+                "url": "https://api.github.com/repos/pmmp/BedrockBlockUpgradeSchema/zipball/1ed4ba738333c4b4afe4fef8e9326a45c89f12e3",
+                "reference": "1ed4ba738333c4b4afe4fef8e9326a45c89f12e3",
                 "shasum": ""
             },
             "type": "library",
@@ -225,20 +225,20 @@
                 "issues": "https://github.com/pmmp/BedrockBlockUpgradeSchema/issues",
                 "source": "https://github.com/pmmp/BedrockBlockUpgradeSchema/tree/3.4.0"
             },
-            "time": "2023-11-08T15:22:06+00:00"
+            "time": "2024-02-07T11:46:50+00:00"
         },
         {
             "name": "pocketmine/bedrock-item-upgrade-schema",
-            "version": "1.6.0",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockItemUpgradeSchema.git",
-                "reference": "d374e5fd8302977675dcd2a42733abd3ee476ca1"
+                "reference": "69772dd58e2b2c7b7513fa2bcdc46e782228641c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockItemUpgradeSchema/zipball/d374e5fd8302977675dcd2a42733abd3ee476ca1",
-                "reference": "d374e5fd8302977675dcd2a42733abd3ee476ca1",
+                "url": "https://api.github.com/repos/pmmp/BedrockItemUpgradeSchema/zipball/69772dd58e2b2c7b7513fa2bcdc46e782228641c",
+                "reference": "69772dd58e2b2c7b7513fa2bcdc46e782228641c",
                 "shasum": ""
             },
             "type": "library",

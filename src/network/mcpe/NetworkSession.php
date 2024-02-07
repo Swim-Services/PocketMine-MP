@@ -90,6 +90,7 @@ use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\network\mcpe\protocol\types\command\CommandPermissions;
+use pocketmine\network\mcpe\protocol\types\CompressionAlgorithm;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\network\mcpe\protocol\types\PlayerPermissions;
@@ -125,6 +126,7 @@ use function implode;
 use function in_array;
 use function is_string;
 use function json_encode;
+use function ord;
 use function random_bytes;
 use function str_split;
 use function strcasecmp;
@@ -208,16 +210,9 @@ class NetworkSession{
 		$this->packetBatchLimiter = new PacketRateLimiter("Packet Batches", self::INCOMING_PACKET_BATCH_PER_TICK, self::INCOMING_PACKET_BATCH_BUFFER_TICKS);
 		$this->gamePacketLimiter = new PacketRateLimiter("Game Packets", self::INCOMING_GAME_PACKETS_PER_TICK, self::INCOMING_GAME_PACKETS_BUFFER_TICKS);
 
-		$this->setHandler(new LoginPacketHandler(
-			$this->server,
+		$this->setHandler(new SessionStartPacketHandler(
 			$this,
-			function(PlayerInfo $info) : void{
-				$this->info = $info;
-				$this->logger->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_network_session_playerName(TextFormat::AQUA . $info->getUsername() . TextFormat::RESET)));
-				$this->logger->setPrefix($this->getLogPrefix());
-				$this->manager->markLoginReceived($this);
-			},
-			$this->setAuthenticationStatus(...)
+			$this->onSessionStartSuccess(...)
 		));
 
 		$this->manager->add($this);
@@ -366,6 +361,8 @@ class NetworkSession{
 			if($this->handler !== null){
 				$this->handler->setUp();
 			}
+		} else {
+			print("not connected\n");
 		}
 	}
 
@@ -414,27 +411,38 @@ class NetworkSession{
 				}
 			}
 
+			if(strlen($payload) < 1){
+				throw new PacketHandlingException("No bytes in payload");
+			}
+
 			if($this->enableCompression){
 				Timings::$playerNetworkReceiveDecompress->startTiming();
-				try{
-					$decompressed = $this->compressor->decompress($payload);
-				}catch(DecompressionException $e){
-					if($this->isFirstPacket){
-						$this->logger->debug("Failed to decompress packet, assuming client is using the new compression method");
-
-						$this->enableCompression = false;
-						$this->setHandler(new SessionStartPacketHandler(
-							$this,
-							$this->onSessionStartSuccess(...)
-						));
-
-						$decompressed = $payload;
+				if($this->protocolId >= ProtocolInfo::PROTOCOL_1_20_60){
+					$compressionType = ord($payload[0]);
+					$compressed = substr($payload, 1);
+					if($compressionType === CompressionAlgorithm::NONE){
+						$decompressed = $compressed;
+					}elseif($compressionType === $this->compressor->getNetworkId()){
+						try{
+							$decompressed = $this->compressor->decompress($compressed);
+						}catch(DecompressionException $e){
+							$this->logger->debug("Failed to decompress packet: " . base64_encode($compressed));
+							throw PacketHandlingException::wrap($e, "Compressed packet batch decode error");
+						}finally{
+							Timings::$playerNetworkReceiveDecompress->stopTiming();
+						}
 					}else{
+						throw new PacketHandlingException("Packet compressed with unexpected compression type $compressionType");
+					}
+				}else{
+					try{
+						$decompressed = $this->compressor->decompress($payload);
+					}catch(DecompressionException $e){
 						$this->logger->debug("Failed to decompress packet: " . base64_encode($payload));
 						throw PacketHandlingException::wrap($e, "Compressed packet batch decode error");
+					}finally{
+						Timings::$playerNetworkReceiveDecompress->stopTiming();
 					}
-				}finally{
-					Timings::$playerNetworkReceiveDecompress->stopTiming();
 				}
 			}else{
 				$decompressed = $payload;
@@ -600,7 +608,7 @@ class NetworkSession{
 				PacketBatch::encodeRaw($stream, $this->sendBuffer);
 
 				if($this->enableCompression){
-					$batch = $this->server->prepareBatch($stream->getBuffer(), $this->compressor, $syncMode, Timings::$playerNetworkSendCompressSessionBuffer);
+					$batch = $this->server->prepareBatch($stream->getBuffer(), $this->packetSerializerContext, $this->compressor, $syncMode, Timings::$playerNetworkSendCompressSessionBuffer);
 				}else{
 					$batch = $stream->getBuffer();
 				}
