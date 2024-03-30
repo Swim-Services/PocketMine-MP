@@ -70,7 +70,6 @@ use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\serializer\PacketBatch;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
-use pocketmine\network\mcpe\protocol\serializer\PacketSerializerContext;
 use pocketmine\network\mcpe\protocol\ServerboundPacket;
 use pocketmine\network\mcpe\protocol\ServerToClientHandshakePacket;
 use pocketmine\network\mcpe\protocol\SetDifficultyPacket;
@@ -190,7 +189,6 @@ class NetworkSession{
 		private Server $server,
 		private NetworkSessionManager $manager,
 		private PacketPool $packetPool,
-		private PacketSerializerContext $packetSerializerContext,
 		protected PacketSender $sender,
 		private PacketBroadcaster $broadcaster,
 		private EntityEventBroadcaster $entityEventBroadcaster,
@@ -367,8 +365,7 @@ class NetworkSession{
 		$this->protocolId = $protocolId;
 
 		$this->typeConverter = TypeConverter::getInstance($protocolId);
-		$this->packetSerializerContext = $this->server->getPacketSerializerContext($this->typeConverter);
-		$this->broadcaster = $this->server->getPacketBroadcaster($this->packetSerializerContext);
+		$this->broadcaster = $this->server->getPacketBroadcaster($protocolId);
 		$this->entityEventBroadcaster = $this->server->getEntityEventBroadcaster($this->broadcaster, $this->typeConverter);
 	}
 
@@ -413,7 +410,6 @@ class NetworkSession{
 			}
 
 			if($this->enableCompression){
-				Timings::$playerNetworkReceiveDecompress->startTiming();
 				if($this->protocolId >= ProtocolInfo::PROTOCOL_1_20_60){
 					$compressionType = ord($payload[0]);
 					$compressed = substr($payload, 1);
@@ -421,6 +417,7 @@ class NetworkSession{
 						$decompressed = $compressed;
 					}elseif($compressionType === $this->compressor->getNetworkId()){
 						try{
+							Timings::$playerNetworkReceiveDecompress->startTiming();
 							$decompressed = $this->compressor->decompress($compressed);
 						}catch(DecompressionException $e){
 							$this->logger->debug("Failed to decompress packet: " . base64_encode($compressed));
@@ -433,6 +430,7 @@ class NetworkSession{
 					}
 				}else{
 					try{
+						Timings::$playerNetworkReceiveDecompress->startTiming();
 						$decompressed = $this->compressor->decompress($payload);
 					}catch(DecompressionException $e){
 						$this->logger->debug("Failed to decompress packet: " . base64_encode($payload));
@@ -447,10 +445,9 @@ class NetworkSession{
 
 			try{
 				$stream = new BinaryStream($decompressed);
-				$count = 0;
 				foreach(PacketBatch::decodeRaw($stream) as $buffer){
 					$this->gamePacketLimiter->decrement();
-					if(++$count > 200){
+					if(++$count > 500){
 						throw new PacketHandlingException("Too many packets in batch");
 					}
 					$packet = $this->packetPool->getPacket($buffer);
@@ -513,7 +510,7 @@ class NetworkSession{
 			$decodeTimings = Timings::getDecodeDataPacketTimings($packet);
 			$decodeTimings->startTiming();
 			try{
-				$stream = PacketSerializer::decoder($buffer, 0, $this->packetSerializerContext);
+				$stream = PacketSerializer::decoder($this->getProtocolId(), $buffer, 0);
 				try{
 					$packet->decode($stream);
 				}catch(PacketDecodeException $e){
@@ -572,7 +569,7 @@ class NetworkSession{
 			}
 
 			foreach($packets as $evPacket){
-				$this->addToSendBuffer(self::encodePacketTimed(PacketSerializer::encoder($this->packetSerializerContext), $evPacket));
+				$this->addToSendBuffer(self::encodePacketTimed(PacketSerializer::encoder($this->getProtocolId()), $evPacket));
 			}
 			if($immediate){
 				$this->flushSendBuffer(true);
@@ -620,7 +617,7 @@ class NetworkSession{
 				PacketBatch::encodeRaw($stream, $this->sendBuffer);
 
 				if($this->enableCompression){
-					$batch = $this->server->prepareBatch($stream->getBuffer(), $this->packetSerializerContext, $this->compressor, $syncMode, Timings::$playerNetworkSendCompressSessionBuffer);
+					$batch = $this->server->prepareBatch($stream->getBuffer(), $this->getProtocolId(), $this->compressor, $syncMode, Timings::$playerNetworkSendCompressSessionBuffer);
 				}else{
 					$batch = $stream->getBuffer();
 				}
@@ -631,8 +628,6 @@ class NetworkSession{
 			}
 		}
 	}
-
-	public function getPacketSerializerContext() : PacketSerializerContext{ return $this->packetSerializerContext; }
 
 	public function getBroadcaster() : PacketBroadcaster{ return $this->broadcaster; }
 
