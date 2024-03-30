@@ -168,7 +168,6 @@ class NetworkSession{
 	/** @var string[] */
 	private array $chunkCacheBlobs = [];
 	private bool $chunkCacheEnabled = false;
-	private bool $isFirstPacket = true;
 
 	/**
 	 * @var \SplQueue|CompressBatchPromise[]|string[]
@@ -177,7 +176,7 @@ class NetworkSession{
 	private \SplQueue $compressedQueue;
 	private bool $forceAsyncCompression = true;
 	private ?int $protocolId = null;
-	private bool $enableCompression = true;
+	private bool $enableCompression = false;
 
 	private ?InventoryManager $invManager = null;
 
@@ -361,8 +360,6 @@ class NetworkSession{
 			if($this->handler !== null){
 				$this->handler->setUp();
 			}
-		} else {
-			print("not connected\n");
 		}
 	}
 
@@ -469,11 +466,26 @@ class NetworkSession{
 					}
 				}
 			}catch(PacketDecodeException|BinaryDataException $e){
+				if (!$this->enableCompression) {
+					$this->enableCompression = true;
+					$this->setHandler(new LoginPacketHandler(
+						$this->server,
+						$this,
+						function(PlayerInfo $info) : void{
+							$this->info = $info;
+							$this->logger->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_network_session_playerName(TextFormat::AQUA . $info->getUsername() . TextFormat::RESET)));
+							$this->logger->setPrefix($this->getLogPrefix());
+							$this->manager->markLoginReceived($this);
+						},
+						$this->setAuthenticationStatus(...)
+					));
+					$this->handleEncoded($payload);
+					return;
+				}
 				$this->logger->logException($e);
 				throw PacketHandlingException::wrap($e, "Packet batch decode error");
 			}
 		}finally{
-			$this->isFirstPacket = false;
 			Timings::$playerNetworkReceive->stopTiming();
 		}
 	}
