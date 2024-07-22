@@ -39,7 +39,7 @@ class EnderPearl extends ProjectileItem{
 	}
 
 	public function getThrowForce() : float{
-		return 2;
+		return 1.5;
 	}
 
 	public function getCooldownTicks() : int{
