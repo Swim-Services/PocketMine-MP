@@ -80,7 +80,7 @@ final class ChunkSerializer{
 			if($chunk->getSubChunk($y)->isEmptyFast()){
 				continue;
 			}
-			return min($count, 16);
+			return $count;
 		}
 
 		return 0;
