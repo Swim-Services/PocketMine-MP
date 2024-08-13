@@ -2163,6 +2163,13 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 	}
 
 	/**
+	 * Closes the current viewing form and forms in queue.
+	 */
+	public function closeAllForms() : void{
+		$this->getNetworkSession()->onCloseAllForms();
+	}
+
+	/**
 	 * Transfers a player to another server.
 	 *
 	 * @param string                   $address The IP address or hostname of the destination server
@@ -2489,38 +2496,6 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer{
 
 		$properties->setPlayerFlag(PlayerMetadataFlags::SLEEP, $this->sleeping !== null);
 		$properties->setBlockPos(EntityMetadataProperties::PLAYER_BED_POSITION, $this->sleeping !== null ? BlockPosition::fromVector3($this->sleeping) : new BlockPosition(0, 0, 0));
-	}
-
-	/**
-	 * @internal Used to sync player actions with the server.
-	 */
-	public function syncPlayerActions(?bool $sneaking, ?bool $sprinting, ?bool $swimming, ?bool $gliding) : bool{
-		$networkPropertiesDirty = $this->networkPropertiesDirty;
-		$isDesynchronized = $this->moveSpeedAttr->isDesynchronized();
-
-		$mismatch =
-			($sneaking !== null && !$this->toggleSneak($sneaking)) |
-			($sprinting !== null && !$this->toggleSprint($sprinting)) |
-			($swimming !== null && !$this->toggleSwim($swimming)) |
-			($gliding !== null && !$this->toggleGlide($gliding));
-
-		if((bool) $mismatch){
-			return false;
-		}
-
-		// We do not want to do anything with gliding and swimming,
-		// because it is syncing the player own bounding boxes.
-		if($sprinting !== null){
-			// In case the previous network properties was dirty.
-			$this->networkPropertiesDirty = $networkPropertiesDirty;
-
-			if(!$isDesynchronized){
-				// Mark as synchronized, we accept them as-is
-				$this->moveSpeedAttr->markSynchronized();
-			}
-		}
-
-		return true;
 	}
 
 	public function sendData(?array $targets, ?array $data = null) : void{

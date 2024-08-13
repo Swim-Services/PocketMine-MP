@@ -269,7 +269,7 @@ class TypeConverter{
 		if($itemStack->getId() === 0){
 			return VanillaItems::AIR();
 		}
-		$extraData = $this->deserializeItemStackExtraData($this->getProtocolId(), $itemStack->getRawExtraData(), $itemStack->getId());
+		$extraData = $this->deserializeItemStackExtraData($itemStack->getRawExtraData(), $itemStack->getId());
 
 		$compound = $extraData->getNbt();
 
@@ -333,8 +333,8 @@ class TypeConverter{
 		}
 	}
 
-	public function deserializeItemStackExtraData(int $protocolId, string $extraData, int $id) : ItemStackExtraData{
-		$extraDataDeserializer = PacketSerializer::decoder($protocolId, $extraData, 0);
+	public function deserializeItemStackExtraData(string $extraData, int $id) : ItemStackExtraData{
+		$extraDataDeserializer = PacketSerializer::decoder($this->protocolId, $extraData, 0);
 		return $id === $this->shieldRuntimeId ?
 			ItemStackExtraDataShield::read($extraDataDeserializer) :
 			ItemStackExtraData::read($extraDataDeserializer);
