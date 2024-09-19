@@ -1579,10 +1579,6 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 			return Writer::create(Ids::PURPUR_PILLAR)
 				->writePillarAxis($block->getAxis());
 		});
-		$this->map(Blocks::PURPUR(), function (Opaque $block): Writer {
-			return Writer::create(Ids::PURPUR_BLOCK)
-				->writePillarAxis(Axis::X);
-		});
 		$this->mapSlab(Blocks::PURPUR_SLAB(), Ids::PURPUR_SLAB, Ids::PURPUR_DOUBLE_SLAB);
 		$this->mapStairs(Blocks::PURPUR_STAIRS(), Ids::PURPUR_STAIRS);
 		$this->map(Blocks::QUARTZ(), fn() => Helper::encodeQuartz(Axis::Y, Writer::create(Ids::QUARTZ_BLOCK)));
