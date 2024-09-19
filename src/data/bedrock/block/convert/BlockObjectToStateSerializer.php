@@ -103,6 +103,7 @@ use pocketmine\block\MobHead;
 use pocketmine\block\NetherPortal;
 use pocketmine\block\NetherVines;
 use pocketmine\block\NetherWartPlant;
+use pocketmine\block\Opaque;
 use pocketmine\block\PinkPetals;
 use pocketmine\block\PitcherCrop;
 use pocketmine\block\Potato;
@@ -1022,7 +1023,6 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		$this->mapSimple(Blocks::POLISHED_GRANITE(), Ids::POLISHED_GRANITE);
 		$this->mapSimple(Blocks::PRISMARINE(), Ids::PRISMARINE);
 		$this->mapSimple(Blocks::PRISMARINE_BRICKS(), Ids::PRISMARINE_BRICKS);
-		$this->mapSimple(Blocks::PURPUR(), Ids::PURPUR_BLOCK);
 		$this->mapSimple(Blocks::QUARTZ_BRICKS(), Ids::QUARTZ_BRICKS);
 		$this->mapSimple(Blocks::RAW_COPPER(), Ids::RAW_COPPER_BLOCK);
 		$this->mapSimple(Blocks::RAW_GOLD(), Ids::RAW_GOLD_BLOCK);
@@ -1577,6 +1577,10 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		$this->map(Blocks::PURPUR_PILLAR(), function(SimplePillar $block) : Writer{
 			return Writer::create(Ids::PURPUR_PILLAR)
 				->writePillarAxis($block->getAxis());
+		});
+		$this->map(Blocks::PURPUR(), function (Opaque $block): Writer {
+			return Writer::create(Ids::PURPUR_BLOCK)
+				->writePillarAxis(Axis::X);
 		});
 		$this->mapSlab(Blocks::PURPUR_SLAB(), Ids::PURPUR_SLAB, Ids::PURPUR_DOUBLE_SLAB);
 		$this->mapStairs(Blocks::PURPUR_STAIRS(), Ids::PURPUR_STAIRS);
