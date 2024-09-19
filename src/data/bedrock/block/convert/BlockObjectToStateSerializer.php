@@ -1573,6 +1573,7 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 				->writeCardinalHorizontalFacing(Facing::SOUTH); //no longer used
 		});
 		$this->map(Blocks::PUMPKIN_STEM(), fn(PumpkinStem $block) => Helper::encodeStem($block, new Writer(Ids::PUMPKIN_STEM)));
+		$this->map(Blocks::PURPUR(), fn() => Writer::create(Ids::PURPUR_BLOCK)->writePillarAxis(Axis::Y));
 		$this->map(Blocks::PURPLE_TORCH(), fn(Torch $block) => Helper::encodeTorch($block, Writer::create(Ids::COLORED_TORCH_PURPLE)));
 		$this->map(Blocks::PURPUR_PILLAR(), function(SimplePillar $block) : Writer{
 			return Writer::create(Ids::PURPUR_PILLAR)

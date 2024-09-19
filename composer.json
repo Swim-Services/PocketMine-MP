@@ -35,8 +35,8 @@
       "pocketmine/netresearch-jsonmapper": "~v4.4.999",
        "gameparrot/bedrock-data": "dev-master",
        "gameparrot/bedrock-protocol": "dev-master",
-      "pocketmine/bedrock-block-upgrade-schema": "dev-feature/1.21.30",
-      "pocketmine/bedrock-item-upgrade-schema": "dev-feature/1.21.30",
+      "pocketmine/bedrock-block-upgrade-schema": "~4.4.0+bedrock-1.21.30",
+      "pocketmine/bedrock-item-upgrade-schema": "~1.12.0+bedrock-1.21.30",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "^1.0.2",
       "pocketmine/color": "^0.3.0",
@@ -57,9 +57,6 @@
       "phpstan/phpstan-strict-rules": "^1.2.0",
       "phpunit/phpunit": "^10.5.24"
    },
-   "repositories": [
-      { "type": "vcs", "url": "git@github.com:dries-c/BedrockProtocol.git" }
-   ],
    "autoload": {
       "psr-4": {
          "pocketmine\\": "src/"

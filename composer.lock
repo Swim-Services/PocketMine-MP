@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "01ad4bac49cf2b7c921a975c3fffcaa3",
+    "content-hash": "d41dcefef57b8ff3da9446e20d25838f",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -207,16 +207,16 @@
         },
         {
             "name": "pocketmine/bedrock-block-upgrade-schema",
-            "version": "dev-feature/1.21.30",
+            "version": "4.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockBlockUpgradeSchema.git",
-                "reference": "0ee0b71d320aedb1379887e98a35bcd977872a98"
+                "reference": "89e5f6e19c29e0d0d24835639f72a5ef157c2761"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockBlockUpgradeSchema/zipball/0ee0b71d320aedb1379887e98a35bcd977872a98",
-                "reference": "0ee0b71d320aedb1379887e98a35bcd977872a98",
+                "url": "https://api.github.com/repos/pmmp/BedrockBlockUpgradeSchema/zipball/89e5f6e19c29e0d0d24835639f72a5ef157c2761",
+                "reference": "89e5f6e19c29e0d0d24835639f72a5ef157c2761",
                 "shasum": ""
             },
             "type": "library",
@@ -227,13 +227,13 @@
             "description": "Schemas describing how to upgrade saved block data in older Minecraft: Bedrock Edition world saves",
             "support": {
                 "issues": "https://github.com/pmmp/BedrockBlockUpgradeSchema/issues",
-                "source": "https://github.com/pmmp/BedrockBlockUpgradeSchema/tree/feature/1.21.30"
+                "source": "https://github.com/pmmp/BedrockBlockUpgradeSchema/tree/4.4.0"
             },
-            "time": "2024-09-11T19:46:31+00:00"
+            "time": "2024-09-17T16:06:36+00:00"
         },
         {
             "name": "pocketmine/bedrock-item-upgrade-schema",
-            "version": "dev-feature/1.21.30",
+            "version": "1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockItemUpgradeSchema.git",
@@ -253,7 +253,7 @@
             "description": "JSON schemas for upgrading items found in older Minecraft: Bedrock world saves",
             "support": {
                 "issues": "https://github.com/pmmp/BedrockItemUpgradeSchema/issues",
-                "source": "https://github.com/pmmp/BedrockItemUpgradeSchema/tree/feature/1.21.30"
+                "source": "https://github.com/pmmp/BedrockItemUpgradeSchema/tree/1.12.0"
             },
             "time": "2024-09-11T19:48:31+00:00"
         },

@@ -932,8 +932,6 @@ final class BlockStateToObjectDeserializer implements BlockStateDeserializer{
 		$this->mapSimple(Ids::POLISHED_GRANITE, fn() => Blocks::POLISHED_GRANITE());
 		$this->mapSimple(Ids::PRISMARINE, fn() => Blocks::PRISMARINE());
 		$this->mapSimple(Ids::PRISMARINE_BRICKS, fn() => Blocks::PRISMARINE_BRICKS());
-		$this->map(Ids::PURPUR_BLOCK, function(Reader $in) {$in->ignored(StateNames::PILLAR_AXIS); return Blocks::PURPUR_PILLAR();});
-
 		$this->mapSimple(Ids::QUARTZ_BRICKS, fn() => Blocks::QUARTZ_BRICKS());
 		$this->mapSimple(Ids::QUARTZ_ORE, fn() => Blocks::NETHER_QUARTZ_ORE());
 		$this->mapSimple(Ids::RAW_COPPER_BLOCK, fn() => Blocks::RAW_COPPER());
@@ -1466,6 +1464,10 @@ final class BlockStateToObjectDeserializer implements BlockStateDeserializer{
 			return Blocks::PUMPKIN();
 		});
 		$this->map(Ids::PUMPKIN_STEM, fn(Reader $in) => Helper::decodeStem(Blocks::PUMPKIN_STEM(), $in));
+		$this->map(Ids::PURPUR_BLOCK, function(Reader $in) : Block{
+			$in->ignored(StateNames::PILLAR_AXIS); //???
+			return Blocks::PURPUR();
+		});
 		$this->map(Ids::PURPUR_PILLAR, fn(Reader $in) => Blocks::PURPUR_PILLAR()->setAxis($in->readPillarAxis()));
 		$this->mapSlab(Ids::PURPUR_SLAB, Ids::PURPUR_DOUBLE_SLAB, fn() => Blocks::PURPUR_SLAB());
 		$this->mapStairs(Ids::PURPUR_STAIRS, fn() => Blocks::PURPUR_STAIRS());
