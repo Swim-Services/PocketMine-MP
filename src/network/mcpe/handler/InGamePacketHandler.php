@@ -110,7 +110,6 @@ use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
 use pocketmine\world\format\Chunk;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use function array_push;
 use function count;
 use function fmod;

@@ -126,17 +126,17 @@
             "time": "2023-11-29T23:19:16+00:00"
         },
         {
-            "name": "gameparrot/bedrock-data",
+            "name": "swim-services/bedrock-data",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/NetherGamesMC/BedrockData.git",
-                "reference": "ed8215ac9dc23f38ea683bbd9648da27a8f4f4f7"
+                "url": "https://github.com/Swim-Services/BedrockData.git",
+                "reference": "c554cfd7cefb23baf87d0707d7183ebdd46e51d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NetherGamesMC/BedrockData/zipball/ed8215ac9dc23f38ea683bbd9648da27a8f4f4f7",
-                "reference": "ed8215ac9dc23f38ea683bbd9648da27a8f4f4f7",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/c554cfd7cefb23baf87d0707d7183ebdd46e51d1",
+                "reference": "c554cfd7cefb23baf87d0707d7183ebdd46e51d1",
                 "shasum": ""
             },
             "default-branch": true,
@@ -146,22 +146,22 @@
             ],
             "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
             "support": {
-                "source": "https://github.com/GameParrot/BedrockData/tree/master"
+                "source": "https://github.com/Swim-Services/BedrockData/tree/master"
             },
             "time": "2024-09-17T15:02:39+00:00"
         },
         {
-            "name": "gameparrot/bedrock-protocol",
+            "name": "swim-services/bedrock-protocol",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/NetherGamesMC/BedrockProtocol.git",
-                "reference": "b63b5071a37a625f7f631a198f925e581365e8fc"
+                "url": "https://github.com/Swim-Services/BedrockProtocol.git",
+                "reference": "d8024e49d63d9e94b0c0866062c024abfd03289c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NetherGamesMC/BedrockProtocol/zipball/b63b5071a37a625f7f631a198f925e581365e8fc",
-                "reference": "b63b5071a37a625f7f631a198f925e581365e8fc",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/d8024e49d63d9e94b0c0866062c024abfd03289c",
+                "reference": "d8024e49d63d9e94b0c0866062c024abfd03289c",
                 "shasum": ""
             },
             "require": {
@@ -201,7 +201,7 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
-                "source": "https://github.com/GameParrot/BedrockProtocol/tree/master"
+                "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master"
             },
             "time": "2024-09-17T14:29:01+00:00"
         },
@@ -1234,12 +1234,14 @@
                 "shasum": ""
             },
             "require": {
+                "ext-ctype": "*",
+                "ext-json": "*",
                 "ext-tokenizer": "*",
-                "php": ">=7.0"
+                "php": ">=7.4"
             },
             "require-dev": {
                 "ircmaxell/php-yacc": "^0.0.7",
-                "phpunit/phpunit": "^6.5 || ^7.0 || ^8.0 || ^9.0"
+                "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0"
             },
             "bin": [
                 "bin/php-parse"
@@ -1247,7 +1249,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.9-dev"
+                    "dev-master": "5.0-dev"
                 }
             },
             "autoload": {
@@ -1570,7 +1572,7 @@
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^4.15",
+                "nikic/php-parser": "^4.18 || ^5.0",
                 "php": ">=8.1",
                 "phpunit/php-file-iterator": "^4.0",
                 "phpunit/php-text-template": "^3.0",
@@ -2221,20 +2223,20 @@
         },
         {
             "name": "sebastian/complexity",
-            "version": "3.1.0",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/complexity.git",
-                "reference": "68cfb347a44871f01e33ab0ef8215966432f6957"
+                "reference": "68ff824baeae169ec9f2137158ee529584553799"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/complexity/zipball/68cfb347a44871f01e33ab0ef8215966432f6957",
-                "reference": "68cfb347a44871f01e33ab0ef8215966432f6957",
+                "url": "https://api.github.com/repos/sebastianbergmann/complexity/zipball/68ff824baeae169ec9f2137158ee529584553799",
+                "reference": "68ff824baeae169ec9f2137158ee529584553799",
                 "shasum": ""
             },
             "require": {
-                "nikic/php-parser": "^4.10",
+                "nikic/php-parser": "^4.18 || ^5.0",
                 "php": ">=8.1"
             },
             "require-dev": {
@@ -2243,7 +2245,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.1-dev"
+                    "dev-main": "3.2-dev"
                 }
             },
             "autoload": {
@@ -2267,7 +2269,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/complexity/issues",
                 "security": "https://github.com/sebastianbergmann/complexity/security/policy",
-                "source": "https://github.com/sebastianbergmann/complexity/tree/3.1.0"
+                "source": "https://github.com/sebastianbergmann/complexity/tree/3.2.0"
             },
             "funding": [
                 {
@@ -2275,7 +2277,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-09-28T11:50:59+00:00"
+            "time": "2023-12-21T08:37:17+00:00"
         },
         {
             "name": "sebastian/diff",
@@ -2301,7 +2303,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "5.0-dev"
+                    "dev-main": "5.1-dev"
                 }
             },
             "autoload": {
@@ -2550,20 +2552,20 @@
         },
         {
             "name": "sebastian/lines-of-code",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/lines-of-code.git",
-                "reference": "649e40d279e243d985aa8fb6e74dd5bb28dc185d"
+                "reference": "856e7f6a75a84e339195d48c556f23be2ebf75d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/lines-of-code/zipball/649e40d279e243d985aa8fb6e74dd5bb28dc185d",
-                "reference": "649e40d279e243d985aa8fb6e74dd5bb28dc185d",
+                "url": "https://api.github.com/repos/sebastianbergmann/lines-of-code/zipball/856e7f6a75a84e339195d48c556f23be2ebf75d0",
+                "reference": "856e7f6a75a84e339195d48c556f23be2ebf75d0",
                 "shasum": ""
             },
             "require": {
-                "nikic/php-parser": "^4.10",
+                "nikic/php-parser": "^4.18 || ^5.0",
                 "php": ">=8.1"
             },
             "require-dev": {
@@ -2596,7 +2598,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/lines-of-code/issues",
                 "security": "https://github.com/sebastianbergmann/lines-of-code/security/policy",
-                "source": "https://github.com/sebastianbergmann/lines-of-code/tree/2.0.1"
+                "source": "https://github.com/sebastianbergmann/lines-of-code/tree/2.0.2"
             },
             "funding": [
                 {
@@ -2604,7 +2606,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-31T09:25:50+00:00"
+            "time": "2023-12-21T08:38:20+00:00"
         },
         {
             "name": "sebastian/object-enumerator",
@@ -2944,10 +2946,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "gameparrot/bedrock-data": 20,
-        "pocketmine/bedrock-block-upgrade-schema": 20,
-        "pocketmine/bedrock-item-upgrade-schema": 20,
-        "gameparrot/bedrock-protocol": 20
+        "swim-services/bedrock-data": 20,
+        "swim-services/bedrock-protocol": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

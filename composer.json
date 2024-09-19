@@ -33,8 +33,8 @@
       "composer-runtime-api": "^2.0",
       "adhocore/json-comment": "~1.2.0",
       "pocketmine/netresearch-jsonmapper": "~v4.4.999",
-       "gameparrot/bedrock-data": "dev-master",
-       "gameparrot/bedrock-protocol": "dev-master",
+      "swim-services/bedrock-data": "dev-master",
+      "swim-services/bedrock-protocol": "dev-master",
       "pocketmine/bedrock-block-upgrade-schema": "~4.4.0+bedrock-1.21.30",
       "pocketmine/bedrock-item-upgrade-schema": "~1.12.0+bedrock-1.21.30",
       "pocketmine/binaryutils": "^0.2.1",
@@ -96,11 +96,11 @@
    "repositories": [
       {
          "type": "vcs",
-         "url":  "git@github.com:GameParrot/BedrockProtocol.git"
+         "url":  "git@github.com:Swim-Services/BedrockProtocol.git"
       },
       {
          "type": "vcs",
-         "url":  "git@github.com:GameParrot/BedrockData.git"
+         "url":  "git@github.com:Swim-Services/BedrockData.git"
       }
    ]
 }
