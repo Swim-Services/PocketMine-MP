@@ -1,5 +1,5 @@
 {
-   "name": "nethergamesmc/pocketmine-mp",
+   "name": "swim-services/pocketmine-mp",
    "description": "A server software for Minecraft: Bedrock Edition written in PHP",
    "type": "project",
    "homepage": "https://pmmp.io",
@@ -33,10 +33,10 @@
       "composer-runtime-api": "^2.0",
       "adhocore/json-comment": "~1.2.0",
       "pocketmine/netresearch-jsonmapper": "~v4.4.999",
-      "swim-services/bedrock-data": "dev-master",
-      "swim-services/bedrock-protocol": "dev-master",
       "pocketmine/bedrock-block-upgrade-schema": "~4.4.0+bedrock-1.21.30",
+      "swim-services/bedrock-data": "dev-master",
       "pocketmine/bedrock-item-upgrade-schema": "~1.12.0+bedrock-1.21.30",
+      "swim-services/bedrock-protocol": "dev-master",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "^1.0.2",
       "pocketmine/color": "^0.3.0",
@@ -96,11 +96,11 @@
    "repositories": [
       {
          "type": "vcs",
-         "url":  "git@github.com:Swim-Services/BedrockProtocol.git"
+         "url": "git@github.com:Swim-Services/BedrockProtocol.git"
       },
       {
          "type": "vcs",
-         "url":  "git@github.com:Swim-Services/BedrockData.git"
+         "url": "git@github.com:Swim-Services/BedrockData.git"
       }
    ]
 }
