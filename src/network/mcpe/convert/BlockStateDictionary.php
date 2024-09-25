@@ -25,7 +25,9 @@ namespace pocketmine\network\mcpe\convert;
 
 use pocketmine\data\bedrock\block\BlockStateData;
 use pocketmine\data\bedrock\block\BlockTypeNames;
+use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\NbtDataException;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\network\mcpe\protocol\serializer\NetworkNbtSerializer;
 use pocketmine\utils\Utils;
@@ -34,10 +36,13 @@ use function array_key_first;
 use function array_map;
 use function count;
 use function get_debug_type;
+use function hash;
+use function hexdec;
 use function is_array;
 use function is_int;
 use function is_string;
 use function json_decode;
+use function ksort;
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -62,7 +67,8 @@ final class BlockStateDictionary{
 	 * @phpstan-param list<BlockStateDictionaryEntry> $states
 	 */
 	public function __construct(
-		private array $states
+		private array $states,
+		private bool $useHash = false
 	){
 		$table = [];
 		foreach($this->states as $stateId => $stateNbt){
@@ -170,7 +176,31 @@ final class BlockStateDictionary{
 		);
 	}
 
-	public static function loadFromString(string $blockPaletteContents, string $metaMapContents) : self{
+	private static function getHashStateId(BlockStateData $data) : int
+	{
+		$name = $data->getName();
+
+		$stream = new LittleEndianNbtSerializer();
+
+		$compound = new CompoundTag();
+		$compound->setString("name", $name);
+
+		$states = new CompoundTag();
+
+		$blockStates = $data->getStates();
+		ksort($blockStates);
+
+		foreach ($blockStates as $key => $state) {
+			$states->setTag($key, $state);
+		}
+
+		$compound->setTag("states", $states);
+
+		$hash = hash("fnv1a32", $stream->write(new TreeRoot($compound)));
+		return hexdec($hash);
+	}
+
+	public static function loadFromString(string $blockPaletteContents, string $metaMapContents, bool $useHash = false, ?\Closure $upgradeFunc = null) : self{
 		$upgrader = GlobalBlockStateHandlers::getUpgrader()->getBlockStateUpgrader();
 		$metaMap = json_decode($metaMapContents, flags: JSON_THROW_ON_ERROR);
 		if(!is_array($metaMap)){
@@ -199,9 +229,18 @@ final class BlockStateDictionary{
 			}
 			$newState = $upgrader->upgrade($state);
 			$uniqueName = $uniqueNames[$newState->getName()] ??= $newState->getName();
-			$entries[$i] = new BlockStateDictionaryEntry($uniqueName, $newState->getStates(), $meta, $newState->equals($state) ? null : $state);
+			$entries[$useHash ? self::getHashStateId($state) : $i] = new BlockStateDictionaryEntry($uniqueName, $newState->getStates(), $meta, $newState->equals($state) ? null : $state);
+
+			if ($upgradeFunc !== null) {
+				$state = $upgradeFunc($state);
+				$entries[$useHash ? self::getHashStateId($state) : $i] = new BlockStateDictionaryEntry($uniqueName, $newState->getStates(), $meta, null);
+			}
 		}
 
-		return new self($entries);
+		return new self($entries, $useHash);
+	}
+
+	public function networkIdsAreHashes() : bool {
+		return $this->useHash;
 	}
 }
