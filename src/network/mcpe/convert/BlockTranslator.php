@@ -44,6 +44,10 @@ final class BlockTranslator{
 	public const BLOCK_STATE_META_MAP_PATH = 1;
 
 	private const PATHS = [
+		ProtocolInfo::PROTOCOL_1_21_40 => [
+			self::CANONICAL_BLOCK_STATES_PATH => '',
+			self::BLOCK_STATE_META_MAP_PATH => '',
+		],
 		ProtocolInfo::CURRENT_PROTOCOL => [
 			self::CANONICAL_BLOCK_STATES_PATH => '',
 			self::BLOCK_STATE_META_MAP_PATH => '',
@@ -161,6 +165,14 @@ final class BlockTranslator{
 	private static function setupHashProtocols() {
 		if (!isset(self::$HASH_PROTOCOLS)) {
 			self::$HASH_PROTOCOLS = [
+				ProtocolInfo::PROTOCOL_1_21_40 => function(BlockStateData $state) : BlockStateData {
+					switch ($state->getName()) {
+						case BlockTypeNames::SKULL:
+							$state = new BlockStateData("minecraft:skeleton_skull", $state->getStates(), $state->getVersion()); //TODO: name
+							break;
+					}
+					return $state;
+				}
 			];
 		}
 	}
