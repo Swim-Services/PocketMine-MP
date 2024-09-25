@@ -36,7 +36,7 @@
       "pocketmine/bedrock-block-upgrade-schema": "~4.4.0+bedrock-1.21.30",
       "swim-services/bedrock-data": "dev-master",
       "pocketmine/bedrock-item-upgrade-schema": "~1.12.0+bedrock-1.21.30",
-      "swim-services/bedrock-protocol": "dev-master",
+      "swim-services/bedrock-protocol": "1.21.40.x-dev",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "^1.0.2",
       "pocketmine/color": "^0.3.0",
