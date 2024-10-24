@@ -152,6 +152,7 @@ use pocketmine\block\utils\DripleafState;
 use pocketmine\block\utils\DyeColor;
 use pocketmine\block\utils\FroglightType;
 use pocketmine\block\utils\LeverFacing;
+use pocketmine\block\utils\MobHeadType;
 use pocketmine\block\VanillaBlocks as Blocks;
 use pocketmine\block\Vine;
 use pocketmine\block\Wall;
@@ -206,6 +207,7 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		$this->registerFlatWoodBlockSerializers();
 		$this->registerLeavesSerializers();
 		$this->registerSaplingSerializers();
+		$this->registerMobHeadSerializers();
 		$this->registerSimpleSerializers();
 		$this->registerSerializers();
 	}
@@ -625,17 +627,7 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		$this->mapSimple(Blocks::CHERRY_PLANKS(), Ids::CHERRY_PLANKS);
 		$this->mapSlab(Blocks::CHERRY_SLAB(), Ids::CHERRY_SLAB, Ids::CHERRY_DOUBLE_SLAB);
 		$this->mapStairs(Blocks::CHERRY_STAIRS(), Ids::CHERRY_STAIRS);
-		$this->map(Blocks::CHERRY_WOOD(), function(Wood $block) : Writer{
-			//we can't use the standard method for this because cherry_wood has a useless property attached to it
-			if(!$block->isStripped()){
-				return Writer::create(Ids::CHERRY_WOOD)
-					->writePillarAxis($block->getAxis())
-					->writeBool(StateNames::STRIPPED_BIT, false); //this is useless, but it has to be written
-			}else{
-				return Writer::create(Ids::STRIPPED_CHERRY_WOOD)
-					->writePillarAxis($block->getAxis());
-			}
-		});
+		$this->mapLog(Blocks::CHERRY_WOOD(), Ids::CHERRY_WOOD, Ids::STRIPPED_CHERRY_WOOD);
 
 		$this->map(Blocks::CRIMSON_BUTTON(), fn(Button $block) => Helper::encodeButton($block, new Writer(Ids::CRIMSON_BUTTON)));
 		$this->map(Blocks::CRIMSON_DOOR(), fn(Door $block) => Helper::encodeDoor($block, new Writer(Ids::CRIMSON_DOOR)));
@@ -691,17 +683,7 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		$this->mapSimple(Blocks::MANGROVE_PLANKS(), Ids::MANGROVE_PLANKS);
 		$this->mapSlab(Blocks::MANGROVE_SLAB(), Ids::MANGROVE_SLAB, Ids::MANGROVE_DOUBLE_SLAB);
 		$this->mapStairs(Blocks::MANGROVE_STAIRS(), Ids::MANGROVE_STAIRS);
-		$this->map(Blocks::MANGROVE_WOOD(), function(Wood $block) : Writer{
-			//we can't use the standard method for this because mangrove_wood has a useless property attached to it
-			if(!$block->isStripped()){
-				return Writer::create(Ids::MANGROVE_WOOD)
-					->writePillarAxis($block->getAxis())
-					->writeBool(StateNames::STRIPPED_BIT, false); //this is useless, but it has to be written
-			}else{
-				return Writer::create(Ids::STRIPPED_MANGROVE_WOOD)
-					->writePillarAxis($block->getAxis());
-			}
-		});
+		$this->mapLog(Blocks::MANGROVE_WOOD(), Ids::MANGROVE_WOOD, Ids::STRIPPED_MANGROVE_WOOD);
 
 		$this->map(Blocks::OAK_BUTTON(), fn(WoodenButton $block) => Helper::encodeButton($block, new Writer(Ids::WOODEN_BUTTON)));
 		$this->map(Blocks::OAK_DOOR(), fn(WoodenDoor $block) => Helper::encodeDoor($block, new Writer(Ids::WOODEN_DOOR)));
@@ -776,6 +758,18 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		}
 	}
 
+	private function registerMobHeadSerializers() : void{
+		$this->map(Blocks::MOB_HEAD(), fn(MobHead $block) => Writer::create(match ($block->getMobHeadType()){
+			MobHeadType::CREEPER => Ids::CREEPER_HEAD,
+			MobHeadType::DRAGON => Ids::DRAGON_HEAD,
+			MobHeadType::PIGLIN => Ids::PIGLIN_HEAD,
+			MobHeadType::PLAYER => Ids::PLAYER_HEAD,
+			MobHeadType::SKELETON => Ids::SKELETON_SKULL,
+			MobHeadType::WITHER_SKELETON => Ids::WITHER_SKELETON_SKULL,
+			MobHeadType::ZOMBIE => Ids::ZOMBIE_HEAD,
+		})->writeFacingWithoutDown($block->getFacing()));
+	}
+
 	private function registerSimpleSerializers() : void{
 		$this->mapSimple(Blocks::AIR(), Ids::AIR);
 		$this->mapSimple(Blocks::AMETHYST(), Ids::AMETHYST_BLOCK);
@@ -833,6 +827,7 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		$this->mapSimple(Blocks::DIORITE(), Ids::DIORITE);
 		$this->mapSimple(Blocks::DRAGON_EGG(), Ids::DRAGON_EGG);
 		$this->mapSimple(Blocks::DRIED_KELP(), Ids::DRIED_KELP_BLOCK);
+		$this->mapSimple(Blocks::DRIPSTONE_BLOCK(), Ids::DRIPSTONE_BLOCK);
 		$this->mapSimple(Blocks::ELEMENT_ACTINIUM(), Ids::ELEMENT_89);
 		$this->mapSimple(Blocks::ELEMENT_ALUMINUM(), Ids::ELEMENT_13);
 		$this->mapSimple(Blocks::ELEMENT_AMERICIUM(), Ids::ELEMENT_95);
@@ -999,6 +994,8 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		$this->mapSimple(Blocks::MONSTER_SPAWNER(), Ids::MOB_SPAWNER);
 		$this->mapSimple(Blocks::MOSSY_COBBLESTONE(), Ids::MOSSY_COBBLESTONE);
 		$this->mapSimple(Blocks::MOSSY_STONE_BRICKS(), Ids::MOSSY_STONE_BRICKS);
+		$this->mapSimple(Blocks::MOSS_BLOCK(), Ids::MOSS_BLOCK);
+		$this->mapSimple(Blocks::MOSS_CARPET(), Ids::MOSS_CARPET);
 		$this->mapSimple(Blocks::MUD(), Ids::MUD);
 		$this->mapSimple(Blocks::MUD_BRICKS(), Ids::MUD_BRICKS);
 		$this->mapSimple(Blocks::MYCELIUM(), Ids::MYCELIUM);
@@ -1484,10 +1481,6 @@ final class BlockObjectToStateSerializer implements BlockStateSerializer{
 		});
 		$this->map(Blocks::MATERIAL_REDUCER(), fn(ChemistryTable $block) => Helper::encodeChemistryTable($block, Writer::create(Ids::MATERIAL_REDUCER)));
 		$this->map(Blocks::MELON_STEM(), fn(MelonStem $block) => Helper::encodeStem($block, new Writer(Ids::MELON_STEM)));
-		$this->map(Blocks::MOB_HEAD(), function(MobHead $block) : Writer{
-			return Writer::create(Ids::SKULL)
-				->writeFacingWithoutDown($block->getFacing());
-		});
 		$this->mapSlab(Blocks::MOSSY_COBBLESTONE_SLAB(), Ids::MOSSY_COBBLESTONE_SLAB, Ids::MOSSY_COBBLESTONE_DOUBLE_SLAB);
 		$this->mapStairs(Blocks::MOSSY_COBBLESTONE_STAIRS(), Ids::MOSSY_COBBLESTONE_STAIRS);
 		$this->map(Blocks::MOSSY_COBBLESTONE_WALL(), fn(Wall $block) => Helper::encodeWall($block, Writer::create(Ids::MOSSY_COBBLESTONE_WALL)));
