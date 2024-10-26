@@ -32,6 +32,7 @@ use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Living;
 use pocketmine\entity\Location;
+use pocketmine\entity\utils\UnlimitedIntMetadataProperty;
 use pocketmine\event\entity\EntityBlockChangeEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -197,7 +198,7 @@ class FallingBlock extends Entity{
 
 	protected function sendSpawnPacket(Player $player) : void{
 		$typeConverter = $player->getNetworkSession()->getTypeConverter();
-		$this->getNetworkProperties()->setInt(EntityMetadataProperties::VARIANT, $typeConverter->getBlockTranslator()->internalIdToNetworkId($this->block->getStateId()));
+		$this->getNetworkProperties()->set(EntityMetadataProperties::VARIANT, new UnlimitedIntMetadataProperty($typeConverter->getBlockTranslator()->internalIdToNetworkId($this->block->getStateId())), true);
 		$this->getNetworkProperties()->clearDirtyProperties(); //needed for multi protocol
 
 		parent::sendSpawnPacket($player);

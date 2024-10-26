@@ -1,0 +1,53 @@
+<?php
+
+/*
+ *
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ *
+ *
+ */
+
+declare(strict_types=1);
+namespace pocketmine\entity\utils;
+
+use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
+use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataTypes;
+use pocketmine\network\mcpe\protocol\types\entity\IntegerishMetadataProperty;
+use pocketmine\network\mcpe\protocol\types\entity\MetadataProperty;
+use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
+use const PHP_INT_MAX;
+use const PHP_INT_MIN;
+
+final class UnlimitedIntMetadataProperty implements MetadataProperty {
+	use GetTypeIdFromConstTrait;
+	use IntegerishMetadataProperty;
+
+	public const ID = EntityMetadataTypes::INT;
+	protected function min() : int{
+		return PHP_INT_MIN;
+	}
+
+	protected function max() : int{
+		return PHP_INT_MAX;
+	}
+
+	public static function read(PacketSerializer $in) : self{
+		return new self($in->getVarInt());
+	}
+
+	public function write(PacketSerializer $out) : void{
+		$out->putVarInt($this->value);
+	}
+}
