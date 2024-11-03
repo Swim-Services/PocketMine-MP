@@ -883,12 +883,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "907fb468b14bb05c8397bc6821221fb69248ee4f"
+                "reference": "28620f0df266f3cfa060f0b119ebb6d2e966d5bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/907fb468b14bb05c8397bc6821221fb69248ee4f",
-                "reference": "907fb468b14bb05c8397bc6821221fb69248ee4f",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/28620f0df266f3cfa060f0b119ebb6d2e966d5bc",
+                "reference": "28620f0df266f3cfa060f0b119ebb6d2e966d5bc",
                 "shasum": ""
             },
             "require": {
@@ -931,20 +931,20 @@
                 "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2024-10-24T15:23:05+00:00"
+            "time": "2024-11-03T23:14:35+00:00"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v6.4.12",
+            "version": "v6.4.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "f810e3cbdf7fdc35983968523d09f349fa9ada12"
+                "reference": "4856c9cf585d5a0313d8d35afd681a526f038dd3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/f810e3cbdf7fdc35983968523d09f349fa9ada12",
-                "reference": "f810e3cbdf7fdc35983968523d09f349fa9ada12",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/4856c9cf585d5a0313d8d35afd681a526f038dd3",
+                "reference": "4856c9cf585d5a0313d8d35afd681a526f038dd3",
                 "shasum": ""
             },
             "require": {
@@ -981,7 +981,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v6.4.12"
+                "source": "https://github.com/symfony/filesystem/tree/v6.4.13"
             },
             "funding": [
                 {
@@ -997,7 +997,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-16T16:01:33+00:00"
+            "time": "2024-10-25T15:07:50+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -1878,16 +1878,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.37",
+            "version": "10.5.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c7cffa0efa2b70c22366523e6d804c9419eb2400"
+                "reference": "a86773b9e887a67bc53efa9da9ad6e3f2498c132"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c7cffa0efa2b70c22366523e6d804c9419eb2400",
-                "reference": "c7cffa0efa2b70c22366523e6d804c9419eb2400",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a86773b9e887a67bc53efa9da9ad6e3f2498c132",
+                "reference": "a86773b9e887a67bc53efa9da9ad6e3f2498c132",
                 "shasum": ""
             },
             "require": {
@@ -1959,7 +1959,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.37"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.38"
             },
             "funding": [
                 {
@@ -1975,7 +1975,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-19T13:03:41+00:00"
+            "time": "2024-10-28T13:06:21+00:00"
         },
         {
             "name": "sebastian/cli-parser",
