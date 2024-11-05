@@ -94,6 +94,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\network\mcpe\protocol\types\inventory\MismatchTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\inventory\NormalTransactionData;
+use pocketmine\network\mcpe\protocol\types\inventory\PredictedResult;
 use pocketmine\network\mcpe\protocol\types\inventory\ReleaseItemTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\ItemStackRequest;
 use pocketmine\network\mcpe\protocol\types\inventory\stackresponse\ItemStackResponse;
@@ -479,7 +480,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 
 	private function handleUseItemTransaction(UseItemTransactionData $data) : bool{
 		$this->player->selectHotbarSlot($data->getHotbarSlot());
-
+		$this->checkBlockDesync($data);
 		switch($data->getActionType()){
 			case UseItemTransactionData::ACTION_CLICK_BLOCK:
 				//TODO: start hack for client spam bug
@@ -502,14 +503,14 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 
 				$blockPos = $data->getBlockPosition();
 				$vBlockPos = new Vector3($blockPos->getX(), $blockPos->getY(), $blockPos->getZ());
-				if(!$this->player->interactBlock($vBlockPos, $data->getFace(), $clickPos)){
+				if(!$this->player->interactBlock($vBlockPos, $data->getFace(), $clickPos) && !$this->isFailedPrediction($data)){
 					$this->onFailedBlockAction($vBlockPos, $data->getFace());
 				}
 				return true;
 			case UseItemTransactionData::ACTION_BREAK_BLOCK:
 				$blockPos = $data->getBlockPosition();
 				$vBlockPos = new Vector3($blockPos->getX(), $blockPos->getY(), $blockPos->getZ());
-				if(!$this->player->breakBlock($vBlockPos)){
+				if(!$this->player->breakBlock($vBlockPos) && !$this->isFailedPrediction($data)){
 					$this->onFailedBlockAction($vBlockPos, null);
 				}
 				return true;
@@ -526,6 +527,27 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 		}
 
 		return false;
+	}
+
+	private function isFailedPrediction(UseItemTransactionData $data) : bool {
+		return $this->player->getNetworkSession()->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_20 && $data->getClientInteractPrediction() === PredictedResult::FAILURE;
+	}
+	private function checkBlockDesync(UseItemTransactionData $data) : void {
+		$blockPos = $data->getBlockPosition();
+		$x = $blockPos->getX();
+		$y = $blockPos->getY();
+		$z = $blockPos->getZ();
+		$world = $this->player->getWorld();
+		if ($world->isInWorld($x, $y, $z)) {
+			$chunk = $world->getChunk($x >> Chunk::COORD_BIT_SIZE, $z >> Chunk::COORD_BIT_SIZE);
+			if ($chunk !== null) {
+				$block = $this->session->getTypeConverter()->getBlockTranslator()->internalIdToNetworkId($chunk->getBlockStateId($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK));
+				if ($data->getBlockRuntimeId() !== $block) {
+					$this->session->getLogger()->debug("Syncing block at $x $y $z due to runtime id mismatch");
+					$this->onFailedBlockAction(new Vector3($x, $y, $z), null);
+				}
+			}
+		}
 	}
 
 	/**
