@@ -480,7 +480,6 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 
 	private function handleUseItemTransaction(UseItemTransactionData $data) : bool{
 		$this->player->selectHotbarSlot($data->getHotbarSlot());
-		$this->checkBlockDesync($data);
 		switch($data->getActionType()){
 			case UseItemTransactionData::ACTION_CLICK_BLOCK:
 				//TODO: start hack for client spam bug
@@ -498,6 +497,8 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 					return true;
 				}
 				//TODO: end hack for client spam bug
+
+				$this->checkBlockDesync($data);
 
 				self::validateFacing($data->getFace());
 
