@@ -26,9 +26,6 @@ namespace pocketmine\data\bedrock\block\convert;
 use pocketmine\block\Block;
 use pocketmine\block\Button;
 use pocketmine\block\Candle;
-use pocketmine\block\Copper;
-use pocketmine\block\CopperSlab;
-use pocketmine\block\CopperStairs;
 use pocketmine\block\Crops;
 use pocketmine\block\DaylightSensor;
 use pocketmine\block\Door;
@@ -48,6 +45,7 @@ use pocketmine\block\Slab;
 use pocketmine\block\Stair;
 use pocketmine\block\Stem;
 use pocketmine\block\Trapdoor;
+use pocketmine\block\utils\CopperMaterial;
 use pocketmine\block\utils\CopperOxidation;
 use pocketmine\block\utils\SlabType;
 use pocketmine\block\Wall;
@@ -99,24 +97,24 @@ final class BlockStateDeserializerHelper{
 	}
 
 	/**
-	 * @phpstan-template TBlock of Copper|CopperSlab|CopperStairs
+	 * @phpstan-template TBlock of CopperMaterial
 	 *
 	 * @phpstan-param TBlock $block
 	 * @phpstan-return TBlock
 	 */
-	public static function decodeCopper(Copper|CopperSlab|CopperStairs $block, CopperOxidation $oxidation) : Copper|CopperSlab|CopperStairs{
+	public static function decodeCopper(CopperMaterial $block, CopperOxidation $oxidation) : CopperMaterial{
 		$block->setOxidation($oxidation);
 		$block->setWaxed(false);
 		return $block;
 	}
 
 	/**
-	 * @phpstan-template TBlock of Copper|CopperSlab|CopperStairs
+	 * @phpstan-template TBlock of CopperMaterial
 	 *
 	 * @phpstan-param TBlock $block
 	 * @phpstan-return TBlock
 	 */
-	public static function decodeWaxedCopper(Copper|CopperSlab|CopperStairs $block, CopperOxidation $oxidation) : Copper|CopperSlab|CopperStairs{
+	public static function decodeWaxedCopper(CopperMaterial $block, CopperOxidation $oxidation) : CopperMaterial{
 		$block->setOxidation($oxidation);
 		$block->setWaxed(true);
 		return $block;

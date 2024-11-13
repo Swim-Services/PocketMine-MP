@@ -33,7 +33,7 @@
       "composer-runtime-api": "^2.0",
       "adhocore/json-comment": "~1.2.0",
       "pocketmine/netresearch-jsonmapper": "~v4.4.999",
-      "pocketmine/bedrock-block-upgrade-schema": "~4.5.0+bedrock-1.21.40",
+      "pocketmine/bedrock-block-upgrade-schema": "~5.0.0+bedrock-1.21.40",
       "swim-services/bedrock-data": "dev-master",
       "pocketmine/bedrock-item-upgrade-schema": "~1.13.0+bedrock-1.21.40",
       "swim-services/bedrock-protocol": "dev-master",

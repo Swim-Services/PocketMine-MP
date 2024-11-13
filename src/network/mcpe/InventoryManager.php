@@ -364,6 +364,7 @@ class InventoryManager{
 						FurnaceType::FURNACE => WindowTypes::FURNACE,
 						FurnaceType::BLAST_FURNACE => WindowTypes::BLAST_FURNACE,
 						FurnaceType::SMOKER => WindowTypes::SMOKER,
+						FurnaceType::CAMPFIRE, FurnaceType::SOUL_CAMPFIRE => throw new \LogicException("Campfire inventory cannot be displayed to a player")
 					},
 				$inv instanceof EnchantInventory => WindowTypes::ENCHANTMENT,
 				$inv instanceof BrewingStandInventory => WindowTypes::BREWING_STAND,
