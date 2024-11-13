@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "773bf91a813b8ff74f369fe75aca3d9a",
+    "content-hash": "85a4c18455294971c0271b4e7e80b6ec",
     "packages": [
         {
             "name": "adhocore/json-comment",
