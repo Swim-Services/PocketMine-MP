@@ -78,7 +78,9 @@ use pocketmine\network\mcpe\NetworkBroadcastUtils;
 use pocketmine\network\mcpe\protocol\BlockActorDataPacket;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
+use pocketmine\network\mcpe\protocol\types\UpdateSubChunkBlocksPacketEntry;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
+use pocketmine\network\mcpe\protocol\UpdateSubChunkBlocksPacket;
 use pocketmine\player\Player;
 use pocketmine\promise\Promise;
 use pocketmine\promise\PromiseResolver;
@@ -1101,6 +1103,8 @@ class World implements ChunkManager{
 						foreach($this->getChunkPlayers($chunkX, $chunkZ) as $p){
 							$p->onChunkChanged($chunkX, $chunkZ, $chunk);
 						}
+					}elseif (count($blocks) > 32){
+						$this->broadcastPacketToPlayersByTypeConverterUsingChunk($chunkX, $chunkZ, fn(TypeConverter $typeConverter) : array => $this->createUpdateSubChunkBlocksPackets($typeConverter, $blocks));
 					}else{
 						$this->broadcastPacketToPlayersByTypeConverterUsingChunk($chunkX, $chunkZ, fn(TypeConverter $typeConverter) : array => $this->createBlockUpdatePackets($typeConverter, $blocks));
 					}
@@ -1185,11 +1189,16 @@ class World implements ChunkManager{
 				throw new \TypeError("Expected Vector3 in blocks array, got " . (is_object($b) ? get_class($b) : gettype($b)));
 			}
 
-			$fullBlock = $this->getBlockAt($b->x, $b->y, $b->z);
+			$blockStateId = $this->getChunk($b->x >> Chunk::COORD_BIT_SIZE, $b->z >> Chunk::COORD_BIT_SIZE)?->getBlockStateId($b->x & Chunk::COORD_MASK, $b->y, $b->z & Chunk::COORD_MASK);
+			if ($blockStateId === null) {
+				$blockStateId = $this->getBlockAt($b->x, $b->y, $b->z)->getStateId();
+			}
+
 			$blockPosition = BlockPosition::fromVector3($b);
 
 			$tile = $this->getTileAt($b->x, $b->y, $b->z);
 			if($tile instanceof Spawnable){
+				$fullBlock = $this->getBlockAt($b->x, $b->y, $b->z);
 				$expectedClass = $fullBlock->getIdInfo()->getTileClass();
 				if($expectedClass !== null && $tile instanceof $expectedClass && count($fakeStateProperties = $tile->getRenderUpdateBugWorkaroundStateProperties($fullBlock)) > 0){
 					$originalStateData = $blockTranslator->internalIdToNetworkStateData($fullBlock->getStateId());
@@ -1208,7 +1217,7 @@ class World implements ChunkManager{
 			}
 			$packets[] = UpdateBlockPacket::create(
 				$blockPosition,
-				$blockTranslator->internalIdToNetworkId($fullBlock->getStateId()),
+				$blockTranslator->internalIdToNetworkId($blockStateId),
 				UpdateBlockPacket::FLAG_NETWORK,
 				UpdateBlockPacket::DATA_LAYER_NORMAL
 			);
@@ -1219,6 +1228,43 @@ class World implements ChunkManager{
 		}
 
 		return $packets;
+	}
+
+	/**
+	 * @param Vector3[] $blocks
+	 * @phpstan-param list<Vector3> $blocks
+	 *
+	 * @return UpdateSubChunkBlocksPacket[]
+	 * @phpstan-return list<ClientboundPacket>
+	 */
+	public function createUpdateSubChunkBlocksPackets(TypeConverter $typeConverter, array $blocks) : array {
+		$blockTranslator = $typeConverter->getBlockTranslator();
+		$entries = [];
+		foreach($blocks as $block) {
+			$blockStateId = $this->getChunk($block->x >> Chunk::COORD_BIT_SIZE, $block->z >> Chunk::COORD_BIT_SIZE)?->getBlockStateId($block->x & Chunk::COORD_MASK, $block->y, $block->z & Chunk::COORD_MASK);
+			if ($blockStateId === null) {
+				$blockStateId = $this->getBlockAt($block->x, $block->y, $block->z)->getStateId();
+			}
+
+			$blockPosition = BlockPosition::fromVector3($block);
+
+			$tile = $this->getTileAt($block->x, $block->y, $block->z);
+			if($tile instanceof Spawnable){
+				$fullBlock = $this->getBlockAt($block->x, $block->y, $block->z);
+				$expectedClass = $fullBlock->getIdInfo()->getTileClass();
+				if($expectedClass !== null && $tile instanceof $expectedClass && count($fakeStateProperties = $tile->getRenderUpdateBugWorkaroundStateProperties($fullBlock)) > 0){
+					$originalStateData = $blockTranslator->internalIdToNetworkStateData($fullBlock->getStateId());
+					$fakeStateData = new BlockStateData(
+						$originalStateData->getName(),
+						array_merge($originalStateData->getStates(), $fakeStateProperties),
+						$originalStateData->getVersion()
+					);
+					$entries[] = UpdateSubChunkBlocksPacketEntry::simple($blockPosition, $blockTranslator->getBlockStateDictionary()->lookupStateIdFromData($fakeStateData) ?? throw new AssumptionFailedError("Unmapped fake blockstate data: " . $fakeStateData->toNbt()));
+				}
+			}
+			$entries[] = UpdateSubChunkBlocksPacketEntry::simple($blockPosition, $blockTranslator->internalIdToNetworkId($blockStateId));
+		}
+		return [UpdateSubChunkBlocksPacket::create(new BlockPosition(0, 0, 0), $entries, [])];
 	}
 
 	public function clearCache(bool $force = false) : void{
