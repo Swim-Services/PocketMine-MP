@@ -511,7 +511,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 			case UseItemTransactionData::ACTION_BREAK_BLOCK:
 				$blockPos = $data->getBlockPosition();
 				$vBlockPos = new Vector3($blockPos->getX(), $blockPos->getY(), $blockPos->getZ());
-				if(!$this->player->breakBlock($vBlockPos) && !$this->isFailedPrediction($data)){
+				if(!$this->player->breakBlock($vBlockPos)){
 					$this->onFailedBlockAction($vBlockPos, null);
 				}
 				return true;
