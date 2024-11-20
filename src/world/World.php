@@ -1189,6 +1189,10 @@ class World implements ChunkManager{
 				throw new \TypeError("Expected Vector3 in blocks array, got " . (is_object($b) ? get_class($b) : gettype($b)));
 			}
 
+			if (!$this->isInWorld($b->x, $b->y, $b->z)) {
+				continue;
+			}
+
 			$blockStateId = $this->getChunk($b->x >> Chunk::COORD_BIT_SIZE, $b->z >> Chunk::COORD_BIT_SIZE)?->getBlockStateId($b->x & Chunk::COORD_MASK, $b->y, $b->z & Chunk::COORD_MASK);
 			if ($blockStateId === null) {
 				$blockStateId = $this->getBlockAt($b->x, $b->y, $b->z)->getStateId();
@@ -1241,6 +1245,10 @@ class World implements ChunkManager{
 		$blockTranslator = $typeConverter->getBlockTranslator();
 		$entries = [];
 		foreach($blocks as $block) {
+			if (!$this->isInWorld($block->x, $block->y, $block->z)) {
+				continue;
+			}
+
 			$blockStateId = $this->getChunk($block->x >> Chunk::COORD_BIT_SIZE, $block->z >> Chunk::COORD_BIT_SIZE)?->getBlockStateId($block->x & Chunk::COORD_MASK, $block->y, $block->z & Chunk::COORD_MASK);
 			if ($blockStateId === null) {
 				$blockStateId = $this->getBlockAt($block->x, $block->y, $block->z)->getStateId();
