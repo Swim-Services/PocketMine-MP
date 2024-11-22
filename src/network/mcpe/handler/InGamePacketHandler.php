@@ -488,7 +488,8 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 					microtime(true) - $this->lastRightClickTime < 0.1 && //100ms
 					$this->lastRightClickData->getPlayerPosition()->distanceSquared($data->getPlayerPosition()) < 0.00001 &&
 					$this->lastRightClickData->getBlockPosition()->equals($data->getBlockPosition()) &&
-					$this->lastRightClickData->getClickPosition()->distanceSquared($clickPos) < 0.00001 //signature spam bug has 0 distance, but allow some error
+					$this->lastRightClickData->getClickPosition()->distanceSquared($clickPos) < 0.00001 && //signature spam bug has 0 distance, but allow some error
+					($this->player->getNetworkSession()->getProtocolId() < ProtocolInfo::PROTOCOL_1_21_20 || $data->getClientInteractPrediction() === PredictedResult::FAILURE)
 				);
 				//get rid of continued spam if the player clicks and holds right-click
 				$this->lastRightClickData = $data;
