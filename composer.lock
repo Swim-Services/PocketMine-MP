@@ -153,16 +153,16 @@
         },
         {
             "name": "pocketmine/bedrock-item-upgrade-schema",
-            "version": "1.13.1",
+            "version": "1.13.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockItemUpgradeSchema.git",
-                "reference": "1cf81305f2ffcf7dde9577c4f16a55c765192b03"
+                "reference": "9fc7c9bbb558a017395c1cb7dd819c033ee971bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockItemUpgradeSchema/zipball/1cf81305f2ffcf7dde9577c4f16a55c765192b03",
-                "reference": "1cf81305f2ffcf7dde9577c4f16a55c765192b03",
+                "url": "https://api.github.com/repos/pmmp/BedrockItemUpgradeSchema/zipball/9fc7c9bbb558a017395c1cb7dd819c033ee971bb",
+                "reference": "9fc7c9bbb558a017395c1cb7dd819c033ee971bb",
                 "shasum": ""
             },
             "type": "library",
@@ -173,9 +173,9 @@
             "description": "JSON schemas for upgrading items found in older Minecraft: Bedrock world saves",
             "support": {
                 "issues": "https://github.com/pmmp/BedrockItemUpgradeSchema/issues",
-                "source": "https://github.com/pmmp/BedrockItemUpgradeSchema/tree/1.13.1"
+                "source": "https://github.com/pmmp/BedrockItemUpgradeSchema/tree/1.13.2"
             },
-            "time": "2024-11-12T21:33:17+00:00"
+            "time": "2024-12-04T12:22:49+00:00"
         },
         {
             "name": "pocketmine/binaryutils",
@@ -545,6 +545,7 @@
                 "issues": "https://github.com/cweiske/jsonmapper/issues",
                 "source": "https://github.com/pmmp/netresearch-jsonmapper/tree/v4.4.999"
             },
+            "abandoned": true,
             "time": "2024-02-23T13:17:01+00:00"
         },
         {
@@ -858,12 +859,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockData.git",
-                "reference": "2365d27bcefd94f09bd9cfd36741fb00d4038f60"
+                "reference": "e7f2dc6e9c2c11ebce4f81f8d27916be9f91e1ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/2365d27bcefd94f09bd9cfd36741fb00d4038f60",
-                "reference": "2365d27bcefd94f09bd9cfd36741fb00d4038f60",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/e7f2dc6e9c2c11ebce4f81f8d27916be9f91e1ad",
+                "reference": "e7f2dc6e9c2c11ebce4f81f8d27916be9f91e1ad",
                 "shasum": ""
             },
             "default-branch": true,
@@ -875,7 +876,7 @@
             "support": {
                 "source": "https://github.com/Swim-Services/BedrockData/tree/master"
             },
-            "time": "2024-10-24T16:28:16+00:00"
+            "time": "2024-12-08T17:45:36+00:00"
         },
         {
             "name": "swim-services/bedrock-protocol",
@@ -883,12 +884,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "10763e0de6ed8fcbac1f1c79ccf7218d9ab5d069"
+                "reference": "0f9d0dee8b602749061bf85a910956b3e78e7ef0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/10763e0de6ed8fcbac1f1c79ccf7218d9ab5d069",
-                "reference": "10763e0de6ed8fcbac1f1c79ccf7218d9ab5d069",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/0f9d0dee8b602749061bf85a910956b3e78e7ef0",
+                "reference": "0f9d0dee8b602749061bf85a910956b3e78e7ef0",
                 "shasum": ""
             },
             "require": {
@@ -931,7 +932,7 @@
                 "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2024-11-03T23:19:04+00:00"
+            "time": "2024-12-08T17:43:45+00:00"
         },
         {
             "name": "symfony/filesystem",
