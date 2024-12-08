@@ -36,9 +36,15 @@ use function count;
 use function strlen;
 
 class CachedChunk{
-	/** @var int[] */
+	/**
+	 * @var int[]
+	 * @phpstan-var array<int, int>
+	 */
 	protected array $hashes = [];
-	/** @var string[] */
+	/**
+	 * @var string[]
+	 * @phpstan-var array<int, string>
+	 */
 	protected array $blobs = [];
 
 	protected string $biomes;

@@ -137,6 +137,8 @@ final class ItemTranslator{
 
 	public static function getItemSchemaId(int $protocolId) : int{
 		return match($protocolId){
+			ProtocolInfo::PROTOCOL_1_21_50 => 231,
+
 			ProtocolInfo::PROTOCOL_1_21_40 => 221,
 
 			ProtocolInfo::PROTOCOL_1_21_30 => 211,

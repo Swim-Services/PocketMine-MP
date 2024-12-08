@@ -841,11 +841,6 @@ parameters:
 			path: ../../../src/utils/Utils.php
 
 		-
-			message: "#^Parameter \\#1 \\$trace of static method pocketmine\\\\utils\\\\Utils\\:\\:printableTrace\\(\\) expects array\\<int, array\\<string, mixed\\>\\>, array given\\.$#"
-			count: 1
-			path: ../../../src/utils/Utils.php
-
-		-
 			message: "#^Parameter \\#2 \\$file of class pocketmine\\\\thread\\\\ThreadCrashInfoFrame constructor expects string\\|null, mixed given\\.$#"
 			count: 1
 			path: ../../../src/utils/Utils.php

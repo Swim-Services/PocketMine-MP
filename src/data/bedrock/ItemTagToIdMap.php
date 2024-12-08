@@ -46,6 +46,7 @@ final class ItemTagToIdMap{
 
 	private const PATHS = [
 		ProtocolInfo::CURRENT_PROTOCOL => "",
+		ProtocolInfo::PROTOCOL_1_21_40 => "",
 		ProtocolInfo::PROTOCOL_1_21_30 => "",
 		ProtocolInfo::PROTOCOL_1_21_20 => "",
 		ProtocolInfo::PROTOCOL_1_21_2 => "",
@@ -93,7 +94,7 @@ final class ItemTagToIdMap{
 			throw new AssumptionFailedError("Invalid item tag map, expected array");
 		}
 		$cleanMap = [];
-		foreach($map as $tagName => $ids){
+		foreach(Utils::promoteKeys($map) as $tagName => $ids){
 			if(!is_string($tagName)){
 				throw new AssumptionFailedError("Invalid item tag name $tagName, expected string as key");
 			}

@@ -37,6 +37,7 @@ use pocketmine\network\mcpe\protocol\types\resourcepacks\ResourcePackInfoEntry;
 use pocketmine\network\mcpe\protocol\types\resourcepacks\ResourcePackStackEntry;
 use pocketmine\network\mcpe\protocol\types\resourcepacks\ResourcePackType;
 use pocketmine\resourcepacks\ResourcePack;
+use Ramsey\Uuid\Uuid;
 use function array_keys;
 use function array_map;
 use function ceil;
@@ -105,7 +106,7 @@ class ResourcePacksPacketHandler extends ChunkRequestPacketHandler{
 			//TODO: more stuff
 
 			return new ResourcePackInfoEntry(
-				$pack->getPackId(),
+				Uuid::fromString($pack->getPackId()),
 				$pack->getPackVersion(),
 				$pack->getPackSize(),
 				$this->encryptionKeys[$pack->getPackId()] ?? "",
@@ -122,7 +123,9 @@ class ResourcePacksPacketHandler extends ChunkRequestPacketHandler{
 			hasAddons: false,
 			hasScripts: false,
 			forceServerPacks: false,
-			cdnUrls: []
+			cdnUrls: [],
+			worldTemplateId: Uuid::fromString(Uuid::NIL),
+			worldTemplateVersion: ""
 		));
 		$this->session->getLogger()->debug("Waiting for client to accept resource packs");
 	}

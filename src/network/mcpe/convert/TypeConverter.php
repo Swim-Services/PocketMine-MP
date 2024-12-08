@@ -294,7 +294,7 @@ class TypeConverter{
 	/**
 	 * @param Player[] $players
 	 *
-	 * @phpstan-return array{TypeConverter[], Player[][]}
+	 * @phpstan-return array{array<int, TypeConverter>, array<int, array<int, Player>>}
 	 */
 	public static function sortByConverter(array $players) : array{
 		/** @var TypeConverter[] $typeConverters */

@@ -81,7 +81,10 @@ class ChunkCache implements ChunkListener{
 		}
 	}
 
-	/** @var CachedChunkPromise[][] */
+	/**
+	 * @var CachedChunkPromise[][]
+	 * @phpstan-var array<int, array<int, CachedChunkPromise>>
+	 */
 	private array $caches = [];
 
 	private int $hits = 0;
