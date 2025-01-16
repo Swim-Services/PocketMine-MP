@@ -517,7 +517,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 				$blockPos = $data->getBlockPosition();
 				$vBlockPos = new Vector3($blockPos->getX(), $blockPos->getY(), $blockPos->getZ());
 				if(!$this->player->breakBlock($vBlockPos)){
-					$this->onFailedBlockAction($vBlockPos, null);
+					$this->syncBlocksNearby($vBlockPos, null);
 				}
 				return true;
 			case UseItemTransactionData::ACTION_CLICK_AIR:
@@ -566,9 +566,9 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 	}
 
 	/**
-	 * Internal function used to execute rollbacks when an action fails on a block.
+	 * Syncs blocks nearby to ensure that the client and server agree on the world's blocks after a block interaction.
 	 */
-	private function onFailedBlockAction(Vector3 $blockPos, ?int $face) : void{
+	private function syncBlocksNearby(Vector3 $blockPos, ?int $face) : void{
 		if($blockPos->distanceSquared($this->player->getLocation()) < 10000){
 			$blocks = $blockPos->sidesArray();
 			if($face !== null){
@@ -705,7 +705,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 	}
 
 	public function handleActorPickRequest(ActorPickRequestPacket $packet) : bool{
-		return false; //TODO
+		return $this->player->pickEntity($packet->actorUniqueId);
 	}
 
 	public function handlePlayerAction(PlayerActionPacket $packet) : bool{
@@ -719,7 +719,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 			case PlayerAction::START_BREAK:
 				self::validateFacing($face);
 				if(!$this->player->attackBlock($pos, $face)){
-					$this->onFailedBlockAction($pos, $face);
+					$this->syncBlocksNearby($pos, $face);
 				}
 
 				break;
@@ -1072,7 +1072,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 		$lectern = $world->getBlockAt($pos->getX(), $pos->getY(), $pos->getZ());
 		if($lectern instanceof Lectern && $this->player->canInteract($lectern->getPosition(), 15)){
 			if(!$lectern->onPageTurn($packet->page)){
-				$this->onFailedBlockAction($lectern->getPosition(), null);
+				$this->syncBlocksNearby($lectern->getPosition(), null);
 			}
 			return true;
 		}

@@ -64,6 +64,7 @@ use pocketmine\command\defaults\TransferServerCommand;
 use pocketmine\command\defaults\VanillaCommand;
 use pocketmine\command\defaults\VersionCommand;
 use pocketmine\command\defaults\WhitelistCommand;
+use pocketmine\command\defaults\XpCommand;
 use pocketmine\command\utils\CommandStringHelper;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
@@ -132,7 +133,8 @@ class SimpleCommandMap implements CommandMap{
 			new TitleCommand(),
 			new TransferServerCommand(),
 			new VersionCommand(),
-			new WhitelistCommand()
+			new WhitelistCommand(),
+			new XpCommand(),
 		]);
 	}
 

@@ -31,6 +31,7 @@ use pocketmine\block\utils\DyeColor;
 use pocketmine\block\VanillaBlocks as Blocks;
 use pocketmine\data\bedrock\CompoundTypeIds;
 use pocketmine\data\bedrock\DyeColorIdMap;
+use pocketmine\data\bedrock\GoatHornTypeIdMap;
 use pocketmine\data\bedrock\item\ItemTypeNames as Ids;
 use pocketmine\data\bedrock\item\SavedItemData as Data;
 use pocketmine\data\bedrock\MedicineTypeIdMap;
@@ -39,6 +40,7 @@ use pocketmine\data\bedrock\SuspiciousStewTypeIdMap;
 use pocketmine\item\Banner;
 use pocketmine\item\Dye;
 use pocketmine\item\FireworkStar;
+use pocketmine\item\GoatHorn;
 use pocketmine\item\Item;
 use pocketmine\item\Medicine;
 use pocketmine\item\Potion;
@@ -231,6 +233,7 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::EMERALD, Items::EMERALD());
 		$this->map1to1Item(Ids::ENCHANTED_BOOK, Items::ENCHANTED_BOOK());
 		$this->map1to1Item(Ids::ENCHANTED_GOLDEN_APPLE, Items::ENCHANTED_GOLDEN_APPLE());
+		$this->map1to1Item(Ids::END_CRYSTAL, Items::END_CRYSTAL());
 		$this->map1to1Item(Ids::ENDER_PEARL, Items::ENDER_PEARL());
 		$this->map1to1Item(Ids::EXPERIENCE_BOTTLE, Items::EXPERIENCE_BOTTLE());
 		$this->map1to1Item(Ids::EYE_ARMOR_TRIM_SMITHING_TEMPLATE, Items::EYE_ARMOR_TRIM_SMITHING_TEMPLATE());
@@ -265,6 +268,7 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::HONEY_BOTTLE, Items::HONEY_BOTTLE());
 		$this->map1to1Item(Ids::HONEYCOMB, Items::HONEYCOMB());
 		$this->map1to1Item(Ids::HOST_ARMOR_TRIM_SMITHING_TEMPLATE, Items::HOST_ARMOR_TRIM_SMITHING_TEMPLATE());
+		$this->map1to1Item(Ids::ICE_BOMB, Items::ICE_BOMB());
 		$this->map1to1Item(Ids::INK_SAC, Items::INK_SAC());
 		$this->map1to1Item(Ids::IRON_AXE, Items::IRON_AXE());
 		$this->map1to1Item(Ids::IRON_BOOTS, Items::IRON_BOOTS());
@@ -350,6 +354,7 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::RAW_COPPER, Items::RAW_COPPER());
 		$this->map1to1Item(Ids::RAW_GOLD, Items::RAW_GOLD());
 		$this->map1to1Item(Ids::RAW_IRON, Items::RAW_IRON());
+		$this->map1to1Item(Ids::RECOVERY_COMPASS, Items::RECOVERY_COMPASS());
 		$this->map1to1Item(Ids::REDSTONE, Items::REDSTONE_DUST());
 		$this->map1to1Item(Ids::RIB_ARMOR_TRIM_SMITHING_TEMPLATE, Items::RIB_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$this->map1to1Item(Ids::ROTTEN_FLESH, Items::ROTTEN_FLESH());
@@ -492,6 +497,14 @@ final class ItemSerializerDeserializerRegistrar{
 				// Colors will be defined by CompoundTag deserialization.
 			},
 			fn(FireworkStar $item) => DyeColorIdMap::getInstance()->toInvertedId($item->getExplosion()->getFlashColor())
+		);
+		$this->map1to1ItemWithMeta(
+			Ids::GOAT_HORN,
+			Items::GOAT_HORN(),
+			function(GoatHorn $item, int $meta) : void{
+				$item->setHornType(GoatHornTypeIdMap::getInstance()->fromId($meta) ?? throw new ItemTypeDeserializeException("Unknown goat horn type ID $meta"));
+			},
+			fn(GoatHorn $item) => GoatHornTypeIdMap::getInstance()->toId($item->getHornType())
 		);
 		$this->map1to1ItemWithMeta(
 			Ids::MEDICINE,

@@ -68,6 +68,8 @@ use function is_nan;
 use function is_object;
 use function is_string;
 use function mb_check_encoding;
+use function mt_getrandmax;
+use function mt_rand;
 use function ob_end_clean;
 use function ob_get_contents;
 use function ob_start;
@@ -688,6 +690,14 @@ final class Utils{
 
 		//jit not available
 		return null;
+	}
+
+	/**
+	 * Returns a random float between 0.0 and 1.0
+	 * Drop-in replacement for lcg_value()
+	 */
+	public static function getRandomFloat() : float{
+		return mt_rand() / mt_getrandmax();
 	}
 
 	/**
