@@ -73,6 +73,8 @@ use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PacketPool;
+use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\PlayerHotbarPacket;
@@ -107,6 +109,7 @@ use pocketmine\network\mcpe\protocol\types\PlayerBlockActionStopBreak;
 use pocketmine\network\mcpe\protocol\types\PlayerBlockActionWithBlockInfo;
 use pocketmine\network\PacketHandlingException;
 use pocketmine\player\Player;
+use pocketmine\Server;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
@@ -331,6 +334,15 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 		return true;
 	}
 
+	public function handlePacketViolationWarning(PacketViolationWarningPacket $packet) : bool {
+		$pk = $packet->getPacketId();
+		if ($packetClass = PacketPool::getInstance()->getPacketById($pk)) {
+			$pk = (new \ReflectionClass($packetClass))->getShortName();
+		}
+		$this->session->getLogger()->debug("Received packet violation warning (packet: " . $pk + ", message: " + $packet->getMessage() . ", severity: " + $packet->getSeverity());
+		return true;
+	}
+
 	public function handleInventoryTransaction(InventoryTransactionPacket $packet) : bool{
 		$result = true;
 
@@ -510,7 +522,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 				$blockPos = $data->getBlockPosition();
 				$vBlockPos = new Vector3($blockPos->getX(), $blockPos->getY(), $blockPos->getZ());
 				if(!$this->player->interactBlock($vBlockPos, $data->getFace(), $clickPos) && !$this->isFailedPrediction($data)){
-					$this->onFailedBlockAction($vBlockPos, $data->getFace());
+					$this->syncBlocksNearby($vBlockPos, $data->getFace());
 				}
 				return true;
 			case UseItemTransactionData::ACTION_BREAK_BLOCK:
@@ -550,7 +562,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 				$block = $this->session->getTypeConverter()->getBlockTranslator()->internalIdToNetworkId($chunk->getBlockStateId($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK));
 				if ($data->getBlockRuntimeId() !== $block) {
 					$this->session->getLogger()->debug("Syncing block at $x $y $z due to runtime id mismatch");
-					$this->onFailedBlockAction(new Vector3($x, $y, $z), null);
+					$this->syncBlocksNearby(new Vector3($x, $y, $z), null);
 				}
 			}
 		}

@@ -24,15 +24,20 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\cache;
 
 use pocketmine\data\bedrock\BedrockDataFiles;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\AvailableActorIdentifiersPacket;
 use pocketmine\network\mcpe\protocol\BiomeDefinitionListPacket;
+use pocketmine\network\mcpe\protocol\ItemRegistryPacket;
 use pocketmine\network\mcpe\protocol\serializer\NetworkNbtSerializer;
 use pocketmine\network\mcpe\protocol\types\CacheableNbt;
+use pocketmine\network\mcpe\protocol\types\ItemRegistryPacketEntry;
 use pocketmine\utils\Filesystem;
-use pocketmine\utils\SingletonTrait;
+use pocketmine\utils\ProtocolSingletonTrait;
 
 class StaticPacketCache{
-	use SingletonTrait;
+	private const ITEM_VERSION = 241;
+	use ProtocolSingletonTrait;
 
 	/**
 	 * @phpstan-return CacheableNbt<\pocketmine\nbt\tag\CompoundTag>
@@ -41,16 +46,22 @@ class StaticPacketCache{
 		return new CacheableNbt((new NetworkNbtSerializer())->read(Filesystem::fileGetContents($filePath))->mustGetCompoundTag());
 	}
 
-	private static function make() : self{
+	private static function make(int $protocolId) : self{
+		$itemRegistryEntries = [];
+		foreach (TypeConverter::getInstance($protocolId)->getItemTypeDictionary()->getEntries() as $entry) {
+			$itemRegistryEntries[] = new ItemRegistryPacketEntry($entry->getStringId(), $entry->getNumericId(), $entry->isComponentBased(), self::ITEM_VERSION, new CacheableNbt(new CompoundTag()));
+		}
 		return new self(
 			BiomeDefinitionListPacket::create(self::loadCompoundFromFile(BedrockDataFiles::BIOME_DEFINITIONS_NBT)),
-			AvailableActorIdentifiersPacket::create(self::loadCompoundFromFile(BedrockDataFiles::ENTITY_IDENTIFIERS_NBT))
+			AvailableActorIdentifiersPacket::create(self::loadCompoundFromFile(BedrockDataFiles::ENTITY_IDENTIFIERS_NBT)),
+			ItemRegistryPacket::create($itemRegistryEntries)
 		);
 	}
 
 	public function __construct(
 		private BiomeDefinitionListPacket $biomeDefs,
-		private AvailableActorIdentifiersPacket $availableActorIdentifiers
+		private AvailableActorIdentifiersPacket $availableActorIdentifiers,
+		private ItemRegistryPacket $itemRegistry
 	){}
 
 	public function getBiomeDefs() : BiomeDefinitionListPacket{
@@ -59,5 +70,9 @@ class StaticPacketCache{
 
 	public function getAvailableActorIdentifiers() : AvailableActorIdentifiersPacket{
 		return $this->availableActorIdentifiers;
+	}
+
+	public function getItemRegistry() : ItemRegistryPacket{
+		return $this->itemRegistry;
 	}
 }

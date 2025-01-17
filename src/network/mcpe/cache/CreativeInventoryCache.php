@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\cache;
 
 use pocketmine\inventory\CreativeInventory;
+use pocketmine\item\VanillaItems;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\CreativeContentPacket;
 use pocketmine\network\mcpe\protocol\types\inventory\CreativeContentEntry;
+use pocketmine\network\mcpe\protocol\types\inventory\CreativeGroupEntry;
 use pocketmine\utils\ProtocolSingletonTrait;
 use function spl_object_id;
 
@@ -61,9 +63,9 @@ final class CreativeInventoryCache{
 		$typeConverter = TypeConverter::getInstance($this->protocolId);
 		//creative inventory may have holes if items were unregistered - ensure network IDs used are always consistent
 		foreach($inventory->getAll() as $k => $item){
-			$entries[] = new CreativeContentEntry($k, $typeConverter->coreItemStackToNet($item));
+			$entries[] = new CreativeContentEntry($k, $typeConverter->coreItemStackToNet($item), 0);
 		}
 
-		return CreativeContentPacket::create($entries);
+		return CreativeContentPacket::create([new CreativeGroupEntry(1, "Default", $typeConverter->coreItemStackToNet(VanillaItems::DIAMOND()))], $entries);
 	}
 }

@@ -28,7 +28,9 @@ use pocketmine\network\mcpe\cache\CraftingDataCache;
 use pocketmine\network\mcpe\cache\StaticPacketCache;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
@@ -36,6 +38,7 @@ use pocketmine\network\mcpe\protocol\types\BoolGameRule;
 use pocketmine\network\mcpe\protocol\types\CacheableNbt;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\network\mcpe\protocol\types\Experiments;
+use pocketmine\network\mcpe\protocol\types\LevelEvent;
 use pocketmine\network\mcpe\protocol\types\LevelSettings;
 use pocketmine\network\mcpe\protocol\types\NetworkPermissions;
 use pocketmine\network\mcpe\protocol\types\PlayerMovementSettings;
@@ -115,10 +118,15 @@ class PreSpawnPacketHandler extends ChunkRequestPacketHandler{
 			));
 
 			$this->session->getLogger()->debug("Sending actor identifiers");
-			$this->session->sendDataPacket(StaticPacketCache::getInstance()->getAvailableActorIdentifiers());
+			$this->session->sendDataPacket(StaticPacketCache::getInstance($protocolId)->getAvailableActorIdentifiers());
 
 			$this->session->getLogger()->debug("Sending biome definitions");
-			$this->session->sendDataPacket(StaticPacketCache::getInstance()->getBiomeDefs());
+			$this->session->sendDataPacket(StaticPacketCache::getInstance($protocolId)->getBiomeDefs());
+
+			if ($protocolId >= ProtocolInfo::PROTOCOL_1_21_60) {
+				$this->session->getLogger()->debug("Sending item registry");
+				$this->session->sendDataPacket(StaticPacketCache::getInstance($protocolId)->getItemRegistry());
+			}
 
 			$this->session->getLogger()->debug("Sending attributes");
 			$this->session->getEntityEventBroadcaster()->syncAttributes([$this->session], $this->player, $this->player->getAttributeMap()->getAll());
@@ -150,6 +158,8 @@ class PreSpawnPacketHandler extends ChunkRequestPacketHandler{
 
 			$this->session->getLogger()->debug("Sending player list");
 			$this->session->syncPlayerList($this->server->getOnlinePlayers());
+
+			$this->session->sendDataPacket(LevelEventPacket::create(LevelEvent::PAUSE_GAME, 0, null));
 		}finally{
 			Timings::$playerNetworkSendPreSpawnGameData->stopTiming();
 		}

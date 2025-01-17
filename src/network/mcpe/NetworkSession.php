@@ -1144,7 +1144,7 @@ class NetworkSession{
 
 			$layers = [
 				//TODO: dynamic flying speed! FINALLY!!!!!!!!!!!!!!!!!
-				new AbilitiesLayer(AbilitiesLayer::LAYER_BASE, $boolAbilities, 0.05, 0.1),
+				new AbilitiesLayer(AbilitiesLayer::LAYER_BASE, $boolAbilities, 0.05, 1, 0.1),
 			];
 			if(!$for->hasBlockCollision() && $this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_80){
 				//TODO: HACK! In 1.19.80, the client starts falling in our faux spectator mode when it clips into a
@@ -1154,7 +1154,7 @@ class NetworkSession{
 
 				$layers[] = new AbilitiesLayer(AbilitiesLayer::LAYER_SPECTATOR, [
 					AbilitiesLayer::ABILITY_FLYING => true,
-				], null, null);
+				], null, null, null);
 			}
 
 			$pk = UpdateAbilitiesPacket::create(new AbilitiesData(

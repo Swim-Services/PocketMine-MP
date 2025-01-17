@@ -27,11 +27,14 @@ use pocketmine\data\bedrock\BedrockDataFiles;
 use pocketmine\data\bedrock\block\BlockStateData;
 use pocketmine\data\bedrock\block\BlockStateSerializeException;
 use pocketmine\data\bedrock\block\BlockStateSerializer;
+use pocketmine\data\bedrock\block\BlockStateStringValues;
 use pocketmine\data\bedrock\block\BlockTypeNames;
+use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Filesystem;
 use pocketmine\world\format\io\GlobalBlockStateHandlers;
+use function str_ends_with;
 use function str_replace;
 
 /**
@@ -45,6 +48,10 @@ final class BlockTranslator{
 
 	private const PATHS = [
 		ProtocolInfo::CURRENT_PROTOCOL => [
+			self::CANONICAL_BLOCK_STATES_PATH => '',
+			self::BLOCK_STATE_META_MAP_PATH => '',
+		],
+		ProtocolInfo::PROTOCOL_1_21_60 => [
 			self::CANONICAL_BLOCK_STATES_PATH => '',
 			self::BLOCK_STATE_META_MAP_PATH => '',
 		],
@@ -169,6 +176,20 @@ final class BlockTranslator{
 	private static function setupHashProtocols() {
 		if (!isset(self::$HASH_PROTOCOLS)) {
 			self::$HASH_PROTOCOLS = [
+				ProtocolInfo::PROTOCOL_1_21_60 => function(BlockStateData $data) {
+					if (str_ends_with($data->getName(), "_door")) {
+						$states = $data->getStates();
+						$states["minecraft:cardinal_direction"] = new StringTag(match($states["direction"]->getValue()) {
+							0 => BlockStateStringValues::MC_CARDINAL_DIRECTION_SOUTH,
+							1 => BlockStateStringValues::MC_CARDINAL_DIRECTION_WEST,
+							2 => BlockStateStringValues::MC_CARDINAL_DIRECTION_NORTH,
+							3 => BlockStateStringValues::MC_CARDINAL_DIRECTION_EAST,
+						});
+						unset($states["direction"]);
+						return new BlockStateData($data->getName(), $states, $data->getVersion());
+					}
+					return $data;
+				}
 			];
 		}
 	}
