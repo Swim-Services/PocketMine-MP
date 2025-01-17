@@ -339,7 +339,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 		if ($packetClass = PacketPool::getInstance()->getPacketById($pk)) {
 			$pk = (new \ReflectionClass($packetClass))->getShortName();
 		}
-		$this->session->getLogger()->debug("Received packet violation warning (packet: " . $pk + ", message: " + $packet->getMessage() . ", severity: " + $packet->getSeverity());
+		$this->session->getLogger()->debug("Received packet violation warning (packet: " . $pk . ", message: " . $packet->getMessage() . ", severity: " . $packet->getSeverity());
 		return true;
 	}
 
