@@ -1670,12 +1670,12 @@ class World implements ChunkManager{
 	 * @phpstan-return list<Block>
 	 */
 	public function getCollisionBlocks(AxisAlignedBB $bb, bool $targetFirst = false) : array{
-		$minX = (int) floor($bb->minX - 0.01);
-		$minY = (int) floor($bb->minY - 0.01);
-		$minZ = (int) floor($bb->minZ - 0.01);
-		$maxX = (int) floor($bb->maxX + 0.01);
-		$maxY = (int) floor($bb->maxY + 0.01);
-		$maxZ = (int) floor($bb->maxZ + 0.01);
+		$minX = (int) floor($bb->minX + 0.001);
+		$minY = (int) floor($bb->minY + 0.001);
+		$minZ = (int) floor($bb->minZ + 0.001);
+		$maxX = (int) floor($bb->maxX - 0.001);
+		$maxY = (int) floor($bb->maxY - 0.001);
+		$maxZ = (int) floor($bb->maxZ - 0.001);
 
 		$collides = [];
 
