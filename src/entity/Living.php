@@ -395,7 +395,7 @@ abstract class Living extends Entity{
 				new EntityShortFallSound($this)
 			);
 		}elseif($fallBlock->getTypeId() !== BlockTypeIds::AIR){
-			$this->broadcastSound(new EntityLandSound($this, $fallBlock));
+			$this->broadcastSound(new EntityLandSound($this, $fallBlock), $this->getViewers());
 		}
 		return $newVerticalVelocity;
 	}
