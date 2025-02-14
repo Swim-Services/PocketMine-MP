@@ -59,7 +59,6 @@ use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\ChunkRadiusUpdatedPacket;
 use pocketmine\network\mcpe\protocol\ClientboundCloseFormPacket;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
-use pocketmine\network\mcpe\protocol\ClientCacheMissResponsePacket;
 use pocketmine\network\mcpe\protocol\DisconnectPacket;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
@@ -87,7 +86,6 @@ use pocketmine\network\mcpe\protocol\TransferPacket;
 use pocketmine\network\mcpe\protocol\types\AbilitiesData;
 use pocketmine\network\mcpe\protocol\types\AbilitiesLayer;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
-use pocketmine\network\mcpe\protocol\types\ChunkCacheBlob;
 use pocketmine\network\mcpe\protocol\types\command\CommandData;
 use pocketmine\network\mcpe\protocol\types\command\CommandEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandOverload;
@@ -119,11 +117,9 @@ use pocketmine\utils\ObjectSet;
 use pocketmine\utils\TextFormat;
 use pocketmine\world\format\io\GlobalItemDataHandlers;
 use pocketmine\world\Position;
+use pocketmine\world\World;
 use pocketmine\YmlServerProperties;
-use function array_keys;
 use function array_map;
-use function array_replace;
-use function array_values;
 use function base64_encode;
 use function bin2hex;
 use function count;
@@ -169,12 +165,11 @@ class NetworkSession{
 
 	private ?EncryptionContext $cipher = null;
 
-	/** @var string[] */
+	/**
+	 * @var string[]
+	 * @phpstan-var list<string>
+	 */
 	private array $sendBuffer = [];
-	/** @var string[] */
-	private array $chunkCacheBlobs = [];
-	private bool $chunkCacheEnabled = false;
-
 	/**
 	 * @var PromiseResolver[]
 	 * @phpstan-var list<PromiseResolver<true>>
@@ -269,26 +264,6 @@ class NetworkSession{
 				);
 			}
 		);
-	}
-
-	public function setCacheEnabled(bool $isEnabled) : void{
-		//$this->chunkCacheEnabled = $isEnabled;
-	}
-
-	public function isCacheEnabled() : bool{
-		return $this->chunkCacheEnabled;
-	}
-
-	public function removeChunkCache(int $hash) : void{
-		unset($this->chunkCacheBlobs[$hash]);
-	}
-
-	public function getChunkCache(int $hash) : ?ChunkCacheBlob{
-		if(isset($this->chunkCacheBlobs[$hash])){
-			return new ChunkCacheBlob($hash, $this->chunkCacheBlobs[$hash]);
-		}
-
-		return null;
 	}
 
 	private function onPlayerCreated(Player $player) : void{
@@ -622,6 +597,7 @@ class NetworkSession{
 	 * @phpstan-return Promise<true>
 	 */
 	public function sendDataPacketWithReceipt(ClientboundPacket $packet, bool $immediate = false) : Promise{
+		/** @phpstan-var PromiseResolver<true> $resolver */
 		$resolver = new PromiseResolver();
 
 		if(!$this->sendDataPacketInternal($packet, $immediate, $resolver)){
@@ -871,7 +847,6 @@ class NetworkSession{
 	 * Instructs the remote client to connect to a different server.
 	 */
 	public function transfer(string $ip, int $port, Translatable|string|null $reason = null) : void{
-		$this->flushChunkCache();
 		$reason ??= KnownTranslationFactory::pocketmine_disconnect_transfer();
 		$this->tryDisconnect(function() use ($ip, $port, $reason) : void{
 			$this->sendDataPacket(TransferPacket::create($ip, $port, false), true);
@@ -1038,7 +1013,7 @@ class NetworkSession{
 	public function notifyTerrainReady() : void{
 		$this->logger->debug("Sending spawn notification, waiting for spawn response");
 		$this->sendDataPacket(PlayStatusPacket::create(PlayStatusPacket::PLAYER_SPAWN));
-		$this->setHandler(new SpawnResponsePacketHandler($this->onClientSpawnResponse(...), $this));
+		$this->setHandler(new SpawnResponsePacketHandler($this->onClientSpawnResponse(...)));
 	}
 
 	private function onClientSpawnResponse() : void{
@@ -1144,7 +1119,7 @@ class NetworkSession{
 
 			$layers = [
 				//TODO: dynamic flying speed! FINALLY!!!!!!!!!!!!!!!!!
-				new AbilitiesLayer(AbilitiesLayer::LAYER_BASE, $boolAbilities, 0.05, 0.1),
+				new AbilitiesLayer(AbilitiesLayer::LAYER_BASE, $boolAbilities, 0.05, 1, 0.1),
 			];
 			if(!$for->hasBlockCollision() && $this->getProtocolId() >= ProtocolInfo::PROTOCOL_1_19_80){
 				//TODO: HACK! In 1.19.80, the client starts falling in our faux spectator mode when it clips into a
@@ -1154,7 +1129,7 @@ class NetworkSession{
 
 				$layers[] = new AbilitiesLayer(AbilitiesLayer::LAYER_SPECTATOR, [
 					AbilitiesLayer::ABILITY_FLYING => true,
-				], null, null);
+				], null, null, null);
 			}
 
 			$pk = UpdateAbilitiesPacket::create(new AbilitiesData(
@@ -1216,7 +1191,7 @@ class NetworkSession{
 					//work around a client bug which makes the original name not show when aliases are used
 					$aliases[] = $lname;
 				}
-				$aliasObj = new CommandEnum(ucfirst($command->getLabel()) . "Aliases", array_values($aliases));
+				$aliasObj = new CommandEnum(ucfirst($command->getLabel()) . "Aliases", $aliases);
 			}
 
 			$description = $command->getDescription();
@@ -1290,17 +1265,33 @@ class NetworkSession{
 	}
 
 	/**
+	 * @phpstan-param \Closure() : void $onCompletion
+	 */
+	private function sendChunkPacket(string $chunkPacket, \Closure $onCompletion, World $world) : void{
+		$world->timings->syncChunkSend->startTiming();
+		try{
+			$this->queueCompressed($chunkPacket);
+			$onCompletion();
+		}finally{
+			$world->timings->syncChunkSend->stopTiming();
+		}
+	}
+
+	/**
 	 * Instructs the networksession to start using the chunk at the given coordinates. This may occur asynchronously.
 	 * @param \Closure $onCompletion To be called when chunk sending has completed.
 	 * @phpstan-param \Closure() : void $onCompletion
 	 */
 	public function startUsingChunk(int $chunkX, int $chunkZ, \Closure $onCompletion) : void{
 		$world = $this->player->getLocation()->getWorld();
-		ChunkCache::getInstance($world, $this->compressor)->request($chunkX, $chunkZ, $this->getTypeConverter())->onResolve(
-
+		$promiseOrPacket = ChunkCache::getInstance($world, $this->compressor)->request($chunkX, $chunkZ, $this->getTypeConverter());
+		if(is_string($promiseOrPacket)){
+			$this->sendChunkPacket($promiseOrPacket, $onCompletion, $world);
+			return;
+		}
+		$promiseOrPacket->onResolve(
 			//this callback may be called synchronously or asynchronously, depending on whether the promise is resolved yet
-			function(CachedChunkPromise $promise) use ($world, $onCompletion, $chunkX, $chunkZ) : void{
-
+			function(CompressBatchPromise $promise) use ($world, $onCompletion, $chunkX, $chunkZ) : void{
 				if(!$this->isConnected()){
 					return;
 				}
@@ -1316,29 +1307,7 @@ class NetworkSession{
 					//to NEEDED if they want to be resent.
 					return;
 				}
-
-				$compressBatchPromise = new CompressBatchPromise();
-				$result = $promise->getResult();
-
-				if($this->isCacheEnabled()){
-					$compressBatchPromise->resolve($result->getCacheablePacket());
-
-					$this->chunkCacheBlobs = array_replace($this->chunkCacheBlobs, $result->getHashMap());
-					if(count($this->chunkCacheBlobs) > 4096) {
-						$this->disconnect("Too many pending blobs");
-						return;
-					}
-				}else{
-					$compressBatchPromise->resolve($result->getPacket());
-				}
-
-				$world->timings->syncChunkSend->startTiming();
-				try{
-					$this->queueCompressed($compressBatchPromise);
-					$onCompletion();
-				}finally{
-					$world->timings->syncChunkSend->stopTiming();
-				}
+				$this->sendChunkPacket($promise->getResult(), $onCompletion, $world);
 			}
 		);
 	}
@@ -1462,16 +1431,5 @@ class NetworkSession{
 		}
 
 		$this->flushSendBuffer();
-	}
-
-	private function flushChunkCache() : void{
-		$blobs = array_map(static function(int $hash, string $blob) : ChunkCacheBlob{
-			return new ChunkCacheBlob($hash, $blob);
-		}, array_keys($this->chunkCacheBlobs), $this->chunkCacheBlobs);
-
-		if(count($blobs) > 0){
-			$this->sendDataPacket(ClientCacheMissResponsePacket::create($blobs));
-			unset($this->chunkCacheBlobs);
-		}
 	}
 }

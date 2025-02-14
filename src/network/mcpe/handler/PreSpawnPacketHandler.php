@@ -28,7 +28,9 @@ use pocketmine\network\mcpe\cache\CraftingDataCache;
 use pocketmine\network\mcpe\cache\StaticPacketCache;
 use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\ItemRegistryPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
@@ -49,15 +51,13 @@ use Ramsey\Uuid\Uuid;
 /**
  * Handler used for the pre-spawn phase of the session.
  */
-class PreSpawnPacketHandler extends ChunkRequestPacketHandler{
+class PreSpawnPacketHandler extends PacketHandler{
 	public function __construct(
 		private Server $server,
 		private Player $player,
-		NetworkSession $session,
+		private NetworkSession $session,
 		private InventoryManager $inventoryManager
-	){
-		parent::__construct($session);
-	}
+	){}
 
 	public function setUp() : void{
 		Timings::$playerNetworkSendPreSpawnGameData->startTiming();
@@ -113,6 +113,11 @@ class PreSpawnPacketHandler extends ChunkRequestPacketHandler{
 				0,
 				$typeConverter->getItemTypeDictionary()->getEntries(),
 			));
+
+			if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_60){
+				$this->session->getLogger()->debug("Sending items");
+				$this->session->sendDataPacket(ItemRegistryPacket::create($typeConverter->getItemTypeDictionary()->getEntries()));
+			}
 
 			$this->session->getLogger()->debug("Sending actor identifiers");
 			$this->session->sendDataPacket(StaticPacketCache::getInstance()->getAvailableActorIdentifiers());

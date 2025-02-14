@@ -133,7 +133,7 @@ use const JSON_THROW_ON_ERROR;
 /**
  * This handler handles packets related to general gameplay.
  */
-class InGamePacketHandler extends ChunkRequestPacketHandler{
+class InGamePacketHandler extends PacketHandler{
 	private const MAX_FORM_RESPONSE_DEPTH = 2; //modal/simple will be 1, custom forms 2 - they will never contain anything other than string|int|float|bool|null
 
 	protected float $lastRightClickTime = 0.0;
@@ -150,11 +150,9 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 
 	public function __construct(
 		private Player $player,
-		NetworkSession $session,
+		private NetworkSession $session,
 		private InventoryManager $inventoryManager
-	){
-		parent::__construct($session);
-	}
+	){}
 
 	public function handleText(TextPacket $packet) : bool{
 		if($packet->type === TextPacket::TYPE_CHAT){
@@ -426,7 +424,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 		$droppedCount = null;
 
 		foreach($data->getActions() as $networkInventoryAction){
-			if($networkInventoryAction->sourceType === NetworkInventoryAction::SOURCE_WORLD && $networkInventoryAction->inventorySlot == NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM){
+			if($networkInventoryAction->sourceType === NetworkInventoryAction::SOURCE_WORLD && $networkInventoryAction->inventorySlot === NetworkInventoryAction::ACTION_MAGIC_SLOT_DROP_ITEM){
 				$droppedCount = $networkInventoryAction->newItem->getItemStack()->getCount();
 				if($droppedCount <= 0){
 					throw new PacketHandlingException("Expected positive count for dropped item");
@@ -510,7 +508,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 				$blockPos = $data->getBlockPosition();
 				$vBlockPos = new Vector3($blockPos->getX(), $blockPos->getY(), $blockPos->getZ());
 				if(!$this->player->interactBlock($vBlockPos, $data->getFace(), $clickPos) && !$this->isFailedPrediction($data)){
-					$this->onFailedBlockAction($vBlockPos, $data->getFace());
+					$this->syncBlocksNearby($vBlockPos, $data->getFace());
 				}
 				return true;
 			case UseItemTransactionData::ACTION_BREAK_BLOCK:
@@ -550,7 +548,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 				$block = $this->session->getTypeConverter()->getBlockTranslator()->internalIdToNetworkId($chunk->getBlockStateId($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK));
 				if ($data->getBlockRuntimeId() !== $block) {
 					$this->session->getLogger()->debug("Syncing block at $x $y $z due to runtime id mismatch");
-					$this->onFailedBlockAction(new Vector3($x, $y, $z), null);
+					$this->syncBlocksNearby(new Vector3($x, $y, $z), null);
 				}
 			}
 		}
@@ -608,7 +606,7 @@ class InGamePacketHandler extends ChunkRequestPacketHandler{
 	private function handleReleaseItemTransaction(ReleaseItemTransactionData $data) : bool{
 		$this->player->selectHotbarSlot($data->getHotbarSlot());
 
-		if($data->getActionType() == ReleaseItemTransactionData::ACTION_RELEASE){
+		if($data->getActionType() === ReleaseItemTransactionData::ACTION_RELEASE){
 			$this->player->releaseHeldItem();
 			return true;
 		}

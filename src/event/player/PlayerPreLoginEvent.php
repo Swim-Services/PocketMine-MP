@@ -53,9 +53,15 @@ class PlayerPreLoginEvent extends Event{
 		self::KICK_FLAG_BANNED
 	];
 
-	/** @var Translatable[]|string[] reason const => associated message */
+	/**
+	 * @var Translatable[]|string[] reason const => associated message
+	 * @phpstan-var array<int, Translatable|string>
+	 */
 	protected array $disconnectReasons = [];
-	/** @var Translatable[]|string[] */
+	/**
+	 * @var Translatable[]|string[]
+	 * @phpstan-var array<int, Translatable|string>
+	 */
 	protected array $disconnectScreenMessages = [];
 
 	public function __construct(
@@ -97,6 +103,7 @@ class PlayerPreLoginEvent extends Event{
 	 * Returns an array of kick flags currently assigned.
 	 *
 	 * @return int[]
+	 * @phpstan-return list<int>
 	 */
 	public function getKickFlags() : array{
 		return array_keys($this->disconnectReasons);

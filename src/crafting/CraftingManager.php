@@ -110,7 +110,6 @@ class CraftingManager{
 
 	/**
 	 * @param Item[] $items
-	 * @phpstan-param list<Item> $items
 	 *
 	 * @return Item[]
 	 * @phpstan-return list<Item>
@@ -135,7 +134,6 @@ class CraftingManager{
 
 	/**
 	 * @param Item[] $outputs
-	 * @phpstan-param list<Item> $outputs
 	 */
 	private static function hashOutputs(array $outputs) : string{
 		$outputs = self::pack($outputs);
