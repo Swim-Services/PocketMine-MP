@@ -55,6 +55,7 @@ use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\network\mcpe\EntityEventBroadcaster;
 use pocketmine\network\mcpe\NetworkBroadcastUtils;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataCollection;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
@@ -395,7 +396,11 @@ abstract class Living extends Entity{
 				new EntityShortFallSound($this)
 			);
 		}elseif($fallBlock->getTypeId() !== BlockTypeIds::AIR){
-			$this->broadcastSound(new EntityLandSound($this, $fallBlock), $this->getViewers());
+			$viewers = $this->getViewers();
+			if ($this instanceof Player && $this->getNetworkSession()->getProtocolId() < ProtocolInfo::PROTOCOL_1_20_0) {
+				$viewers[] = $this;
+			}
+			$this->broadcastSound(new EntityLandSound($this, $fallBlock), $viewers);
 		}
 		return $newVerticalVelocity;
 	}
