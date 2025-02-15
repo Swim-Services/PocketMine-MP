@@ -45,7 +45,7 @@ class MemoryManager{
 	private const DEFAULT_CONTINUOUS_TRIGGER_RATE = Server::TARGET_TICKS_PER_SECOND * 2;
 	private const DEFAULT_TICKS_PER_GC = 30 * 60 * Server::TARGET_TICKS_PER_SECOND;
 
-	private GarbageCollectorManager $cycleGcManager;
+	private ?GarbageCollectorManager $cycleGcManager = null;
 
 	private int $memoryLimit;
 	private int $globalMemoryLimit;
@@ -72,7 +72,6 @@ class MemoryManager{
 		private Server $server
 	){
 		$this->logger = new \PrefixedLogger($server->getLogger(), "Memory Manager");
-		$this->cycleGcManager = new GarbageCollectorManager($this->logger, Timings::$memoryManager);
 
 		$this->init($server->getConfigGroup());
 	}
@@ -115,6 +114,10 @@ class MemoryManager{
 		$this->lowMemChunkRadiusOverride = $config->getPropertyInt(Yml::MEMORY_MAX_CHUNKS_CHUNK_RADIUS, 4);
 
 		$this->dumpWorkers = $config->getPropertyBool(Yml::MEMORY_MEMORY_DUMP_DUMP_ASYNC_WORKER, true);
+
+		if ($this->gcManagerEnabled) {
+			$this->cycleGcManager = new GarbageCollectorManager($this->logger, Timings::$memoryManager);
+		}
 	}
 
 	public function isLowMemory() : bool{
@@ -197,7 +200,7 @@ class MemoryManager{
 		if($this->garbageCollectionPeriod > 0 && ++$this->garbageCollectionTicker >= $this->garbageCollectionPeriod){
 			$this->garbageCollectionTicker = 0;
 			$this->triggerGarbageCollector();
-		}elseif ($this->gcManagerEnabled){
+		}elseif ($this->gcManagerEnabled && $this->cycleGcManager !== null){
 			$this->cycleGcManager->maybeCollectCycles();
 		}
 
