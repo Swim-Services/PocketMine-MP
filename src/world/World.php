@@ -1670,12 +1670,12 @@ class World implements ChunkManager{
 	 * @phpstan-return list<Block>
 	 */
 	public function getCollisionBlocks(AxisAlignedBB $bb, bool $targetFirst = false) : array{
-		$minX = (int) floor($bb->minX + 0.001);
-		$minY = (int) floor($bb->minY + 0.001);
-		$minZ = (int) floor($bb->minZ + 0.001);
-		$maxX = (int) floor($bb->maxX - 0.001);
-		$maxY = (int) floor($bb->maxY - 0.001);
-		$maxZ = (int) floor($bb->maxZ - 0.001);
+		$minX = (int) floor($bb->minX - 1);
+		$minY = (int) floor($bb->minY - 1);
+		$minZ = (int) floor($bb->minZ - 1);
+		$maxX = (int) floor($bb->maxX + 1);
+		$maxY = (int) floor($bb->maxY + 1);
+		$maxZ = (int) floor($bb->maxZ + 1);
 
 		$collides = [];
 
@@ -1686,7 +1686,7 @@ class World implements ChunkManager{
 					for($y = $minY; $y <= $maxY; ++$y){
 						$stateCollisionInfo = $this->getBlockCollisionInfo($x, $y, $z, $collisionInfo);
 						if(match($stateCollisionInfo){
-							RuntimeBlockStateRegistry::COLLISION_CUBE => true,
+							RuntimeBlockStateRegistry::COLLISION_CUBE => $this->checkCubeCollision($x, $y, $z,$bb),
 							RuntimeBlockStateRegistry::COLLISION_NONE => false,
 							default => $this->getBlockAt($x, $y, $z)->collidesWithBB($bb)
 						}){
@@ -1701,7 +1701,7 @@ class World implements ChunkManager{
 					for($y = $minY; $y <= $maxY; ++$y){
 						$stateCollisionInfo = $this->getBlockCollisionInfo($x, $y, $z, $collisionInfo);
 						if(match($stateCollisionInfo){
-							RuntimeBlockStateRegistry::COLLISION_CUBE => true,
+							RuntimeBlockStateRegistry::COLLISION_CUBE => $this->checkCubeCollision($x, $y, $z, $bb),
 							RuntimeBlockStateRegistry::COLLISION_NONE => false,
 							default => $this->getBlockAt($x, $y, $z)->collidesWithBB($bb)
 						}){
@@ -1713,6 +1713,18 @@ class World implements ChunkManager{
 		}
 
 		return $collides;
+	}
+
+	private function checkCubeCollision(int $x, int $y, int $z, AxisAlignedBB $bb, float $epsilon = 0.0001) : bool {
+		$bMaxX = $x + 1;
+		$bMaxY = $y + 1;
+		$bMaxZ = $z + 1;
+		if($bMaxX - $bb->minX > $epsilon && $bb->maxX - $x > $epsilon){
+			if($bMaxY - $bb->minY > $epsilon && $bb->maxY - $y > $epsilon){
+				return $bMaxZ - $bb->minZ > $epsilon && $bb->maxZ - $z > $epsilon;
+			}
+		}
+		return false;
 	}
 
 	/**
