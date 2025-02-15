@@ -53,6 +53,7 @@ class MemoryManager{
 	private int $checkTicker = 0;
 	private bool $lowMemory = false;
 
+	private bool $gcManagerEnabled = true;
 	private bool $continuousTrigger = true;
 	private int $continuousTriggerRate;
 	private int $continuousTriggerCount = 0;
@@ -105,6 +106,7 @@ class MemoryManager{
 
 		$this->globalMemoryLimit = $config->getPropertyInt(Yml::MEMORY_GLOBAL_LIMIT, 0) * 1024 * 1024;
 		$this->checkRate = $config->getPropertyInt(Yml::MEMORY_CHECK_RATE, self::DEFAULT_CHECK_RATE);
+		$this->gcManagerEnabled = $config->getPropertyBool(Yml::MEMORY_GC_MANAGER_ENABLED, true);
 		$this->continuousTrigger = $config->getPropertyBool(Yml::MEMORY_CONTINUOUS_TRIGGER, true);
 		$this->continuousTriggerRate = $config->getPropertyInt(Yml::MEMORY_CONTINUOUS_TRIGGER_RATE, self::DEFAULT_CONTINUOUS_TRIGGER_RATE);
 
@@ -195,7 +197,7 @@ class MemoryManager{
 		if($this->garbageCollectionPeriod > 0 && ++$this->garbageCollectionTicker >= $this->garbageCollectionPeriod){
 			$this->garbageCollectionTicker = 0;
 			$this->triggerGarbageCollector();
-		}else{
+		}elseif ($this->gcManagerEnabled){
 			$this->cycleGcManager->maybeCollectCycles();
 		}
 

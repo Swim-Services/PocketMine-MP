@@ -81,6 +81,7 @@ final class YmlServerProperties{
 	public const MEMORY_MAIN_HARD_LIMIT = 'memory.main-hard-limit';
 	public const MEMORY_MAIN_LIMIT = 'memory.main-limit';
 	public const MEMORY_MAX_CHUNKS = 'memory.max-chunks';
+	public const MEMORY_GC_MANAGER_ENABLED = 'memory.gc-manager-enabled';
 	public const MEMORY_MAX_CHUNKS_CHUNK_RADIUS = 'memory.max-chunks.chunk-radius';
 	public const MEMORY_MEMORY_DUMP = 'memory.memory-dump';
 	public const MEMORY_MEMORY_DUMP_DUMP_ASYNC_WORKER = 'memory.memory-dump.dump-async-worker';
