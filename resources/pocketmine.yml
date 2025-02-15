@@ -46,6 +46,9 @@ memory:
   #Continue firing low-memory-triggers and event while on low memory
   continuous-trigger: true
 
+  #Enable the custom cycle gc manager
+  gc-manager-enabled: true
+
   #Only if memory.continuous-trigger is enabled. Specifies the rate in memory.check-rate steps (default 30 seconds)
   continuous-trigger-rate: 30
 
