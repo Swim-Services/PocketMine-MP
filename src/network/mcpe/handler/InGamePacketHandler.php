@@ -73,6 +73,8 @@ use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PacketPool;
+use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\PlayerHotbarPacket;
@@ -327,6 +329,15 @@ class InGamePacketHandler extends PacketHandler{
 				return false;
 		}
 
+		return true;
+	}
+
+	public function handlePacketViolationWarning(PacketViolationWarningPacket $packet) : bool {
+		$pk = $packet->getPacketId();
+		if ($packetClass = PacketPool::getInstance()->getPacketById($pk)) {
+			$pk = (new \ReflectionClass($packetClass))->getShortName();
+		}
+		$this->session->getLogger()->debug("Received packet violation warning (packet: " . $pk . ", message: " . $packet->getMessage() . ", severity: " . $packet->getSeverity());
 		return true;
 	}
 
