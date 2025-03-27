@@ -1682,44 +1682,29 @@ class World implements ChunkManager{
 		$collisionInfo = $this->blockStateRegistry->collisionInfo;
 		if($targetFirst){
 			for($z = $minZ; $z <= $maxZ; ++$z){
-				$zOverflow = $z === $minZ || $z === $maxZ;
 				for($x = $minX; $x <= $maxX; ++$x){
-					$zxOverflow = $zOverflow || $x === $minX || $x === $maxX;
 					for($y = $minY; $y <= $maxY; ++$y){
-						$overflow = $zxOverflow || $y === $minY || $y === $maxY;
-
 						$stateCollisionInfo = $this->getBlockCollisionInfo($x, $y, $z, $collisionInfo);
-						if($overflow ?
-							$stateCollisionInfo === RuntimeBlockStateRegistry::COLLISION_MAY_OVERFLOW && $this->getBlockAt($x, $y, $z)->collidesWithBB($bb) :
-							match ($stateCollisionInfo) {
-								RuntimeBlockStateRegistry::COLLISION_CUBE => true,
-								RuntimeBlockStateRegistry::COLLISION_NONE => false,
-								default => $this->getBlockAt($x, $y, $z)->collidesWithBB($bb)
-							}
-						){
+						if(match($stateCollisionInfo){
+							RuntimeBlockStateRegistry::COLLISION_CUBE => $this->checkCubeCollision($x, $y, $z,$bb),
+							RuntimeBlockStateRegistry::COLLISION_NONE => false,
+							default => $this->getBlockAt($x, $y, $z)->collidesWithBB($bb)
+						}){
 							return [$this->getBlockAt($x, $y, $z)];
 						}
 					}
 				}
 			}
 		}else{
-			//TODO: duplicated code :( this way is better for performance though
 			for($z = $minZ; $z <= $maxZ; ++$z){
-				$zOverflow = $z === $minZ || $z === $maxZ;
 				for($x = $minX; $x <= $maxX; ++$x){
-					$zxOverflow = $zOverflow || $x === $minX || $x === $maxX;
 					for($y = $minY; $y <= $maxY; ++$y){
-						$overflow = $zxOverflow || $y === $minY || $y === $maxY;
-
 						$stateCollisionInfo = $this->getBlockCollisionInfo($x, $y, $z, $collisionInfo);
-						if($overflow ?
-							$stateCollisionInfo === RuntimeBlockStateRegistry::COLLISION_MAY_OVERFLOW && $this->getBlockAt($x, $y, $z)->collidesWithBB($bb) :
-							match ($stateCollisionInfo) {
-								RuntimeBlockStateRegistry::COLLISION_CUBE => true,
-								RuntimeBlockStateRegistry::COLLISION_NONE => false,
-								default => $this->getBlockAt($x, $y, $z)->collidesWithBB($bb)
-							}
-						){
+						if(match($stateCollisionInfo){
+							RuntimeBlockStateRegistry::COLLISION_CUBE => $this->checkCubeCollision($x, $y, $z, $bb),
+							RuntimeBlockStateRegistry::COLLISION_NONE => false,
+							default => $this->getBlockAt($x, $y, $z)->collidesWithBB($bb)
+						}){
 							$collides[] = $this->getBlockAt($x, $y, $z);
 						}
 					}
