@@ -21,18 +21,28 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory\json;
+namespace pocketmine\inventory;
 
-use pocketmine\crafting\json\ItemStackData;
+use pocketmine\item\Item;
 
-final class CreativeGroupData{
-	/** @required */
-	public string $group_name;
-	/** @required */
-	public ?ItemStackData $group_icon;
-	/**
-	 * @var \pocketmine\crafting\json\ItemStackData[]
-	 * @required
-	 */
-	public array $items;
+final class CreativeInventoryEntry{
+	private readonly Item $item;
+
+	public function __construct(
+		Item $item,
+		private readonly CreativeCategory $category,
+		private readonly ?CreativeGroup $group = null
+	){
+		$this->item = clone $item;
+	}
+
+	public function getItem() : Item{ return clone $this->item; }
+
+	public function getCategory() : CreativeCategory{ return $this->category; }
+
+	public function getGroup() : ?CreativeGroup{ return $this->group; }
+
+	public function matchesItem(Item $item) : bool{
+		return $item->equals($this->item, checkDamage: true, checkCompound: false);
+	}
 }

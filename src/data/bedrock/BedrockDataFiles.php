@@ -76,9 +76,10 @@ final class BedrockDataFiles{
 	public const CANONICAL_BLOCK_STATES_1_21_50_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.21.50.nbt';
 	public const CANONICAL_BLOCK_STATES_NBT = BEDROCK_DATA_PATH . '/canonical_block_states.nbt';
 	public const COMMAND_ARG_TYPES_JSON = BEDROCK_DATA_PATH . '/command_arg_types.json';
-	public const CREATIVEITEMS_JSON = BEDROCK_DATA_PATH . '/creativeitems.json';
+	public const CREATIVE = BEDROCK_DATA_PATH . '/creative';
 	public const ENTITY_ID_MAP_JSON = BEDROCK_DATA_PATH . '/entity_id_map.json';
 	public const ENTITY_IDENTIFIERS_NBT = BEDROCK_DATA_PATH . '/entity_identifiers.nbt';
+	public const ENUMS = BEDROCK_DATA_PATH . '/enums';
 	public const ENUMS_PY = BEDROCK_DATA_PATH . '/enums.py';
 	public const ITEM_TAGS_1_20_0_JSON = BEDROCK_DATA_PATH . '/item_tags-1.20.0.json';
 	public const ITEM_TAGS_JSON = BEDROCK_DATA_PATH . '/item_tags.json';
@@ -98,6 +99,7 @@ final class BedrockDataFiles{
 	public const R12_TO_CURRENT_BLOCK_MAP_1_21_50_BIN = BEDROCK_DATA_PATH . '/r12_to_current_block_map-1.21.50.bin';
 	public const R12_TO_CURRENT_BLOCK_MAP_BIN = BEDROCK_DATA_PATH . '/r12_to_current_block_map.bin';
 	public const R16_TO_CURRENT_ITEM_MAP_JSON = BEDROCK_DATA_PATH . '/r16_to_current_item_map.json';
+	public const RECIPES = BEDROCK_DATA_PATH . '/recipes';
 	public const REQUIRED_ITEM_LIST_1_20_0_JSON = BEDROCK_DATA_PATH . '/required_item_list-1.20.0.json';
 	public const REQUIRED_ITEM_LIST_1_20_10_JSON = BEDROCK_DATA_PATH . '/required_item_list-1.20.10.json';
 	public const REQUIRED_ITEM_LIST_1_20_40_JSON = BEDROCK_DATA_PATH . '/required_item_list-1.20.40.json';

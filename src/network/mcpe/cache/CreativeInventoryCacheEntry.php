@@ -21,18 +21,28 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory\json;
+namespace pocketmine\network\mcpe\cache;
 
-use pocketmine\crafting\json\ItemStackData;
+use pocketmine\inventory\CreativeCategory;
+use pocketmine\inventory\CreativeGroup;
+use pocketmine\network\mcpe\protocol\types\inventory\CreativeItemEntry;
 
-final class CreativeGroupData{
-	/** @required */
-	public string $group_name;
-	/** @required */
-	public ?ItemStackData $group_icon;
+final class CreativeInventoryCacheEntry{
+
 	/**
-	 * @var \pocketmine\crafting\json\ItemStackData[]
-	 * @required
+	 * @param CreativeCategory[]     $categories
+	 * @param CreativeGroup[]|null[] $groups
+	 * @param CreativeItemEntry[]    $items
+	 *
+	 * @phpstan-param list<CreativeCategory>   $categories
+	 * @phpstan-param list<CreativeGroup|null> $groups
+	 * @phpstan-param list<CreativeItemEntry>  $items
 	 */
-	public array $items;
+	public function __construct(
+		public readonly array $categories,
+		public readonly array $groups,
+		public readonly array $items,
+	){
+		//NOOP
+	}
 }
