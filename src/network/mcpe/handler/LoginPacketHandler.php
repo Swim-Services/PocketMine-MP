@@ -45,6 +45,7 @@ use pocketmine\Server;
 use Ramsey\Uuid\Uuid;
 use function in_array;
 use function is_array;
+use function preg_match;
 
 /**
  * Handles the initial login phase of the session. This handler is used as the initial state.
@@ -107,7 +108,7 @@ class LoginPacketHandler extends PacketHandler{
 		}
 		$uuid = Uuid::fromString($extraData->identity);
 		$arrClientData = (array) $clientData;
-		$arrClientData["TitleID"] = $extraData->titleId;
+		$arrClientData["TitleID"] = $extraData->titleId ?? "";
 
 		if($extraData->XUID !== ""){
 			$playerInfo = new XboxLivePlayerInfo(
