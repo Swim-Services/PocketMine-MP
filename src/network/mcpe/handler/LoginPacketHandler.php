@@ -107,7 +107,7 @@ class LoginPacketHandler extends PacketHandler{
 		}
 		$uuid = Uuid::fromString($extraData->identity);
 		$arrClientData = (array) $clientData;
-		$arrClientData["TitleID"] = $extraData->titleId;
+		$arrClientData["TitleID"] = $extraData->titleId ?? "";
 
 		if($extraData->XUID !== ""){
 			$playerInfo = new XboxLivePlayerInfo(
