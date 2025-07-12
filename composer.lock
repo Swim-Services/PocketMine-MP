@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5eda6115f08d4eaf6b42bb3a2a3a8444",
+    "content-hash": "a2d1ed340053c15c77f8e48b7c6e06ac",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -829,12 +829,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockData.git",
-                "reference": "58b6c7e4051f703bcf75be0a137b4216159525a9"
+                "reference": "a7655a4b4c49a62119db2e89aaa8d55dfb13bda4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/58b6c7e4051f703bcf75be0a137b4216159525a9",
-                "reference": "58b6c7e4051f703bcf75be0a137b4216159525a9",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/a7655a4b4c49a62119db2e89aaa8d55dfb13bda4",
+                "reference": "a7655a4b4c49a62119db2e89aaa8d55dfb13bda4",
                 "shasum": ""
             },
             "default-branch": true,
@@ -846,7 +846,7 @@
             "support": {
                 "source": "https://github.com/Swim-Services/BedrockData/tree/master"
             },
-            "time": "2025-05-22T20:54:53+00:00"
+            "time": "2025-07-12T01:18:23+00:00"
         },
         {
             "name": "swim-services/bedrock-protocol",
@@ -854,12 +854,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "4512fdff2168d8e66be7db7025ca36a46e771c0c"
+                "reference": "6107112b986801dd31f7c7e5626c2287580b70f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/4512fdff2168d8e66be7db7025ca36a46e771c0c",
-                "reference": "4512fdff2168d8e66be7db7025ca36a46e771c0c",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/6107112b986801dd31f7c7e5626c2287580b70f1",
+                "reference": "6107112b986801dd31f7c7e5626c2287580b70f1",
                 "shasum": ""
             },
             "require": {
@@ -902,7 +902,7 @@
                 "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2025-05-22T20:53:10+00:00"
+            "time": "2025-07-12T01:19:48+00:00"
         },
         {
             "name": "symfony/filesystem",
@@ -974,16 +974,16 @@
     "packages-dev": [
         {
             "name": "myclabs/deep-copy",
-            "version": "1.13.1",
+            "version": "1.13.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c"
+                "reference": "faed855a7b5f4d4637717c2b3863e277116beb36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/1720ddd719e16cf0db4eb1c6eca108031636d46c",
-                "reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/faed855a7b5f4d4637717c2b3863e277116beb36",
+                "reference": "faed855a7b5f4d4637717c2b3863e277116beb36",
                 "shasum": ""
             },
             "require": {
@@ -1022,7 +1022,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.1"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.3"
             },
             "funding": [
                 {
@@ -1030,7 +1030,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-29T12:36:36+00:00"
+            "time": "2025-07-05T12:25:42+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -1690,16 +1690,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.47",
+            "version": "10.5.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "3637b3e50d32ab3a0d1a33b3b6177169ec3d95a3"
+                "reference": "6e0a2bc39f6fae7617989d690d76c48e6d2eb541"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3637b3e50d32ab3a0d1a33b3b6177169ec3d95a3",
-                "reference": "3637b3e50d32ab3a0d1a33b3b6177169ec3d95a3",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6e0a2bc39f6fae7617989d690d76c48e6d2eb541",
+                "reference": "6e0a2bc39f6fae7617989d690d76c48e6d2eb541",
                 "shasum": ""
             },
             "require": {
@@ -1709,7 +1709,7 @@
                 "ext-mbstring": "*",
                 "ext-xml": "*",
                 "ext-xmlwriter": "*",
-                "myclabs/deep-copy": "^1.13.1",
+                "myclabs/deep-copy": "^1.13.3",
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.1",
@@ -1771,7 +1771,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.47"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.48"
             },
             "funding": [
                 {
@@ -1795,7 +1795,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-20T11:29:11+00:00"
+            "time": "2025-07-11T04:07:17+00:00"
         },
         {
             "name": "sebastian/cli-parser",
