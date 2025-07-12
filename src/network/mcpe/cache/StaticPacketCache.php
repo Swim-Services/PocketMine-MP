@@ -106,6 +106,7 @@ class StaticPacketCache{
 	private static function make() : self{
 		return new self(
 			BiomeDefinitionListPacket::fromDefinitions(self::loadBiomeDefinitionModel(BedrockDataFiles::BIOME_DEFINITIONS_JSON)),
+			new RawBiomeDefinitionList(),
 			BiomeDefinitionListPacket::createLegacy(self::loadCompoundFromFile(BedrockDataFiles::BIOME_DEFINITIONS_NBT)),
 			AvailableActorIdentifiersPacket::create(self::loadCompoundFromFile(BedrockDataFiles::ENTITY_IDENTIFIERS_NBT))
 		);
@@ -113,11 +114,15 @@ class StaticPacketCache{
 
 	public function __construct(
 		private BiomeDefinitionListPacket $biomeDefs,
+		private RawBiomeDefinitionList $newBiomeDefs,
 		private BiomeDefinitionListPacket $legacyBiomeDefs,
 		private AvailableActorIdentifiersPacket $availableActorIdentifiers
 	){}
 
 	public function getBiomeDefs(int $protocolId) : BiomeDefinitionListPacket{
+		if ($protocolId >= ProtocolInfo::PROTOCOL_1_21_100) {
+			return $this->newBiomeDefs;
+		}
 		return $protocolId >= ProtocolInfo::PROTOCOL_1_21_80 ? $this->biomeDefs : $this->legacyBiomeDefs;
 	}
 
