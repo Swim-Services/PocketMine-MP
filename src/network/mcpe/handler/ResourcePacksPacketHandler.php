@@ -123,7 +123,8 @@ class ResourcePacksPacketHandler extends PacketHandler{
 			forceServerPacks: false,
 			cdnUrls: [],
 			worldTemplateId: Uuid::fromString(Uuid::NIL),
-			worldTemplateVersion: ""
+			worldTemplateVersion: "",
+			forceDisableVibrantVisuals: true,
 		));
 		$this->session->getLogger()->debug("Waiting for client to accept resource packs");
 	}
