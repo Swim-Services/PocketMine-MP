@@ -35,7 +35,6 @@ use pocketmine\crafting\TagWildcardRecipeIngredient;
 use pocketmine\data\bedrock\item\BlockItemIdMap;
 use pocketmine\data\bedrock\item\downgrade\ItemIdMetaDowngrader;
 use pocketmine\data\bedrock\item\ItemTypeNames;
-use pocketmine\event\server\TypeConverterConstructEvent;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\nbt\NbtException;
@@ -103,9 +102,6 @@ class TypeConverter{
 		);
 
 		$this->skinAdapter = new LegacySkinAdapter();
-
-		$event = new TypeConverterConstructEvent($this);
-		$event->call();
 	}
 
 	public function getBlockTranslator() : BlockTranslator{ return $this->blockTranslator; }

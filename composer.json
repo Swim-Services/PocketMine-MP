@@ -35,7 +35,7 @@
       "netresearch/jsonmapper": "~v5.0.0",
       "pocketmine/bedrock-block-upgrade-schema": "~5.1.0+bedrock-1.21.60",
       "swim-services/bedrock-data": "dev-master",
-      "pocketmine/bedrock-item-upgrade-schema": "~1.14.0+bedrock-1.21.50",
+      "pocketmine/bedrock-item-upgrade-schema": "1.15.0+bedrock-1.21.100",
       "swim-services/bedrock-protocol": "dev-master",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "^1.0.2",
@@ -48,7 +48,7 @@
       "pocketmine/raklib": "~1.2.0",
       "pocketmine/raklib-ipc": "~1.0.0",
       "pocketmine/snooze": "^0.5.0",
-      "ramsey/uuid": "~4.8.0",
+      "ramsey/uuid": "~4.9.0",
       "symfony/filesystem": "~6.4.0"
    },
    "require-dev": {

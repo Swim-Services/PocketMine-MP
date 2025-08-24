@@ -31,6 +31,9 @@ trait ProtocolSingletonTrait{
 	/** @var self[] */
 	private static $instance = [];
 
+	/** @var (\Closure(self): void)[] */
+	private static array $creationListeners = [];
+
 	private static function make(int $protocolId) : self{
 		return new self($protocolId);
 	}
@@ -40,11 +43,28 @@ trait ProtocolSingletonTrait{
 	}
 
 	public static function getInstance(int $protocolId = ProtocolInfo::CURRENT_PROTOCOL) : self{
-		return self::$instance[$protocolId] ??= self::make($protocolId);
+		if(!isset(self::$instance[$protocolId])){
+			$instance = self::make($protocolId);
+
+			foreach(self::$creationListeners as $listener){
+				$listener($instance);
+			}
+
+			self::$instance[$protocolId] = $instance;
+		}
+
+		return self::$instance[$protocolId];
 	}
 
 	public function getProtocolId() : int{
 		return $this->protocolId;
+	}
+
+	/**
+	 * @param \Closure(self): void $listener
+	 */
+	public static function addCreationListener(\Closure $listener) : void{
+		self::$creationListeners[] = $listener;
 	}
 
 	/**

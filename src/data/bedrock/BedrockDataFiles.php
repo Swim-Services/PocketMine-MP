@@ -48,6 +48,7 @@ final class BedrockDataFiles{
 	public const BLOCK_ID_TO_ITEM_ID_MAP_1_21_40_JSON = BEDROCK_DATA_PATH . '/block_id_to_item_id_map-1.21.40.json';
 	public const BLOCK_ID_TO_ITEM_ID_MAP_1_21_60_JSON = BEDROCK_DATA_PATH . '/block_id_to_item_id_map-1.21.60.json';
 	public const BLOCK_ID_TO_ITEM_ID_MAP_1_21_70_JSON = BEDROCK_DATA_PATH . '/block_id_to_item_id_map-1.21.70.json';
+	public const BLOCK_ID_TO_ITEM_ID_MAP_1_21_93_JSON = BEDROCK_DATA_PATH . '/block_id_to_item_id_map-1.21.93.json';
 	public const BLOCK_ID_TO_ITEM_ID_MAP_JSON = BEDROCK_DATA_PATH . '/block_id_to_item_id_map.json';
 	public const BLOCK_PROPERTIES_TABLE_JSON = BEDROCK_DATA_PATH . '/block_properties_table.json';
 	public const BLOCK_STATE_META_MAP_1_20_0_JSON = BEDROCK_DATA_PATH . '/block_state_meta_map-1.20.0.json';
@@ -65,6 +66,7 @@ final class BedrockDataFiles{
 	public const BLOCK_STATE_META_MAP_1_21_50_JSON = BEDROCK_DATA_PATH . '/block_state_meta_map-1.21.50.json';
 	public const BLOCK_STATE_META_MAP_1_21_60_JSON = BEDROCK_DATA_PATH . '/block_state_meta_map-1.21.60.json';
 	public const BLOCK_STATE_META_MAP_1_21_70_JSON = BEDROCK_DATA_PATH . '/block_state_meta_map-1.21.70.json';
+	public const BLOCK_STATE_META_MAP_1_21_93_JSON = BEDROCK_DATA_PATH . '/block_state_meta_map-1.21.93.json';
 	public const BLOCK_STATE_META_MAP_JSON = BEDROCK_DATA_PATH . '/block_state_meta_map.json';
 	public const CANONICAL_BLOCK_STATES_1_20_0_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.20.0.nbt';
 	public const CANONICAL_BLOCK_STATES_1_20_10_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.20.10.nbt';
@@ -81,6 +83,7 @@ final class BedrockDataFiles{
 	public const CANONICAL_BLOCK_STATES_1_21_50_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.21.50.nbt';
 	public const CANONICAL_BLOCK_STATES_1_21_60_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.21.60.nbt';
 	public const CANONICAL_BLOCK_STATES_1_21_70_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.21.70.nbt';
+	public const CANONICAL_BLOCK_STATES_1_21_93_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.21.93.nbt';
 	public const CANONICAL_BLOCK_STATES_NBT = BEDROCK_DATA_PATH . '/canonical_block_states.nbt';
 	public const COMMAND_ARG_TYPES_JSON = BEDROCK_DATA_PATH . '/command_arg_types.json';
 	public const CREATIVE = BEDROCK_DATA_PATH . '/creative';
@@ -123,5 +126,6 @@ final class BedrockDataFiles{
 	public const REQUIRED_ITEM_LIST_1_21_70_JSON = BEDROCK_DATA_PATH . '/required_item_list-1.21.70.json';
 	public const REQUIRED_ITEM_LIST_1_21_80_JSON = BEDROCK_DATA_PATH . '/required_item_list-1.21.80.json';
 	public const REQUIRED_ITEM_LIST_1_21_90_JSON = BEDROCK_DATA_PATH . '/required_item_list-1.21.90.json';
+	public const REQUIRED_ITEM_LIST_1_21_93_JSON = BEDROCK_DATA_PATH . '/required_item_list-1.21.93.json';
 	public const REQUIRED_ITEM_LIST_JSON = BEDROCK_DATA_PATH . '/required_item_list.json';
 }

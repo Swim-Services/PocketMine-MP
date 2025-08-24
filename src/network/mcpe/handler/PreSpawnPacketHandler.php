@@ -109,6 +109,7 @@ class PreSpawnPacketHandler extends PacketHandler{
 				Uuid::fromString(Uuid::NIL),
 				false,
 				$typeConverter->getBlockTranslator()->networkIdsAreHashes(),
+				false,
 				new NetworkPermissions(disableClientSounds: true),
 				[],
 				0,
