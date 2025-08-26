@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dc8d71b46fa2e9ac806619516a321fed",
+    "content-hash": "18ee0ad1e8e063e77c9922fe041eef39",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -849,16 +849,16 @@
         },
         {
             "name": "swim-services/bedrock-protocol",
-            "version": "dev-master",
+            "version": "dev-1.21.110-pre",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "15d0b72bc58892c0d7f1e88f186ecf07ad40da50"
+                "reference": "0ee9097341c20e098341c896ab66d3a2188f402e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/15d0b72bc58892c0d7f1e88f186ecf07ad40da50",
-                "reference": "15d0b72bc58892c0d7f1e88f186ecf07ad40da50",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/0ee9097341c20e098341c896ab66d3a2188f402e",
+                "reference": "0ee9097341c20e098341c896ab66d3a2188f402e",
                 "shasum": ""
             },
             "require": {
@@ -876,7 +876,6 @@
                 "phpstan/phpstan-strict-rules": "^2.0.0",
                 "phpunit/phpunit": "^9.5 || ^10.0 || ^11.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -898,10 +897,10 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
-                "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master",
+                "source": "https://github.com/Swim-Services/BedrockProtocol/tree/1.21.110-pre",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2025-08-24T20:11:52+00:00"
+            "time": "2025-08-26T20:04:51+00:00"
         },
         {
             "name": "symfony/filesystem",
