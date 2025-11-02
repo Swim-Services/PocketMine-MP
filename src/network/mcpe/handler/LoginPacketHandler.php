@@ -53,11 +53,13 @@ use function base64_decode;
 use function chr;
 use function count;
 use function gettype;
+use function in_array;
 use function is_array;
 use function is_object;
 use function json_decode;
 use function md5;
 use function ord;
+use function preg_match;
 use function var_export;
 use const JSON_THROW_ON_ERROR;
 
@@ -85,6 +87,9 @@ class LoginPacketHandler extends PacketHandler{
 	}
 
 	public function handleLogin(LoginPacket $packet) : bool{
+		if ($packet->protocol < ProtocolInfo::PROTOCOL_1_19_20 && in_array($packet->protocol, ProtocolInfo::ACCEPTED_PROTOCOL, true)) {
+			$this->session->setProtocolId($packet->protocol);
+		}
 		if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_93){
 			$authInfo = $this->parseAuthInfo($packet->authInfoJson);
 		}elseif($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_90){
