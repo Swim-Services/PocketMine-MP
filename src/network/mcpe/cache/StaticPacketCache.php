@@ -84,6 +84,7 @@ class StaticPacketCache{
 					$biomeDefinition->blueSporeDensity,
 					$biomeDefinition->ashDensity,
 					$biomeDefinition->whiteAshDensity,
+					$biomeDefinition->foliageSnow,
 					$biomeDefinition->depth,
 					$biomeDefinition->scale,
 					new Color(

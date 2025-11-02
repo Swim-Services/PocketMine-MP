@@ -27,7 +27,9 @@ use pocketmine\block\BlockTypeIds;
 use pocketmine\entity\Living;
 use pocketmine\entity\object\FallingBlock;
 use pocketmine\entity\object\FireworkRocket;
+use pocketmine\entity\projectile\Trident;
 use pocketmine\event\entity\EntityDamageByBlockEvent;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDeathEvent;
@@ -114,10 +116,15 @@ class PlayerDeathEvent extends EntityDeathEvent{
 				}
 				break;
 			case EntityDamageEvent::CAUSE_PROJECTILE:
-				if($deathCause instanceof EntityDamageByEntityEvent){
+				if($deathCause instanceof EntityDamageByChildEntityEvent){
 					$e = $deathCause->getDamager();
 					if($e instanceof Living){
-						return KnownTranslationFactory::death_attack_arrow($name, $e->getDisplayName());
+						$child = $deathCause->getChild();
+						if($child instanceof Trident){
+							return KnownTranslationFactory::death_attack_trident($name, $e->getDisplayName());
+						}else{
+							return KnownTranslationFactory::death_attack_arrow($name, $e->getDisplayName());
+						}
 					}
 				}
 				break;

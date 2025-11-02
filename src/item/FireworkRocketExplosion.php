@@ -29,10 +29,11 @@ use pocketmine\data\bedrock\DyeColorIdMap;
 use pocketmine\data\bedrock\FireworkRocketTypeIdMap;
 use pocketmine\data\SavedDataLoadingException;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\utils\Binary;
 use pocketmine\utils\Utils;
 use function array_key_first;
+use function chr;
 use function count;
+use function ord;
 use function strlen;
 
 class FireworkRocketExplosion{
@@ -43,6 +44,9 @@ class FireworkRocketExplosion{
 	protected const TAG_TWINKLE = "FireworkFlicker"; //TAG_Byte
 	protected const TAG_TRAIL = "FireworkTrail"; //TAG_Byte
 
+	/**
+	 * @throws SavedDataLoadingException
+	 */
 	public static function fromCompoundTag(CompoundTag $tag) : self{
 		$colors = self::decodeColors($tag->getByteArray(self::TAG_COLORS));
 		if(count($colors) === 0){
@@ -61,13 +65,14 @@ class FireworkRocketExplosion{
 	/**
 	 * @return DyeColor[]
 	 * @phpstan-return list<DyeColor>
+	 * @throws SavedDataLoadingException
 	 */
 	protected static function decodeColors(string $colorsBytes) : array{
 		$colors = [];
 
 		$dyeColorIdMap = DyeColorIdMap::getInstance();
-		for($i = 0; $i < strlen($colorsBytes); $i++){
-			$colorByte = Binary::readByte($colorsBytes[$i]);
+		for($i = 0, $len = strlen($colorsBytes); $i < $len; $i++){
+			$colorByte = ord($colorsBytes[$i]);
 			$color = $dyeColorIdMap->fromInvertedId($colorByte);
 			if($color !== null){
 				$colors[] = $color;
@@ -87,7 +92,7 @@ class FireworkRocketExplosion{
 
 		$dyeColorIdMap = DyeColorIdMap::getInstance();
 		foreach($colors as $color){
-			$colorsBytes .= Binary::writeByte($dyeColorIdMap->toInvertedId($color));
+			$colorsBytes .= chr($dyeColorIdMap->toInvertedId($color));
 		}
 
 		return $colorsBytes;
@@ -143,7 +148,7 @@ class FireworkRocketExplosion{
 	public function getColorMix() : Color{
 		/** @var Color[] $colors */
 		$colors = [];
-		foreach ($this->colors as $dyeColor) {
+		foreach($this->colors as $dyeColor){
 			$colors[] = $dyeColor->getRgbValue();
 		}
 		return Color::mix(...$colors);
@@ -168,7 +173,7 @@ class FireworkRocketExplosion{
 	}
 
 	/**
-	 * Returns whether the particles has a trail effect.
+	 * Returns whether the particles have a trail effect.
 	 */
 	public function getTrail() : bool{
 		return $this->trail;
@@ -180,7 +185,6 @@ class FireworkRocketExplosion{
 			->setByteArray(self::TAG_COLORS, self::encodeColors($this->colors))
 			->setByteArray(self::TAG_FADE_COLORS, self::encodeColors($this->fadeColors))
 			->setByte(self::TAG_TWINKLE, $this->twinkle ? 1 : 0)
-			->setByte(self::TAG_TRAIL, $this->trail ? 1 : 0)
-		;
+			->setByte(self::TAG_TRAIL, $this->trail ? 1 : 0);
 	}
 }

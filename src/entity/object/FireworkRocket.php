@@ -29,6 +29,7 @@ use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Explosive;
 use pocketmine\entity\Living;
 use pocketmine\entity\Location;
+use pocketmine\entity\NeverSavedWithChunkEntity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\item\FireworkRocket as FireworkItem;
@@ -46,12 +47,11 @@ use pocketmine\world\sound\FireworkLaunchSound;
 use function count;
 use function sqrt;
 
-class FireworkRocket extends Entity implements Explosive{
+class FireworkRocket extends Entity implements Explosive, NeverSavedWithChunkEntity{
 
 	public static function getNetworkTypeId() : string{ return EntityIds::FIREWORKS_ROCKET; }
 
-	/* Maximum number of ticks this will live for. */
-	protected int $lifeTicks;
+	protected int $maxFlightTimeTicks;
 
 	/** @var FireworkRocketExplosion[] */
 	protected array $explosions = [];
@@ -59,11 +59,11 @@ class FireworkRocket extends Entity implements Explosive{
 	/**
 	 * @param FireworkRocketExplosion[] $explosions
 	 */
-	public function __construct(Location $location, int $lifeTicks, array $explosions, ?CompoundTag $nbt = null){
-		if ($lifeTicks < 0) {
+	public function __construct(Location $location, int $maxFlightTimeTicks, array $explosions, ?CompoundTag $nbt = null){
+		if($maxFlightTimeTicks < 0){
 			throw new \InvalidArgumentException("Life ticks cannot be negative");
 		}
-		$this->lifeTicks = $lifeTicks;
+		$this->maxFlightTimeTicks = $maxFlightTimeTicks;
 		$this->setExplosions($explosions);
 
 		parent::__construct($location, $nbt);
@@ -76,22 +76,22 @@ class FireworkRocket extends Entity implements Explosive{
 	protected function getInitialGravity() : float{ return 0.0; }
 
 	/**
-	 * Returns maximum number of ticks this will live for.
+	 * Returns the total number of ticks the firework will fly for before it explodes.
 	 */
-	public function getLifeTicks() : int{
-		return $this->lifeTicks;
+	public function getMaxFlightTimeTicks() : int{
+		return $this->maxFlightTimeTicks;
 	}
 
 	/**
-	 * Sets maximum number of ticks this will live for.
+	 * Sets the total number of ticks the firework will fly for before it explodes.
 	 *
 	 * @return $this
 	 */
-	public function setLifeTicks(int $lifeTicks) : self{
-		if ($lifeTicks < 0) {
-			throw new \InvalidArgumentException("Life ticks cannot be negative");
+	public function setMaxFlightTimeTicks(int $maxFlightTimeTicks) : self{
+		if($maxFlightTimeTicks < 0){
+			throw new \InvalidArgumentException("Max flight time ticks cannot be negative");
 		}
-		$this->lifeTicks = $lifeTicks;
+		$this->maxFlightTimeTicks = $maxFlightTimeTicks;
 		return $this;
 	}
 
@@ -113,14 +113,6 @@ class FireworkRocket extends Entity implements Explosive{
 		return $this;
 	}
 
-	/**
-	 * TODO: The entity should be saved and loaded, but this is not possible.
-	 * @see https://bugs.mojang.com/browse/MCPE-165230
-	 */
-	public function canSaveWithChunk() : bool{
-		return false;
-	}
-
 	protected function onFirstUpdate(int $currentTick) : void{
 		parent::onFirstUpdate($currentTick);
 
@@ -131,9 +123,15 @@ class FireworkRocket extends Entity implements Explosive{
 		$hasUpdate = parent::entityBaseTick($tickDiff);
 
 		if(!$this->isFlaggedForDespawn()){
-			$this->addMotion($this->motion->x * 0.15, 0.04, $this->motion->z * 0.15);
+			//Don't keep accelerating long-lived fireworks - this gets very rapidly out of control and makes the server
+			//die. Vanilla fireworks will only live for about 52 ticks maximum anyway, so this only makes sure plugin
+			//created fireworks don't murder the server
+			if($this->ticksLived < 60){
+				$this->addMotion($this->motion->x * 0.15, 0.04, $this->motion->z * 0.15);
+			}
 
-			if($this->ticksLived >= $this->lifeTicks){
+			if($this->ticksLived >= $this->maxFlightTimeTicks){
+				$this->flagForDespawn();
 				$this->explode();
 			}
 		}
@@ -142,42 +140,47 @@ class FireworkRocket extends Entity implements Explosive{
 	}
 
 	public function explode() : void{
-		if(($expCount = count($this->explosions)) !== 0){
+		if(($explosionCount = count($this->explosions)) !== 0){
 			$this->broadcastAnimation(new FireworkParticlesAnimation($this));
 			foreach($this->explosions as $explosion){
-				$this->broadcastSound($explosion->getType()->getSound());
+				$this->broadcastSound($explosion->getType()->getExplosionSound());
 				if($explosion->willTwinkle()){
 					$this->broadcastSound(new FireworkCrackleSound());
 				}
 			}
 
-			$force = ($expCount * 2) + 5;
-			foreach($this->getWorld()->getCollidingEntities($this->getBoundingBox()->expandedCopy(5, 5, 5), $this) as $entity){
+			$force = ($explosionCount * 2) + 5;
+			$world = $this->getWorld();
+			foreach($world->getCollidingEntities($this->getBoundingBox()->expandedCopy(5, 5, 5), $this) as $entity){
 				if(!$entity instanceof Living){
 					continue;
 				}
 
-				$position = $entity->getEyePos();
-				$distance = $position->distance($this->location);
-				if($distance > 5){
+				$position = $entity->getPosition();
+				$distance = $position->distanceSquared($this->location);
+				if($distance > 25){
 					continue;
 				}
 
-				$world = $this->getWorld();
-
-				//check for obstructing blocks
-				foreach(VoxelRayTrace::betweenPoints($this->location, $position) as $pos){
-					if($world->getBlockAt((int) $pos->x, (int) $pos->y, (int) $pos->z)->isSolid()){
-						continue 2;
+				//cast two rays - one to the entity's feet and another to halfway up its body (according to Java, anyway)
+				//this seems like it'd miss some cases but who am I to argue with vanilla logic :>
+				$height = $entity->getBoundingBox()->getYLength();
+				for($i = 0; $i < 2; $i++){
+					$target = $position->add(0, 0.5 * $i * $height, 0);
+					foreach(VoxelRayTrace::betweenPoints($this->location, $target) as $blockPos){
+						if($world->getBlock($blockPos)->calculateIntercept($this->location, $target) !== null){
+							continue 2; //obstruction, try another path
+						}
 					}
-				}
 
-				$ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_EXPLOSION, $force * sqrt((5 - $distance) / 5));
-				$entity->attack($ev);
+					//no obstruction
+					$damage = $force * sqrt((5 - $position->distance($this->location)) / 5);
+					$ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_EXPLOSION, $damage);
+					$entity->attack($ev);
+					break;
+				}
 			}
 		}
-
-		$this->flagForDespawn();
 	}
 
 	public function canBeCollidedWith() : bool{
@@ -194,8 +197,7 @@ class FireworkRocket extends Entity implements Explosive{
 		$fireworksData = CompoundTag::create()
 			->setTag(FireworkItem::TAG_FIREWORK_DATA, CompoundTag::create()
 				->setTag(FireworkItem::TAG_EXPLOSIONS, $explosions)
-			)
-		;
+			);
 
 		$properties->setCompoundTag(EntityMetadataProperties::FIREWORK_ITEM, new CacheableNbt($fireworksData));
 	}

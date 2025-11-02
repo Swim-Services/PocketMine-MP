@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\serializer;
 
+use pmmp\encoding\Byte;
+use pmmp\encoding\ByteBufferWriter;
+use pmmp\encoding\VarInt;
 use pocketmine\block\tile\Spawnable;
 use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\data\bedrock\LegacyBiomeIdToStringIdMap;
@@ -30,10 +33,7 @@ use pocketmine\nbt\TreeRoot;
 use pocketmine\network\mcpe\convert\BlockTranslator;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\serializer\NetworkNbtSerializer;
-use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
-use pocketmine\utils\Binary;
-use pocketmine\utils\BinaryStream;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\format\PalettedBlockArray;
 use pocketmine\world\format\SubChunk;
@@ -85,9 +85,8 @@ final class ChunkSerializer{
 	 * @phpstan-param DimensionIds::* $dimensionId
 	 * @return string[]
 	 */
-	public static function serializeSubChunks(Chunk $chunk, int $dimensionId, TypeConverter $typeConverter) : array
-	{
-		$stream = PacketSerializer::encoder($typeConverter->getProtocolId());
+	public static function serializeSubChunks(Chunk $chunk, int $dimensionId, TypeConverter $typeConverter) : array{
+		$stream = new ByteBufferWriter();
 		$subChunks = [];
 
 		$subChunkCount = self::getSubChunkCount($chunk, $dimensionId);
@@ -95,9 +94,9 @@ final class ChunkSerializer{
 
 		[$minSubChunkIndex, ] = self::getDimensionChunkBounds($dimensionId);
 		for($y = $minSubChunkIndex; $writtenCount < $subChunkCount; ++$y, ++$writtenCount){
-			$subChunkStream = clone $stream;
-			self::serializeSubChunk($chunk->getSubChunk($y), $typeConverter->getBlockTranslator(), $subChunkStream, false);
-			$subChunks[] = $subChunkStream->getBuffer();
+			$stream->clear();
+			self::serializeSubChunk($chunk->getSubChunk($y), $typeConverter->getBlockTranslator(), $stream, false);
+			$subChunks[] = $stream->getData();
 		}
 
 		return $subChunks;
@@ -107,22 +106,22 @@ final class ChunkSerializer{
 	 * @phpstan-param DimensionIds::* $dimensionId
 	 */
 	public static function serializeFullChunk(Chunk $chunk, int $dimensionId, TypeConverter $typeConverter, ?string $tiles = null) : string{
-		$stream = PacketSerializer::encoder($typeConverter->getProtocolId());
+		$stream = new ByteBufferWriter();
 
 		foreach(self::serializeSubChunks($chunk, $dimensionId, $typeConverter) as $subChunk){
-			$stream->put($subChunk);
+			$stream->writeByteArray($subChunk);
 		}
 
 		self::serializeBiomes($chunk, $dimensionId, $stream);
 		self::serializeChunkData($chunk, $stream, $typeConverter, $tiles);
 
-		return $stream->getBuffer();
+		return $stream->getData();
 	}
 
 	/**
 	 * @phpstan-param DimensionIds::* $dimensionId
 	 */
-	public static function serializeBiomes(Chunk $chunk, int $dimensionId, PacketSerializer $stream) : void{
+	public static function serializeBiomes(Chunk $chunk, int $dimensionId, ByteBufferWriter $stream) : void{
 		[$minSubChunkIndex, $maxSubChunkIndex] = self::getDimensionChunkBounds($dimensionId);
 		$biomeIdMap = LegacyBiomeIdToStringIdMap::getInstance();
 		//all biomes must always be written :(
@@ -131,41 +130,38 @@ final class ChunkSerializer{
 		}
 	}
 
-	public static function serializeBorderBlocks(PacketSerializer $stream) : void {
-		$stream->putByte(0); //border block array count
+	public static function serializeBorderBlocks(ByteBufferWriter $stream) : void {
+		Byte::writeUnsigned($stream, 0); //border block array count
 		//Border block entry format: 1 byte (4 bits X, 4 bits Z). These are however useless since they crash the regular client.
 	}
 
-	public static function serializeChunkData(Chunk $chunk, PacketSerializer $stream, TypeConverter $typeConverter, ?string $tiles = null) : void{
+	public static function serializeChunkData(Chunk $chunk, ByteBufferWriter $stream, TypeConverter $typeConverter, ?string $tiles = null) : void{
 		self::serializeBorderBlocks($stream);
 
 		if($tiles !== null){
-			$stream->put($tiles);
+			$stream->writeByteArray($tiles);
 		}else{
-			$stream->put(self::serializeTiles($chunk, $typeConverter));
+			$stream->writeByteArray(self::serializeTiles($chunk, $typeConverter));
 		}
 	}
 
-	public static function serializeSubChunk(SubChunk $subChunk, BlockTranslator $blockTranslator, PacketSerializer $stream, bool $persistentBlockStates) : void{
+	public static function serializeSubChunk(SubChunk $subChunk, BlockTranslator $blockTranslator, ByteBufferWriter $stream, bool $persistentBlockStates) : void{
 		$layers = $subChunk->getBlockLayers();
-		$stream->putByte(8); //version
+		Byte::writeUnsigned($stream, 8); //version
 
-		$stream->putByte(count($layers));
+		Byte::writeUnsigned($stream, count($layers));
 
 		$blockStateDictionary = $blockTranslator->getBlockStateDictionary();
 
 		foreach($layers as $blocks){
 			$bitsPerBlock = $blocks->getBitsPerBlock();
 			$words = $blocks->getWordArray();
-			$stream->putByte(($bitsPerBlock << 1) | ($persistentBlockStates ? 0 : 1));
-			$stream->put($words);
+			Byte::writeUnsigned($stream, ($bitsPerBlock << 1) | ($persistentBlockStates ? 0 : 1));
+			$stream->writeByteArray($words);
 			$palette = $blocks->getPalette();
 
 			if($bitsPerBlock !== 0){
-				//these LSHIFT by 1 uvarints are optimizations: the client expects zigzag varints here
-				//but since we know they are always unsigned, we can avoid the extra fcall overhead of
-				//zigzag and just shift directly.
-				$stream->putUnsignedVarInt(count($palette) << 1); //yes, this is intentionally zigzag
+				VarInt::writeSignedInt($stream, count($palette)); //yes, this is intentionally zigzag
 			}
 			if($persistentBlockStates){
 				$nbtSerializer = new NetworkNbtSerializer();
@@ -176,46 +172,43 @@ final class ChunkSerializer{
 						$state = $blockTranslator->getFallbackStateData();
 					}
 
-					$stream->put($nbtSerializer->write(new TreeRoot($state->toNbt())));
+					$stream->writeByteArray($nbtSerializer->write(new TreeRoot($state->toNbt())));
 				}
 			}else{
+				//we would use writeSignedIntArray() here, but the gains of writing in batch are negated by the cost of
+				//allocating a temporary array for the mapped palette IDs, especially for small palettes
 				foreach($palette as $p){
-					$stream->put(Binary::writeVarInt($blockTranslator->internalIdToNetworkId($p)));
+					VarInt::writeSignedInt($stream, $blockTranslator->internalIdToNetworkId($p));
 				}
 			}
 		}
 	}
 
-	private static function serializeBiomePalette(PalettedBlockArray $biomePalette, LegacyBiomeIdToStringIdMap $biomeIdMap, PacketSerializer $stream) : void{
+	private static function serializeBiomePalette(PalettedBlockArray $biomePalette, LegacyBiomeIdToStringIdMap $biomeIdMap, ByteBufferWriter $stream) : void{
 		$biomePaletteBitsPerBlock = $biomePalette->getBitsPerBlock();
-		$stream->putByte(($biomePaletteBitsPerBlock << 1) | 1); //the last bit is non-persistence (like for blocks), though it has no effect on biomes since they always use integer IDs
-		$stream->put($biomePalette->getWordArray());
+		Byte::writeUnsigned($stream, ($biomePaletteBitsPerBlock << 1) | 1); //the last bit is non-persistence (like for blocks), though it has no effect on biomes since they always use integer IDs
+		$stream->writeByteArray($biomePalette->getWordArray());
 
-		//these LSHIFT by 1 uvarints are optimizations: the client expects zigzag varints here
-		//but since we know they are always unsigned, we can avoid the extra fcall overhead of
-		//zigzag and just shift directly.
 		$biomePaletteArray = $biomePalette->getPalette();
 		if($biomePaletteBitsPerBlock !== 0){
-			$stream->putUnsignedVarInt(count($biomePaletteArray) << 1);
+			VarInt::writeSignedInt($stream, count($biomePaletteArray));
 		}
 
 		foreach($biomePaletteArray as $p){
-			if($biomeIdMap->legacyToString($p) === null){
-				//make sure we aren't sending bogus biomes - the 1.18.0 client crashes if we do this
-				$p = BiomeIds::OCEAN;
-			}
-			$stream->put(Binary::writeUnsignedVarInt($p << 1));
+			//we would use writeSignedIntArray() here, but the gains of writing in batch are negated by the cost of
+			//allocating a temporary array for the mapped palette IDs, especially for small palettes
+			VarInt::writeSignedInt($stream, $biomeIdMap->legacyToString($p) !== null ? $p : BiomeIds::OCEAN);
 		}
 	}
 
 	public static function serializeTiles(Chunk $chunk, TypeConverter $typeConverter) : string{
-		$stream = new BinaryStream();
+		$stream = new ByteBufferWriter();
 		foreach($chunk->getTiles() as $tile){
 			if($tile instanceof Spawnable){
-				$stream->put($tile->getSerializedSpawnCompound($typeConverter)->getEncodedNbt());
+				$stream->writeByteArray($tile->getSerializedSpawnCompound($typeConverter)->getEncodedNbt());
 			}
 		}
 
-		return $stream->getBuffer();
+		return $stream->getData();
 	}
 }

@@ -49,6 +49,9 @@ final class BiomeDefinitionEntryData{
 	public float $whiteAshDensity;
 
 	/** @required */
+	public float $foliageSnow;
+
+	/** @required */
 	public float $depth;
 
 	/** @required */

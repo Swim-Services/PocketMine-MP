@@ -153,7 +153,7 @@ class ChunkCache implements ChunkListener{
 		return $this->prepareChunkAsync($chunkX, $chunkZ, $chunkHash, $typeConverter);
 	}
 
-	private function destroy(int $chunkX, int $chunkZ, int $protocolId = null) : bool{
+	private function destroy(int $chunkX, int $chunkZ, ?int $protocolId = null) : bool{
 		$chunkHash = World::chunkHash($chunkX, $chunkZ);
 
 		if($protocolId === null){

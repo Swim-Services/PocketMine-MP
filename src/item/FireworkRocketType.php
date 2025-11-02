@@ -23,31 +23,24 @@ declare(strict_types=1);
 
 namespace pocketmine\item;
 
-use pocketmine\utils\LegacyEnumShimTrait;
 use pocketmine\world\sound\FireworkExplosionSound;
 use pocketmine\world\sound\FireworkLargeExplosionSound;
 use pocketmine\world\sound\Sound;
-use function spl_object_id;
 
 enum FireworkRocketType{
-	use LegacyEnumShimTrait;
-
 	case SMALL_BALL;
 	case LARGE_BALL;
 	case STAR;
 	case CREEPER;
 	case BURST;
 
-	public function getSound() : Sound{
-		/** @phpstan-var array<int, Sound> $cache */
-		static $cache = [];
-
-		return $cache[spl_object_id($this)] ??= match($this){
-			self::SMALL_BALL => new FireworkExplosionSound(),
-			self::LARGE_BALL => new FireworkLargeExplosionSound(),
-			self::STAR => new FireworkExplosionSound(),
-			self::CREEPER => new FireworkExplosionSound(),
+	public function getExplosionSound() : Sound{
+		return match($this){
+			self::SMALL_BALL,
+			self::STAR,
+			self::CREEPER,
 			self::BURST => new FireworkExplosionSound(),
+			self::LARGE_BALL => new FireworkLargeExplosionSound(),
 		};
 	}
 }

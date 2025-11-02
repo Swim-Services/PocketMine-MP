@@ -182,8 +182,7 @@ abstract class Living extends Entity{
 
 		$this->setAirSupplyTicks($nbt->getShort(self::TAG_BREATH_TICKS, self::DEFAULT_BREATH_TICKS));
 
-		/** @var CompoundTag[]|ListTag|null $activeEffectsTag */
-		$activeEffectsTag = $nbt->getListTag(self::TAG_ACTIVE_EFFECTS);
+		$activeEffectsTag = $nbt->getListTag(self::TAG_ACTIVE_EFFECTS, CompoundTag::class);
 		if($activeEffectsTag !== null){
 			foreach($activeEffectsTag as $e){
 				$effect = EffectIdMap::getInstance()->fromId($e->getByte(self::TAG_EFFECT_ID));
@@ -243,6 +242,10 @@ abstract class Living extends Entity{
 		$this->absorptionAttr->setValue($absorption);
 	}
 
+	public function getSneakOffset() : float{
+		return 0.0;
+	}
+
 	public function isSneaking() : bool{
 		return $this->sneaking;
 	}
@@ -293,7 +296,7 @@ abstract class Living extends Entity{
 			$width = $size->getWidth();
 			$this->setSize((new EntitySizeInfo($width, $width, $width * 0.9))->scale($this->getScale()));
 		}elseif($this->isSneaking()){
-			$this->setSize((new EntitySizeInfo(3 / 4 * $size->getHeight(), $size->getWidth(), 3 / 4 * $size->getEyeHeight()))->scale($this->getScale()));
+			$this->setSize((new EntitySizeInfo($size->getHeight() - $this->getSneakOffset(), $size->getWidth(), $size->getEyeHeight() - $this->getSneakOffset()))->scale($this->getScale()));
 		}else{
 			$this->setSize($size->scale($this->getScale()));
 		}
@@ -932,12 +935,12 @@ abstract class Living extends Entity{
 	 * their heads to turn.
 	 */
 	public function lookAt(Vector3 $target) : void{
-		$horizontal = sqrt(($target->x - $this->location->x) ** 2 + ($target->z - $this->location->z) ** 2);
-		$vertical = $target->y - ($this->location->y + $this->getEyeHeight());
-		$pitch = -atan2($vertical, $horizontal) / M_PI * 180; //negative is up, positive is down
-
 		$xDist = $target->x - $this->location->x;
 		$zDist = $target->z - $this->location->z;
+
+		$horizontal = sqrt($xDist ** 2 + $zDist ** 2);
+		$vertical = $target->y - ($this->location->y + $this->getEyeHeight());
+		$pitch = -atan2($vertical, $horizontal) / M_PI * 180; //negative is up, positive is down
 
 		$yaw = atan2($zDist, $xDist) / M_PI * 180 - 90;
 		if($yaw < 0){

@@ -21,11 +21,21 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory\data;
+namespace pocketmine\block\utils;
 
-use pocketmine\item\Item;
+interface CoralMaterial{
 
-final class CreativeGroupedItem{
-	public Item $item;
-	public int $groupId;
+	public function getCoralType() : CoralType;
+
+	/**
+	 * @return $this
+	 */
+	public function setCoralType(CoralType $coralType) : self;
+
+	public function isDead() : bool;
+
+	/**
+	 * @return $this
+	 */
+	public function setDead(bool $dead) : self;
 }
