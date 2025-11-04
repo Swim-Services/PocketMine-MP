@@ -90,7 +90,7 @@ class LoginPacketHandler extends PacketHandler{
 		if ($packet->protocol < ProtocolInfo::PROTOCOL_1_19_20 && in_array($packet->protocol, ProtocolInfo::ACCEPTED_PROTOCOL, true)) {
 			$this->session->setProtocolId($packet->protocol);
 		}
-		if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_93){
+		if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_100){
 			$authInfo = $this->parseAuthInfo($packet->authInfoJson);
 		}elseif($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_90){
 			$authInfo = $this->parseAuthInfo($packet->authInfoJson);
@@ -136,7 +136,7 @@ class LoginPacketHandler extends PacketHandler{
 			}catch(\JsonMapper_Exception $e){
 				throw PacketHandlingException::wrap($e, "Error mapping self-signed certificate chain");
 			}
-			if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_93){
+			if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_100){
 				if(count($chain->chain) > 1 || !isset($chain->chain[0])){
 					throw new PacketHandlingException("Expected exactly one certificate in self-signed certificate chain, got " . count($chain->chain));
 				}
@@ -187,7 +187,7 @@ class LoginPacketHandler extends PacketHandler{
 			}
 			$legacyUuid = Uuid::fromString($claims->identity);
 			$username = $claims->displayName;
-			$xuid = $this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_93 ? "" : $claims->XUID;
+			$xuid = $this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_100 ? "" : $claims->XUID;
 
 			$authRequired = $this->processLoginCommon($packet, $username, $legacyUuid, $xuid);
 			if($authRequired === null){
@@ -381,7 +381,7 @@ class LoginPacketHandler extends PacketHandler{
 	protected function processSelfSignedLogin(array $legacyCertificate, string $clientDataJwt, bool $authRequired) : void{
 		$this->session->setHandler(null); //drop packets received during login verification
 
-		$rootAuthKeyDer = $this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_93 ? null : base64_decode(ProcessLegacyLoginTask::LEGACY_MOJANG_ROOT_PUBLIC_KEY, true);
+		$rootAuthKeyDer = $this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_100 ? null : base64_decode(ProcessLegacyLoginTask::LEGACY_MOJANG_ROOT_PUBLIC_KEY, true);
 		if($rootAuthKeyDer === false){ //should never happen unless the constant is messed up
 			throw new \InvalidArgumentException("Failed to base64-decode hardcoded Mojang root public key");
 		}
