@@ -22,6 +22,9 @@
 declare(strict_types=1);
 namespace pocketmine\entity\utils;
 
+use pmmp\encoding\ByteBufferReader;
+use pmmp\encoding\ByteBufferWriter;
+use pmmp\encoding\VarInt;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataTypes;
 use pocketmine\network\mcpe\protocol\types\entity\IntegerishMetadataProperty;
@@ -43,11 +46,18 @@ final class UnlimitedIntMetadataProperty implements MetadataProperty {
 		return PHP_INT_MAX;
 	}
 
-	public static function read(PacketSerializer $in) : self{
-		return new self($in->getVarInt());
+	public static function read(ByteBufferReader $in) : self{
+		return new self(VarInt::readSignedInt($in));
 	}
 
+	/* Outdated due to ext-encoding MetadataProperty now requiring ByteBufferWriter for write(..)
 	public function write(PacketSerializer $out) : void{
 		$out->putVarInt($this->value);
 	}
+	*/
+
+	public function write(ByteBufferWriter $out) : void{
+		VarInt::writeSignedInt($out, $this->value);
+	}
+
 }
