@@ -22,13 +22,14 @@
 declare(strict_types=1);
 namespace pocketmine\entity\utils;
 
-use InvalidArgumentException;
+use pmmp\encoding\ByteBufferReader;
+use pmmp\encoding\ByteBufferWriter;
+use pmmp\encoding\VarInt;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataTypes;
 use pocketmine\network\mcpe\protocol\types\entity\IntegerishMetadataProperty;
 use pocketmine\network\mcpe\protocol\types\entity\MetadataProperty;
 use pocketmine\network\mcpe\protocol\types\GetTypeIdFromConstTrait;
-use pmmp\encoding\ByteBufferWriter;
 use const PHP_INT_MAX;
 use const PHP_INT_MIN;
 
@@ -45,8 +46,8 @@ final class UnlimitedIntMetadataProperty implements MetadataProperty {
 		return PHP_INT_MAX;
 	}
 
-	public static function read(PacketSerializer $in) : self{
-		return new self($in->getVarInt());
+	public static function read(ByteBufferReader $in) : self{
+		return new self(VarInt::readSignedInt($in));
 	}
 
 	/* Outdated due to ext-encoding MetadataProperty now requiring ByteBufferWriter for write(..)
@@ -56,26 +57,7 @@ final class UnlimitedIntMetadataProperty implements MetadataProperty {
 	*/
 
 	public function write(ByteBufferWriter $out) : void{
-		// Zigzag-encode 32-bit signed int, then write as unsigned VarInt (max 5 bytes)
-		$v = $this->value;
-		$u = (($v << 1) ^ ($v >> 31));     // zigzag to unsigned
-		$remaining = $u & 0xffffffff;      // constrain to 32-bit like Binary::writeUnsignedVarInt()
-
-		for($i = 0; $i < 5; ++$i){
-			if(($remaining >> 7) !== 0){
-				// write low 7 bits with continuation flag
-				$out->writeByteArray(chr(($remaining & 0xFF) | 0x80));
-			}else{
-				// last byte, no continuation
-				$out->writeByteArray(chr($remaining & 0x7F));
-				return;
-			}
-			// logical right shift by 7; PHP has only arithmetic >>, so mask
-			$remaining = (($remaining >> 7) & (PHP_INT_MAX >> 6));
-		}
-
-		// Should never happen for 32-bit values
-		throw new InvalidArgumentException("Value too large to be encoded as a VarInt");
+		VarInt::writeSignedInt($out, $this->value);
 	}
 
 }
