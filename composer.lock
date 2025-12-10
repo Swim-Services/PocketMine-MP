@@ -806,12 +806,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockData.git",
-                "reference": "6b0f451edbdf63dfba5e238e8dd86278b5381547"
+                "reference": "efe7ba0d6d16a99614504504eb239e101db87247"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/6b0f451edbdf63dfba5e238e8dd86278b5381547",
-                "reference": "6b0f451edbdf63dfba5e238e8dd86278b5381547",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/efe7ba0d6d16a99614504504eb239e101db87247",
+                "reference": "efe7ba0d6d16a99614504504eb239e101db87247",
                 "shasum": ""
             },
             "default-branch": true,
@@ -823,7 +823,7 @@
             "support": {
                 "source": "https://github.com/Swim-Services/BedrockData/tree/master"
             },
-            "time": "2025-11-02T14:28:53+00:00"
+            "time": "2025-12-10T02:22:32+00:00"
         },
         {
             "name": "swim-services/bedrock-protocol",
@@ -831,12 +831,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "966e736f7bde0c460b56a6f62eeec82b0fa9b854"
+                "reference": "d2f648910122d66f7180384d0814743f79a97648"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/966e736f7bde0c460b56a6f62eeec82b0fa9b854",
-                "reference": "966e736f7bde0c460b56a6f62eeec82b0fa9b854",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/d2f648910122d66f7180384d0814743f79a97648",
+                "reference": "d2f648910122d66f7180384d0814743f79a97648",
                 "shasum": ""
             },
             "require": {
@@ -880,20 +880,20 @@
                 "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2025-12-07T00:27:05+00:00"
+            "time": "2025-12-10T02:32:38+00:00"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v6.4.24",
+            "version": "v6.4.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "75ae2edb7cdcc0c53766c30b0a2512b8df574bd8"
+                "reference": "441c6b69f7222aadae7cbf5df588496d5ee37789"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/75ae2edb7cdcc0c53766c30b0a2512b8df574bd8",
-                "reference": "75ae2edb7cdcc0c53766c30b0a2512b8df574bd8",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/441c6b69f7222aadae7cbf5df588496d5ee37789",
+                "reference": "441c6b69f7222aadae7cbf5df588496d5ee37789",
                 "shasum": ""
             },
             "require": {
@@ -930,7 +930,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v6.4.24"
+                "source": "https://github.com/symfony/filesystem/tree/v6.4.30"
             },
             "funding": [
                 {
@@ -950,7 +950,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-07-10T08:14:14+00:00"
+            "time": "2025-11-26T14:43:45+00:00"
         }
     ],
     "packages-dev": [
