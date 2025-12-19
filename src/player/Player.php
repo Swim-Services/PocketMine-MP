@@ -1013,7 +1013,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$tickingChunkRadius = $world->getChunkTickRadius();
 
 		foreach($this->chunkSelector->selectChunks(
-			$this->server->getAllowedViewDistance($this->viewDistance),
+			$this->server->getAllowedViewDistance($this->viewDistance) + 1,
 			$this->location->getFloorX() >> Chunk::COORD_BIT_SIZE,
 			$this->location->getFloorZ() >> Chunk::COORD_BIT_SIZE
 		) as $radius => $hash){
