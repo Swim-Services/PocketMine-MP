@@ -55,34 +55,22 @@ final class ChunkSelector{
 
 					/* Top right quadrant */
 					yield $subRadius => World::chunkHash($centerX + $x, $centerZ + $z);
-					if ($x !== 0) {
 					/* Top left quadrant */
-						yield $subRadius => World::chunkHash($centerX - $x, $centerZ + $z);
-					}
+					yield $subRadius => World::chunkHash($centerX - $x - 1, $centerZ + $z);
 					/* Bottom right quadrant */
-					if ($z !== 0) {
-						yield $subRadius => World::chunkHash($centerX + $x, $centerZ - $z);
-					}
+					yield $subRadius => World::chunkHash($centerX + $x, $centerZ - $z - 1);
 					/* Bottom left quadrant */
-					if ($x !== 0 && $z !== 0) {
-						yield $subRadius => World::chunkHash($centerX - $x, $centerZ - $z);
-					}
+					yield $subRadius => World::chunkHash($centerX - $x - 1, $centerZ - $z - 1);
 
 					if($x !== $z){
 						/* Top right quadrant mirror */
 						yield $subRadius => World::chunkHash($centerX + $z, $centerZ + $x);
 						/* Top left quadrant mirror */
-						if ($z !== 0) {
-							yield $subRadius => World::chunkHash($centerX - $z, $centerZ + $x);
-						}
+						yield $subRadius => World::chunkHash($centerX - $z - 1, $centerZ + $x);
 						/* Bottom right quadrant mirror */
-						if ($x !== 0) {
-							yield $subRadius => World::chunkHash($centerX + $z, $centerZ - $x);
-						}
+						yield $subRadius => World::chunkHash($centerX + $z, $centerZ - $x - 1);
 						/* Bottom left quadrant mirror */
-						if ($x !== 0 && $z !== 0) {
-							yield $subRadius => World::chunkHash($centerX - $z, $centerZ - $x);
-						}
+						yield $subRadius => World::chunkHash($centerX - $z - 1, $centerZ - $x - 1);
 					}
 				}
 			}

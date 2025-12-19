@@ -91,8 +91,8 @@ function render(int $radius, int $baseX, int $baseZ, int $chunksPerStep, int $sc
 				$color = $yellow;
 			}
 			World::getXZ($chunkHash, $chunkX, $chunkZ);
-			$imageX = $middleOffsetX + (($chunkX - $baseX) * $scale) - ($scale / 2);
-			$imageZ = $middleOffsetZ + (($chunkZ - $baseZ) * $scale) - ($scale / 2);
+			$imageX = $middleOffsetX + (($chunkX - $baseX) * $scale);
+			$imageZ = $middleOffsetZ + (($chunkZ - $baseZ) * $scale);
 
 			imagefilledrectangle($image, $imageX, $imageZ, $imageX + $scale, $imageZ + $scale, $color);
 			imagerectangle($image, $imageX, $imageZ, $imageX + $scale, $imageZ + $scale, $black);
