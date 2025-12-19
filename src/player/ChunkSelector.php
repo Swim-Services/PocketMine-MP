@@ -34,7 +34,7 @@ final class ChunkSelector{
 	 * @phpstan-return \Generator<int, int, void, void>
 	 */
 	public function selectChunks(int $radius, int $centerX, int $centerZ) : \Generator{
-		for($subRadius = 0; $subRadius <= $radius; $subRadius++){
+		for($subRadius = 0; $subRadius < $radius; $subRadius++){
 			$subRadiusSquared = $subRadius ** 2;
 			$nextSubRadiusSquared = ($subRadius + 1) ** 2;
 			$minX = (int) ($subRadius / M_SQRT2);
