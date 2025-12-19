@@ -1010,17 +1010,17 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$unloadChunks = $this->usedChunks;
 
 		$world = $this->getWorld();
-		$tickingChunkRadius = $world->getChunkTickRadius();
+		$tickingChunkRadiusSquared = $world->getChunkTickRadius() ** 2;
 
 		foreach($this->chunkSelector->selectChunks(
 			$this->server->getAllowedViewDistance($this->viewDistance),
 			$this->location->getFloorX() >> Chunk::COORD_BIT_SIZE,
 			$this->location->getFloorZ() >> Chunk::COORD_BIT_SIZE
-		) as $radius => $hash){
+		) as $radiusSquared => $hash){
 			if(!isset($this->usedChunks[$hash]) || $this->usedChunks[$hash] === UsedChunkStatus::NEEDED){
 				$newOrder[$hash] = true;
 			}
-			if($radius < $tickingChunkRadius){
+			if($radiusSquared < $tickingChunkRadiusSquared){
 				$tickingChunks[$hash] = true;
 			}
 			unset($unloadChunks[$hash]);

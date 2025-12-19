@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace pocketmine\player;
 
 use pocketmine\world\World;
+use function round;
+use const M_SQRT1_2;
 use const M_SQRT2;
 
 //TODO: turn this into an interface?
@@ -34,45 +36,51 @@ final class ChunkSelector{
 	 * @phpstan-return \Generator<int, int, void, void>
 	 */
 	public function selectChunks(int $radius, int $centerX, int $centerZ) : \Generator{
-		for($subRadius = 0; $subRadius < $radius; $subRadius++){
-			$subRadiusSquared = $subRadius ** 2;
-			$nextSubRadiusSquared = ($subRadius + 1) ** 2;
-			$minX = (int) ($subRadius / M_SQRT2);
+		$radiusSquared = $radius ** 2;
+		$nextRadiusSquared = ($radius + 1) ** 2;
+		yield 0 => World::chunkHash($centerX, $centerZ);
+		for ($x = 1; $x <= $radius; $x++) {
+			$distSquared = ($x ** 2);
+			yield $distSquared => World::chunkHash($centerX + $x, $centerZ);
+			yield $distSquared => World::chunkHash($centerX - $x, $centerZ);
+			if ($x !== 0) {
+				yield $distSquared => World::chunkHash($centerX, $centerZ + $x);
+				yield $distSquared => World::chunkHash($centerX, $centerZ - $x);
+			}
+		}
 
-			$lastZ = 0;
+		for ($x = 1; $x <= $radius; $x++) {
+			$distSquared = ($x * M_SQRT2) ** 2;
+			if ($distSquared > $nextRadiusSquared) {
+				break;
+			}
+			yield $distSquared => World::chunkHash($centerX + $x, $centerZ + $x);
+			yield $distSquared => World::chunkHash($centerX - $x, $centerZ + $x);
+			yield $distSquared => World::chunkHash($centerX + $x, $centerZ - $x);
+			yield $distSquared => World::chunkHash($centerX - $x, $centerZ - $x);
+		}
 
-			for($x = $subRadius; $x >= $minX; --$x){
-				for($z = $lastZ; $z <= $x; ++$z){
-					$distanceSquared = ($x ** 2 + $z ** 2);
-					if($distanceSquared < $subRadiusSquared){
-						continue;
-					}elseif($distanceSquared >= $nextSubRadiusSquared){
-						break; //skip to next X
-					}
+		$radiusPart = (int) round($radius * M_SQRT1_2);
 
-					$lastZ = $z;
-					//If the chunk is in the radius, others at the same offsets in different quadrants are also guaranteed to be.
+		$x = $radius;
+		for ($z = 1; $z < $radiusPart; $z++) {
+			$zSquared = $z ** 2;
+			$distSquared = ($x ** 2) + $zSquared;
+			if ($distSquared > $nextRadiusSquared) {
+				$x -= 1;
+			}
+			for ($xx = $x; $xx > $z; $xx--) {
+				$distSquared = ($xx ** 2) + $zSquared;
 
-					/* Top right quadrant */
-					yield $subRadius => World::chunkHash($centerX + $x, $centerZ + $z);
-					/* Top left quadrant */
-					yield $subRadius => World::chunkHash($centerX - $x - 1, $centerZ + $z);
-					/* Bottom right quadrant */
-					yield $subRadius => World::chunkHash($centerX + $x, $centerZ - $z - 1);
-					/* Bottom left quadrant */
-					yield $subRadius => World::chunkHash($centerX - $x - 1, $centerZ - $z - 1);
+				yield $distSquared => World::chunkHash($centerX - $xx, $centerZ + $z);
+				yield $distSquared => World::chunkHash($centerX + $xx, $centerZ + $z);
+				yield $distSquared => World::chunkHash($centerX + $xx, $centerZ - $z);
+				yield $distSquared => World::chunkHash($centerX - $xx, $centerZ - $z);
 
-					if($x !== $z){
-						/* Top right quadrant mirror */
-						yield $subRadius => World::chunkHash($centerX + $z, $centerZ + $x);
-						/* Top left quadrant mirror */
-						yield $subRadius => World::chunkHash($centerX - $z - 1, $centerZ + $x);
-						/* Bottom right quadrant mirror */
-						yield $subRadius => World::chunkHash($centerX + $z, $centerZ - $x - 1);
-						/* Bottom left quadrant mirror */
-						yield $subRadius => World::chunkHash($centerX - $z - 1, $centerZ - $x - 1);
-					}
-				}
+				yield $distSquared => World::chunkHash($centerX - $z, $centerZ + $xx);
+				yield $distSquared => World::chunkHash($centerX + $z, $centerZ + $xx);
+				yield $distSquared => World::chunkHash($centerX + $z, $centerZ - $xx);
+				yield $distSquared => World::chunkHash($centerX - $z, $centerZ - $xx);
 			}
 		}
 	}
