@@ -831,12 +831,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "e7e3264d88bebef8433acb287a39b07715af38b2"
+                "reference": "3715bd7201c3a78b30fc98c3d726a759f5a82129"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/e7e3264d88bebef8433acb287a39b07715af38b2",
-                "reference": "e7e3264d88bebef8433acb287a39b07715af38b2",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/3715bd7201c3a78b30fc98c3d726a759f5a82129",
+                "reference": "3715bd7201c3a78b30fc98c3d726a759f5a82129",
                 "shasum": ""
             },
             "require": {
@@ -880,7 +880,7 @@
                 "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2025-12-22T13:12:55+00:00"
+            "time": "2025-12-22T13:19:25+00:00"
         },
         {
             "name": "symfony/filesystem",
