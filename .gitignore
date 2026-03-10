@@ -19,6 +19,9 @@ server.lock
 /phpstan.neon
 /docker/test_data/
 
+*.dat
+polyfill.php
+
 # Common IDEs
 .idea/*
 !.idea/codeStyles/
