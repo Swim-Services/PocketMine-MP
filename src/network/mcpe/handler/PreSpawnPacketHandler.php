@@ -32,6 +32,7 @@ use pocketmine\network\mcpe\protocol\ItemRegistryPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
+use pocketmine\network\mcpe\protocol\ServerboundLoadingScreenPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\BoolGameRule;
@@ -42,6 +43,7 @@ use pocketmine\network\mcpe\protocol\types\LevelSettings;
 use pocketmine\network\mcpe\protocol\types\NetworkPermissions;
 use pocketmine\network\mcpe\protocol\types\PlayerMovementSettings;
 use pocketmine\network\mcpe\protocol\types\ServerAuthMovementMode;
+use pocketmine\network\mcpe\protocol\types\ServerTelemetryData;
 use pocketmine\network\mcpe\protocol\types\SpawnSettings;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -53,6 +55,8 @@ use function sprintf;
 /**
  * Handler used for the pre-spawn phase of the session.
  */
+#[SilentDiscard(PlayerAuthInputPacket::class, comment: "Spammed after StartGame even though player has no controls")]
+#[SilentDiscard(ServerboundLoadingScreenPacket::class, "Not needed")]
 class PreSpawnPacketHandler extends PacketHandler{
 	public function __construct(
 		private Server $server,
@@ -113,6 +117,8 @@ class PreSpawnPacketHandler extends PacketHandler{
 				$typeConverter->getBlockTranslator()->networkIdsAreHashes(),
 				false,
 				new NetworkPermissions(disableClientSounds: true),
+				null,
+				new ServerTelemetryData("", "", "", ""),
 				[],
 				0,
 				$typeConverter->getItemTypeDictionary()->getEntries(),
@@ -167,12 +173,6 @@ class PreSpawnPacketHandler extends PacketHandler{
 	public function handleRequestChunkRadius(RequestChunkRadiusPacket $packet) : bool{
 		$this->player->setViewDistance($packet->radius);
 
-		return true;
-	}
-
-	public function handlePlayerAuthInput(PlayerAuthInputPacket $packet) : bool{
-		//the client will send this every tick once we start sending chunks, but we don't handle it in this stage
-		//this is very spammy so we filter it out
 		return true;
 	}
 }
