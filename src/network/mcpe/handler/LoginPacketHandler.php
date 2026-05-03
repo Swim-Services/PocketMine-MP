@@ -125,7 +125,7 @@ class LoginPacketHandler extends PacketHandler{
 
 		}elseif($authInfo->AuthenticationType === AuthenticationType::SELF_SIGNED->value){
 			try{
-				$chainData = json_decode($authInfo->Certificate, flags: JSON_THROW_ON_ERROR);
+				$chainData = json_decode($authInfo->Certificate ?? "", flags: JSON_THROW_ON_ERROR);
 			}catch(\JsonException $e){
 				throw PacketHandlingException::wrap($e, "Error parsing self-signed certificate chain");
 			}
