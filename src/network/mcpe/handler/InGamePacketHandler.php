@@ -99,6 +99,7 @@ use pocketmine\network\mcpe\protocol\types\PlayerBlockActionWithBlockInfo;
 use pocketmine\network\PacketHandlingException;
 use pocketmine\player\Player;
 use pocketmine\utils\AssumptionFailedError;
+use pocketmine\utils\Binary;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
@@ -106,6 +107,7 @@ use pocketmine\world\format\Chunk;
 use function array_push;
 use function count;
 use function fmod;
+use function get_class;
 use function get_debug_type;
 use function implode;
 use function in_array;
@@ -119,6 +121,7 @@ use function microtime;
 use function sprintf;
 use function str_starts_with;
 use function strlen;
+use function var_dump;
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -337,6 +340,8 @@ class InGamePacketHandler extends PacketHandler{
 			$result = $this->handleReleaseItemTransaction($packet->trData);
 		}
 
+		var_dump(get_class($packet->trData));
+
 		$this->inventoryManager->syncMismatchedPredictedSlotChanges();
 
 		//requestChangedSlots asks the server to always send out the contents of the specified slots, even if they
@@ -441,7 +446,7 @@ class InGamePacketHandler extends PacketHandler{
 			$serverItemStack->getId() !== $clientItemStack->getId() ||
 			$serverItemStack->getMeta() !== $clientItemStack->getMeta() ||
 			$serverItemStack->getCount() !== $clientItemStack->getCount() ||
-			$serverItemStack->getBlockRuntimeId() !== $clientItemStack->getBlockRuntimeId()
+			Binary::unsignInt($serverItemStack->getBlockRuntimeId()) !== Binary::unsignInt($clientItemStack->getBlockRuntimeId())
 			//Raw extraData may not match because of TAG_Compound key ordering differences, and decoding it to compare
 			//is costly. Assume that we're in sync if id+meta+count+runtimeId match.
 			//NB: Make sure $clientItemStack isn't used to create the dropped item, as that would allow the client
