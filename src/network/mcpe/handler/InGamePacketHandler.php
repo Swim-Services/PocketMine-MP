@@ -107,7 +107,6 @@ use pocketmine\world\format\Chunk;
 use function array_push;
 use function count;
 use function fmod;
-use function get_class;
 use function get_debug_type;
 use function implode;
 use function in_array;
@@ -121,7 +120,6 @@ use function microtime;
 use function sprintf;
 use function str_starts_with;
 use function strlen;
-use function var_dump;
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -339,8 +337,6 @@ class InGamePacketHandler extends PacketHandler{
 		}elseif($packet->trData instanceof ReleaseItemTransactionData){
 			$result = $this->handleReleaseItemTransaction($packet->trData);
 		}
-
-		var_dump(get_class($packet->trData));
 
 		$this->inventoryManager->syncMismatchedPredictedSlotChanges();
 
