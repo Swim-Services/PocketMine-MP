@@ -51,6 +51,7 @@ use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\PlayerEnchantOptionsPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\Enchant;
 use pocketmine\network\mcpe\protocol\types\EnchantOption as ProtocolEnchantOption;
@@ -521,7 +522,7 @@ class InventoryManager{
 			$this->session->sendDataPacket(InventorySlotPacket::create(
 				$windowId,
 				$netSlot,
-				new FullContainerName($this->lastInventoryNetworkId),
+				$this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_26_20 ? null : new FullContainerName($this->lastInventoryNetworkId),
 				0,
 				null,
 				new ItemStackWrapper(0, ItemStack::null())
@@ -531,7 +532,7 @@ class InventoryManager{
 		$this->session->sendDataPacket(InventorySlotPacket::create(
 			$windowId,
 			$netSlot,
-			new FullContainerName($this->lastInventoryNetworkId),
+			$this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_26_20 ? null : new FullContainerName($this->lastInventoryNetworkId),
 			0,
 			null,
 			$itemStackWrapper
