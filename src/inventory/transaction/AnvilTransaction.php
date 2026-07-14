@@ -18,13 +18,13 @@
  *
  *
  */
-
 declare(strict_types=1);
 
 namespace pocketmine\inventory\transaction;
 
 use pocketmine\block\Anvil;
 use pocketmine\block\Block;
+use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\item\Durable;
 use pocketmine\item\EnchantedBook;
 use pocketmine\item\enchantment\AvailableEnchantmentRegistry;
@@ -37,8 +37,7 @@ use pocketmine\item\utils\ItemRepairUtils;
 use pocketmine\player\Player;
 use pocketmine\utils\Limits;
 use pocketmine\world\sound\AnvilUseSound;
-use function array_intersect;
-use function array_merge;
+
 use function count;
 use function floor;
 use function log;
@@ -46,13 +45,14 @@ use function max;
 use function min;
 
 class AnvilTransaction extends InventoryTransaction{
-	private const TAG_REPAIR_COST = "RepairCost";
 
+	private const TAG_REPAIR_COST = "RepairCost";
 	private const MAX_COST = 39;
 	private const HARD_CAP = Limits::INT32_MAX;
 
 	private Item $result;
 	private int $xpCost = 0;
+
 	/** @var Item[] */
 	private array $consumed = [];
 
@@ -81,15 +81,15 @@ class AnvilTransaction extends InventoryTransaction{
 		$currentRepairCost = $this->input->getNamedTag()->getInt(self::TAG_REPAIR_COST, 0);
 		$currentRepairCost += $this->material->getNamedTag()->getInt(self::TAG_REPAIR_COST, 0);
 		$this->xpCost += $currentRepairCost;
-
 		$addRepairCost = false;
-
 		$this->result = clone $this->input;
+
 		if($this->rename !== null && $this->rename !== $this->input->getCustomName()){
 			// rename costs 1 additional XP but doesn't incur cumulative repair costs aside from the base cost
 			$this->result->setCustomName($this->rename);
 			$this->xpCost += 1;
 		}
+
 		if(!$this->material->isNull()){
 			$applicableEnchants = self::getApplicableEnchants($this->result, $this->material);
 			$sacrificeConsumed = false;
@@ -100,7 +100,6 @@ class AnvilTransaction extends InventoryTransaction{
 				$damage = $this->result->getDamage();
 				if(ItemRepairUtils::isRepairableWith($this->result, $this->material)){
 					$currentRepairCost += $this->material->getNamedTag()->getInt(self::TAG_REPAIR_COST, 0);
-
 					$consumedCount = 0;
 					for($i = 0; $i < $this->material->getCount() && $damage > 0; $i++){
 						$damage -= (int) floor($this->result->getMaxDurability() / 4);
@@ -119,7 +118,6 @@ class AnvilTransaction extends InventoryTransaction{
 					$this->xpCost += 2;
 					$addRepairCost = true;
 				}
-
 				$this->result->setDamage(max(0, $damage));
 			}
 
@@ -128,7 +126,6 @@ class AnvilTransaction extends InventoryTransaction{
 					$this->consumed[] = $this->material->pop();
 				}
 				$addRepairCost = true;
-
 				foreach($applicableEnchants as $enchant){
 					// we calculate the cost needed to "upgrade" the target item to the new enchant, considering the added level
 					$this->xpCost += EnchantmentTransfer::getCost(
@@ -136,7 +133,6 @@ class AnvilTransaction extends InventoryTransaction{
 						max($enchant->getLevel() - $this->result->getEnchantmentLevel($type), 0),
 						!$this->material instanceof EnchantedBook
 					);
-
 					$this->result->addEnchantment(clone $enchant);
 				}
 			}
@@ -178,22 +174,83 @@ class AnvilTransaction extends InventoryTransaction{
 		$deletedItems = [];
 		$this->matchItems($createdItems, $deletedItems);
 
-		if(count($createdItems) === 0){
-			throw new TransactionValidationException("Transaction attempted to execute but did not result to anything");
+		if(count($createdItems) !== 1){
+			throw new TransactionValidationException("Expected exactly 1 anvil output stack, received " . count($createdItems));
 		}
-		if(count($createdItems) > 1){
-			throw new TransactionValidationException("Transaction resulted into more than 1 item stack");
+		if(!$this->result->equalsExact($createdItems[0])){
+			throw new TransactionValidationException("Transaction output does not match the server-calculated anvil result");
 		}
-		if(!$this->input->equals($createdItems[0], false, false)){
-			throw new TransactionValidationException("Transaction produced a different output item");
+		if(!self::itemsMatchExactly($this->consumed, $deletedItems)){
+			throw new TransactionValidationException("Transaction inputs do not match the server-calculated anvil consumption");
 		}
-		if(count($deletedItems) > count($this->consumed)){
-			throw new TransactionValidationException("Transaction consumed more than required items");
-		}
+
 		$cost = $this->getXPCost();
-		if($cost > self::MAX_COST || $cost > $this->source->getXpManager()->getXpLevel()){
-			throw new TransactionValidationException("Too expensive");
+		if($cost > self::MAX_COST){
+			throw new TransactionValidationException("Anvil operation costs $cost levels, exceeding the maximum of " . self::MAX_COST);
 		}
+		$availableLevels = $this->source->getXpManager()->getXpLevel();
+		if($cost > $availableLevels){
+			throw new TransactionValidationException("Anvil operation costs $cost levels, but the player has $availableLevels");
+		}
+	}
+
+	/**
+	 * @param Item[] $expectedItems
+	 * @param Item[] $actualItems
+	 */
+	private static function itemsMatchExactly(array $expectedItems, array $actualItems) : bool{
+		$expected = self::cloneNonEmptyItems($expectedItems);
+		$actual = self::cloneNonEmptyItems($actualItems);
+
+		foreach($actual as $actualKey => $actualItem){
+			foreach($expected as $expectedKey => $expectedItem){
+				if(!$actualItem->canStackWith($expectedItem)){
+					continue;
+				}
+
+				$matched = min($actualItem->getCount(), $expectedItem->getCount());
+				$actualItem->setCount($actualItem->getCount() - $matched);
+				$expectedItem->setCount($expectedItem->getCount() - $matched);
+
+				if($expectedItem->getCount() === 0){
+					unset($expected[$expectedKey]);
+				}
+				if($actualItem->getCount() === 0){
+					unset($actual[$actualKey]);
+					break;
+				}
+			}
+		}
+
+		return $expected === [] && $actual === [];
+	}
+
+	/**
+	 * @param Item[] $items
+	 * @return Item[]
+	 */
+	private static function cloneNonEmptyItems(array $items) : array{
+		$result = [];
+		foreach($items as $item){
+			if($item->isNull() || $item->getCount() < 1){
+				continue;
+			}
+			$result[] = clone $item;
+		}
+		return $result;
+	}
+
+	protected function callExecuteEvent() : bool{
+		$event = new InventoryTransactionEvent($this);
+		$event->call();
+
+		if($event->isCancelled()){
+			$this->source->getServer()->getLogger()->warning(
+				"[Anvil] Transaction event was cancelled for " . $this->source->getName()
+			);
+		}
+
+		return !$event->isCancelled();
 	}
 
 	public function execute() : void{
@@ -202,8 +259,19 @@ class AnvilTransaction extends InventoryTransaction{
 		}catch(TransactionException $e){
 			$networkSession = $this->source->getNetworkSession();
 			$networkSession->getEntityEventBroadcaster()->syncAttributes([$networkSession], $this->source, $this->source->getAttributeMap()->getAll());
+
+			$this->source->getServer()->getLogger()->warning(
+				"[Anvil] Failed for " . $this->source->getName() . ": " . $e->getMessage()
+				. " | input=" . $this->input
+				. " | material=" . ($this->consumed[1] ?? $this->material)
+				. " | result=" . $this->result
+				. " | cost=" . $this->getXPCost()
+				. " | levels=" . $this->source->getXpManager()->getXpLevel()
+			);
+
 			throw $e;
 		}
+
 		$this->source->getXpManager()->subtractXpLevels($this->getXPCost());
 		$this->holder->getPosition()->getWorld()->addSound($this->holder->getPosition(), new AnvilUseSound());
 		if($this->holder instanceof Anvil && !$this->source->isCreative()){
@@ -216,21 +284,13 @@ class AnvilTransaction extends InventoryTransaction{
 	 */
 	public static function getApplicableEnchants(Item $target, Item $source) : array{
 		$applicableEnchants = [];
-
 		$availableEnchantRegistry = AvailableEnchantmentRegistry::getInstance();
-		$canEnchant = fn(Enchantment $enchantmentType) => (bool) count(
-			array_intersect($target->getEnchantmentTags(), array_merge(
-				$availableEnchantRegistry->getPrimaryItemTags($enchantmentType),
-				$availableEnchantRegistry->getSecondaryItemTags($enchantmentType)
-			))
-		);
+		$canEnchant = fn(Enchantment $enchantmentType) : bool =>
+			$availableEnchantRegistry->isAvailableForItem($enchantmentType, $target);
 
 		foreach($source->getEnchantments() as $enchantment){
 			$enchantmentType = $enchantment->getType();
-			if(
-				!$canEnchant($enchantmentType) &&
-				!$target instanceof EnchantedBook // enchanted books let in any compatible
-			){
+			if(!$canEnchant($enchantmentType)){
 				continue;
 			}
 
@@ -253,7 +313,6 @@ class AnvilTransaction extends InventoryTransaction{
 					}
 				}
 			}
-
 			$applicableEnchants[] = $enchantment;
 		}
 		return $applicableEnchants;
