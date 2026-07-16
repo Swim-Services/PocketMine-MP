@@ -117,6 +117,7 @@ class PreSpawnPacketHandler extends PacketHandler{
 				$typeConverter->getBlockTranslator()->networkIdsAreHashes(),
 				false,
 				new NetworkPermissions(disableClientSounds: true),
+				true,
 				null,
 				new ServerTelemetryData("", "", "", ""),
 				[],
