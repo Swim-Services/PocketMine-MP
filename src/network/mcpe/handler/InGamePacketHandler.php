@@ -917,6 +917,7 @@ class InGamePacketHandler extends PacketHandler{
 		}catch(InvalidSkinException $e){
 			throw PacketHandlingException::wrap($e, "Invalid skin in PlayerSkinPacket");
 		}
+		$this->session->getLogger()->debug("PlayerSkinPacket skin: " . $skin->describeForDebug());
 		return $this->player->changeSkin($skin, $packet->newSkinName, $packet->oldSkinName);
 	}
 

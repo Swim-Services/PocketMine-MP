@@ -264,6 +264,7 @@ class LoginPacketHandler extends PacketHandler{
 
 			return null;
 		}
+		$this->session->getLogger()->debug("Login skin: " . $skin->describeForDebug());
 
 		if($xuid !== ""){
 			$playerInfo = new XboxLivePlayerInfo(
