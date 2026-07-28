@@ -126,7 +126,7 @@ final class Skin{
 		string $geometryData = "",
 		string $playFabId = "",
 		?string $resourcePatch = null,
-		string $geometryDataEngineVersion = "",
+		string $geometryDataEngineVersion = ProtocolInfo::MINECRAFT_VERSION_NETWORK,
 		string $animationData = "",
 		string $capeId = "",
 		?string $fullSkinId = null,
