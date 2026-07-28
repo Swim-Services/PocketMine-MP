@@ -313,8 +313,9 @@ class InGamePacketHandler extends PacketHandler{
 
 	public function handleInventoryTransaction(InventoryTransactionPacket $packet) : bool{
 		$result = true;
+		$transactionData = $packet->trData;
 
-		if(count($packet->trData->getActions()) > 50){
+		if($transactionData !== null && count($transactionData->getActions()) > 50){
 			throw new PacketHandlingException("Too many actions in inventory transaction");
 		}
 		if($packet->requestChangedSlots !== null && count($packet->requestChangedSlots) > 10){
@@ -322,20 +323,20 @@ class InGamePacketHandler extends PacketHandler{
 		}
 
 		$this->inventoryManager->setCurrentItemStackRequestId($packet->requestId);
-		$this->inventoryManager->addRawPredictedSlotChanges($packet->trData->getActions());
+		$this->inventoryManager->addRawPredictedSlotChanges($transactionData?->getActions() ?? []);
 
-		if($packet->trData instanceof NormalTransactionData){
-			$result = $this->handleNormalTransaction($packet->trData, $packet->requestId);
-		}elseif($packet->trData instanceof MismatchTransactionData){
+		if($transactionData instanceof NormalTransactionData){
+			$result = $this->handleNormalTransaction($transactionData, $packet->requestId);
+		}elseif($transactionData instanceof MismatchTransactionData){
 			$this->session->getLogger()->debug("Mismatch transaction received");
 			$this->inventoryManager->requestSyncAll();
 			$result = true;
-		}elseif($packet->trData instanceof UseItemTransactionData){
-			$result = $this->handleUseItemTransaction($packet->trData);
-		}elseif($packet->trData instanceof UseItemOnEntityTransactionData){
-			$result = $this->handleUseItemOnEntityTransaction($packet->trData);
-		}elseif($packet->trData instanceof ReleaseItemTransactionData){
-			$result = $this->handleReleaseItemTransaction($packet->trData);
+		}elseif($transactionData instanceof UseItemTransactionData){
+			$result = $this->handleUseItemTransaction($transactionData);
+		}elseif($transactionData instanceof UseItemOnEntityTransactionData){
+			$result = $this->handleUseItemOnEntityTransaction($transactionData);
+		}elseif($transactionData instanceof ReleaseItemTransactionData){
+			$result = $this->handleReleaseItemTransaction($transactionData);
 		}
 
 		$this->inventoryManager->syncMismatchedPredictedSlotChanges();

@@ -38,12 +38,20 @@ use function str_replace;
  * @internal
  */
 final class BlockTranslator{
+	/**
+	 * @var \Closure[]
+	 * @phpstan-var array<int, \Closure(BlockStateData) : BlockStateData>
+	 */
 	private static array $HASH_PROTOCOLS;
 
 	public const CANONICAL_BLOCK_STATES_PATH = 0;
 	public const BLOCK_STATE_META_MAP_PATH = 1;
 
 	private const PATHS = [
+		ProtocolInfo::PROTOCOL_1_26_40 => [
+			self::CANONICAL_BLOCK_STATES_PATH => '',
+			self::BLOCK_STATE_META_MAP_PATH => '',
+		],
 		ProtocolInfo::CURRENT_PROTOCOL => [
 			self::CANONICAL_BLOCK_STATES_PATH => '',
 			self::BLOCK_STATE_META_MAP_PATH => '',
@@ -222,9 +230,12 @@ final class BlockTranslator{
 	private BlockStateData $fallbackStateData;
 	private int $fallbackStateId;
 
-	private static function setupHashProtocols() {
-		if (!isset(self::$HASH_PROTOCOLS)) {
+	private static function setupHashProtocols() : void{
+		if(!isset(self::$HASH_PROTOCOLS)){
 			self::$HASH_PROTOCOLS = [
+				ProtocolInfo::PROTOCOL_1_26_40 => function(BlockStateData $d) : BlockStateData {
+					return $d;
+				}
 			];
 		}
 	}
