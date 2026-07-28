@@ -97,6 +97,10 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 	private const TAG_SKIN_NAME = "Name"; //TAG_String
 	private const TAG_SKIN_DATA = "Data"; //TAG_ByteArray
 	private const TAG_SKIN_CAPE_DATA = "CapeData"; //TAG_ByteArray
+	private const TAG_SKIN_IMAGE_WIDTH = "ImageWidth"; //TAG_Int
+	private const TAG_SKIN_IMAGE_HEIGHT = "ImageHeight"; //TAG_Int
+	private const TAG_SKIN_CAPE_IMAGE_WIDTH = "CapeImageWidth"; //TAG_Int
+	private const TAG_SKIN_CAPE_IMAGE_HEIGHT = "CapeImageHeight"; //TAG_Int
 	private const TAG_SKIN_GEOMETRY_NAME = "GeometryName"; //TAG_String
 	private const TAG_SKIN_GEOMETRY_DATA = "GeometryData"; //TAG_ByteArray
 	private const TAG_SKIN_PLAYFAB_ID = "PlayFabId"; //TAG_String
@@ -211,31 +215,41 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 		}
 
 		$resourcePatch = $skinTag->getString(self::TAG_SKIN_RESOURCE_PATCH, "");
+		//-1 means "not present in this save" (e.g. an old world predating explicit dimensions), in which case
+		//Skin falls back to inferring dimensions from the legacy fixed-size table.
+		$skinImageWidth = $skinTag->getInt(self::TAG_SKIN_IMAGE_WIDTH, -1);
+		$skinImageHeight = $skinTag->getInt(self::TAG_SKIN_IMAGE_HEIGHT, -1);
+		$capeImageWidth = $skinTag->getInt(self::TAG_SKIN_CAPE_IMAGE_WIDTH, -1);
+		$capeImageHeight = $skinTag->getInt(self::TAG_SKIN_CAPE_IMAGE_HEIGHT, -1);
 
 		return new Skin( //this throws if the skin is invalid
-			$skinTag->getString(self::TAG_SKIN_NAME),
-			($skinDataTag = $skinTag->getTag(self::TAG_SKIN_DATA)) instanceof StringTag ? $skinDataTag->getValue() : $skinTag->getByteArray(self::TAG_SKIN_DATA), //old data (this used to be saved as a StringTag in older versions of PM)
-			$skinTag->getByteArray(self::TAG_SKIN_CAPE_DATA, ""),
-			$skinTag->getString(self::TAG_SKIN_GEOMETRY_NAME, ""),
-			$skinTag->getByteArray(self::TAG_SKIN_GEOMETRY_DATA, ""),
-			$skinTag->getString(self::TAG_SKIN_PLAYFAB_ID, ""),
-			$resourcePatch !== "" ? $resourcePatch : null,
-			$skinTag->getString(self::TAG_SKIN_GEOMETRY_ENGINE_VERSION, ""),
-			$skinTag->getString(self::TAG_SKIN_ANIMATION_DATA, ""),
-			$skinTag->getString(self::TAG_SKIN_CAPE_ID, ""),
-			null, //fullSkinId is re-derived deterministically from the skin's own content
-			$skinTag->getByte(self::TAG_SKIN_ARM_SIZE, Skin::ARM_SIZE_WIDE),
-			$skinTag->getInt(self::TAG_SKIN_COLOR, 0),
-			$personaPieces,
-			$pieceTintColors,
-			$animations,
-			$skinTag->getByte(self::TAG_SKIN_PREMIUM, 0) !== 0,
-			$skinTag->getByte(self::TAG_SKIN_PERSONA, 0) !== 0,
-			$skinTag->getByte(self::TAG_SKIN_PERSONA_CAPE_ON_CLASSIC, 0) !== 0,
-			$skinTag->getByte(self::TAG_SKIN_IS_PRIMARY_USER, 1) !== 0,
-			$skinTag->getByte(self::TAG_SKIN_OVERRIDE, 1) !== 0,
-			$skinTag->getString(self::TAG_SKIN_TRUSTED_FLAG, Skin::TRUSTED_SKIN_FLAG_UNSET),
-			$skinTag->getString(self::TAG_SKIN_PROFILE_HASH, "")
+			skinId: $skinTag->getString(self::TAG_SKIN_NAME),
+			skinData: ($skinDataTag = $skinTag->getTag(self::TAG_SKIN_DATA)) instanceof StringTag ? $skinDataTag->getValue() : $skinTag->getByteArray(self::TAG_SKIN_DATA), //old data (this used to be saved as a StringTag in older versions of PM)
+			capeData: $skinTag->getByteArray(self::TAG_SKIN_CAPE_DATA, ""),
+			geometryName: $skinTag->getString(self::TAG_SKIN_GEOMETRY_NAME, ""),
+			geometryData: $skinTag->getByteArray(self::TAG_SKIN_GEOMETRY_DATA, ""),
+			playFabId: $skinTag->getString(self::TAG_SKIN_PLAYFAB_ID, ""),
+			resourcePatch: $resourcePatch !== "" ? $resourcePatch : null,
+			geometryDataEngineVersion: $skinTag->getString(self::TAG_SKIN_GEOMETRY_ENGINE_VERSION, ""),
+			animationData: $skinTag->getString(self::TAG_SKIN_ANIMATION_DATA, ""),
+			capeId: $skinTag->getString(self::TAG_SKIN_CAPE_ID, ""),
+			fullSkinId: null, //fullSkinId is re-derived deterministically from the skin's own content
+			armSize: $skinTag->getByte(self::TAG_SKIN_ARM_SIZE, Skin::ARM_SIZE_WIDE),
+			skinColor: $skinTag->getInt(self::TAG_SKIN_COLOR, 0),
+			personaPieces: $personaPieces,
+			pieceTintColors: $pieceTintColors,
+			animations: $animations,
+			premium: $skinTag->getByte(self::TAG_SKIN_PREMIUM, 0) !== 0,
+			persona: $skinTag->getByte(self::TAG_SKIN_PERSONA, 0) !== 0,
+			personaCapeOnClassic: $skinTag->getByte(self::TAG_SKIN_PERSONA_CAPE_ON_CLASSIC, 0) !== 0,
+			isPrimaryUser: $skinTag->getByte(self::TAG_SKIN_IS_PRIMARY_USER, 1) !== 0,
+			override: $skinTag->getByte(self::TAG_SKIN_OVERRIDE, 1) !== 0,
+			trustedSkinFlag: $skinTag->getString(self::TAG_SKIN_TRUSTED_FLAG, Skin::TRUSTED_SKIN_FLAG_UNSET),
+			profileHash: $skinTag->getString(self::TAG_SKIN_PROFILE_HASH, ""),
+			skinImageWidth: $skinImageWidth !== -1 ? $skinImageWidth : null,
+			skinImageHeight: $skinImageHeight !== -1 ? $skinImageHeight : null,
+			capeImageWidth: $capeImageWidth !== -1 ? $capeImageWidth : null,
+			capeImageHeight: $capeImageHeight !== -1 ? $capeImageHeight : null,
 		);
 	}
 
@@ -616,6 +630,10 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 			->setString(self::TAG_SKIN_NAME, $this->skin->getSkinId())
 			->setByteArray(self::TAG_SKIN_DATA, $this->skin->getSkinData())
 			->setByteArray(self::TAG_SKIN_CAPE_DATA, $this->skin->getCapeData())
+			->setInt(self::TAG_SKIN_IMAGE_WIDTH, $this->skin->getSkinImageWidth())
+			->setInt(self::TAG_SKIN_IMAGE_HEIGHT, $this->skin->getSkinImageHeight())
+			->setInt(self::TAG_SKIN_CAPE_IMAGE_WIDTH, $this->skin->getCapeImageWidth())
+			->setInt(self::TAG_SKIN_CAPE_IMAGE_HEIGHT, $this->skin->getCapeImageHeight())
 			->setString(self::TAG_SKIN_GEOMETRY_NAME, $this->skin->getGeometryName())
 			->setByteArray(self::TAG_SKIN_GEOMETRY_DATA, $this->skin->getGeometryData())
 			->setString(self::TAG_SKIN_PLAYFAB_ID, $this->skin->getPlayFabId())

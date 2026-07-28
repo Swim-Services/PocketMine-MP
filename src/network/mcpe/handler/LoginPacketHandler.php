@@ -254,6 +254,18 @@ class LoginPacketHandler extends PacketHandler{
 			$this->session->setProtocolId(ProtocolInfo::PROTOCOL_1_19_63);
 		}
 
+		//$rawPersonaPieces = [];
+		//foreach($clientData->PersonaPieces as $piece){
+		//	$rawPersonaPieces[] = "{id={$piece->PieceId} rawType=\"{$piece->PieceType}\" packId={$piece->PackId}}";
+		//}
+		//$rawTintColors = [];
+		//foreach($clientData->PieceTintColors as $tint){
+		//	$rawTintColors[] = "{rawType=\"{$tint->PieceType}\"}";
+		//}
+		//$this->session->getLogger()->debug(
+		//	"Raw ClientData persona fields: ArmSize=\"{$clientData->ArmSize}\" PersonaPieces=[" . implode(", ", $rawPersonaPieces) . "] PieceTintColors=[" . implode(", ", $rawTintColors) . "]"
+		//);
+
 		try{
 			$skin = $this->session->getTypeConverter()->getSkinAdapter()->fromSkinData(ClientDataToSkinDataHelper::fromClientData($clientData));
 		}catch(\InvalidArgumentException | InvalidSkinException $e){

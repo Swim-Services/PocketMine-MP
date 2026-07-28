@@ -44,7 +44,7 @@ class LegacySkinAdapter implements SkinAdapter{
 
 	public function toSkinData(Skin $skin) : SkinData{
 		$capeData = $skin->getCapeData();
-		$capeImage = $capeData === "" ? new SkinImage(0, 0, "") : new SkinImage(32, 64, $capeData);
+		$capeImage = $capeData === "" ? new SkinImage(0, 0, "") : new SkinImage($skin->getCapeImageHeight(), $skin->getCapeImageWidth(), $capeData);
 
 		$animations = array_map(
 			static fn(EntitySkinAnimation $animation) : SkinAnimation => new SkinAnimation(
@@ -79,7 +79,7 @@ class LegacySkinAdapter implements SkinAdapter{
 			$skin->getSkinId(),
 			$skin->getPlayFabId(),
 			$skin->getResourcePatch(),
-			SkinImage::fromLegacy($skin->getSkinData()),
+			new SkinImage($skin->getSkinImageHeight(), $skin->getSkinImageWidth(), $skin->getSkinData()),
 			$animations,
 			$capeImage,
 			$skin->getGeometryData(),
@@ -144,29 +144,33 @@ class LegacySkinAdapter implements SkinAdapter{
 		);
 
 		return new Skin(
-			$data->getSkinId(),
-			$data->getSkinImage()->getData(),
-			$capeData,
-			$geometryName,
-			$data->getGeometryData(),
-			$data->getPlayFabId(),
-			$data->getResourcePatch(),
-			$data->getGeometryDataEngineVersion(),
-			$data->getAnimationData(),
-			$data->getCapeId(),
-			$data->getFullSkinId(),
-			$data->getArmSize(),
-			$data->getSkinColor(),
-			$personaPieces,
-			$pieceTintColors,
-			$animations,
-			$data->isPremium(),
-			$data->isPersona(),
-			$data->isPersonaCapeOnClassic(),
-			$data->isPrimaryUser(),
-			$data->isOverride(),
-			$data->getTrustedSkinFlag(),
-			$data->getProfileHash()
+			skinId: $data->getSkinId(),
+			skinData: $data->getSkinImage()->getData(),
+			capeData: $capeData,
+			geometryName: $geometryName,
+			geometryData: $data->getGeometryData(),
+			playFabId: $data->getPlayFabId(),
+			resourcePatch: $data->getResourcePatch(),
+			geometryDataEngineVersion: $data->getGeometryDataEngineVersion(),
+			animationData: $data->getAnimationData(),
+			capeId: $data->getCapeId(),
+			fullSkinId: $data->getFullSkinId(),
+			armSize: $data->getArmSize(),
+			skinColor: $data->getSkinColor(),
+			personaPieces: $personaPieces,
+			pieceTintColors: $pieceTintColors,
+			animations: $animations,
+			premium: $data->isPremium(),
+			persona: $data->isPersona(),
+			personaCapeOnClassic: $data->isPersonaCapeOnClassic(),
+			isPrimaryUser: $data->isPrimaryUser(),
+			override: $data->isOverride(),
+			trustedSkinFlag: $data->getTrustedSkinFlag(),
+			profileHash: $data->getProfileHash(),
+			skinImageWidth: $data->getSkinImage()->getWidth(),
+			skinImageHeight: $data->getSkinImage()->getHeight(),
+			capeImageWidth: $data->getCapeImage()->getWidth(),
+			capeImageHeight: $data->getCapeImage()->getHeight(),
 		);
 	}
 }

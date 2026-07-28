@@ -96,7 +96,7 @@ final class PacketHandlerInspector{
 			}
 		}
 		sort($allowedPackets, SORT_STRING);
-		\GlobalLogger::get()->debug("Packets handled by " . $handler::class . ": " . implode(', ', $allowedPackets));
+		//\GlobalLogger::get()->debug("Packets handled by " . $handler::class . ": " . implode(', ', $allowedPackets));
 
 		return self::$cache[$handler::class] = $whitelist;
 	}
