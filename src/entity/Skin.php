@@ -46,7 +46,7 @@ final class Skin{
 		128 * 128 * 4 => [128, 128],
 	];
 	private const LEGACY_CAPE_DIMENSIONS = [
-		32 * 64 * 4 => [32, 64],
+		64 * 32 * 4 => [64, 32],
 	];
 
 	public const ARM_SIZE_SLIM = 0;
