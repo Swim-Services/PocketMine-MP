@@ -831,12 +831,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "c85bac50441a428879cce5251a784e848e4db96b"
+                "reference": "eb2914508f5da61bf4d1414d58947571f3804359"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/c85bac50441a428879cce5251a784e848e4db96b",
-                "reference": "c85bac50441a428879cce5251a784e848e4db96b",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/eb2914508f5da61bf4d1414d58947571f3804359",
+                "reference": "eb2914508f5da61bf4d1414d58947571f3804359",
                 "shasum": ""
             },
             "require": {
@@ -879,7 +879,7 @@
                 "source": "https://github.com/Swim-Services/BedrockProtocol/tree/1.26.40-pre",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2026-07-28T03:39:41+00:00"
+            "time": "2026-07-28T08:35:17+00:00"
         },
         {
             "name": "symfony/filesystem",
@@ -2803,9 +2803,9 @@
         "ext-zlib": ">=1.2.11",
         "composer-runtime-api": "^2.0"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.1.0"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
