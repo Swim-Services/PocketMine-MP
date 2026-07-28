@@ -219,8 +219,8 @@ final class CraftingDataCache{
 		$potionTypeRecipes = [];
 		foreach($manager->getPotionTypeRecipes() as $recipe){
 			try{
-				$input = $converter->coreRecipeIngredientToNet($recipe->getInput())->getDescriptor();
-				$ingredient = $converter->coreRecipeIngredientToNet($recipe->getIngredient())->getDescriptor();
+				$input = $converter->coreRecipeIngredientToNet($recipe->getInput(), true)->getDescriptor();
+				$ingredient = $converter->coreRecipeIngredientToNet($recipe->getIngredient(), true)->getDescriptor();
 				if(!$input instanceof IntIdMetaItemDescriptor || !$ingredient instanceof IntIdMetaItemDescriptor){
 					throw new AssumptionFailedError();
 				}
@@ -243,7 +243,7 @@ final class CraftingDataCache{
 		foreach($manager->getPotionContainerChangeRecipes() as $recipe){
 			try{
 				$input = $itemTypeDictionary->fromStringId($recipe->getInputItemId());
-				$ingredient = $converter->coreRecipeIngredientToNet($recipe->getIngredient())->getDescriptor();
+				$ingredient = $converter->coreRecipeIngredientToNet($recipe->getIngredient(), true)->getDescriptor();
 				if(!$ingredient instanceof IntIdMetaItemDescriptor){
 					throw new AssumptionFailedError();
 				}
