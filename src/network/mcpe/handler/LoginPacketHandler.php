@@ -168,7 +168,7 @@ class LoginPacketHandler extends PacketHandler{
 					throw PacketHandlingException::wrap($e, "Error mapping self-signed certificate chain");
 				}
 				if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_93){
-					if(count($chain->chain) > 1 || !isset($chain->chain[0])){
+					if((count($chain->chain) > 1 && $this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_100) || !isset($chain->chain[0])){
 						throw new PacketHandlingException("Expected exactly one certificate in self-signed certificate chain, got " . count($chain->chain));
 					}
 
