@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace pocketmine\entity;
 
 use Ahc\Json\Comment as CommentedJsonDecoder;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\Limits;
 use function array_keys;
 use function count;
