@@ -140,7 +140,7 @@ final class Skin{
 		bool $personaCapeOnClassic = false,
 		bool $isPrimaryUser = true,
 		bool $override = true,
-		string $trustedSkinFlag = self::TRUSTED_SKIN_FLAG_UNSET,
+		string $trustedSkinFlag = self::TRUSTED_SKIN_FLAG_TRUE,
 		string $profileHash = "",
 		?int $skinImageWidth = null,
 		?int $skinImageHeight = null,
@@ -352,8 +352,8 @@ final class Skin{
 	 */
 	public function describeForDebug() : string{
 		$base = sprintf(
-			"skinId=%s persona=%s armSize=%d skinColor=%d capeId=%s fullSkinId=%s trustedSkinFlag=%s profileHash=%s ".
-			"playFabId=%s geometryName=%s resourcePatch=%s skinImage=%dx%d(%d bytes) capeImage=%dx%d(%d bytes) geometryDataLen=%d ".
+			"skinId=%s persona=%s armSize=%d skinColor=%d capeId=%s fullSkinId=%s trustedSkinFlag=%s profileHash=%s " .
+			"playFabId=%s geometryName=%s resourcePatch=%s skinImage=%dx%d(%d bytes) capeImage=%dx%d(%d bytes) geometryDataLen=%d " .
 			"personaPieces=%d pieceTintColors=%d animations=%d premium=%s personaCapeOnClassic=%s isPrimaryUser=%s override=%s",
 			$this->skinId,
 			$this->persona ? "true" : "false",
