@@ -28,19 +28,93 @@ use pocketmine\entity\PersonaPieceTintColor as EntityPersonaPieceTintColor;
 use pocketmine\entity\PersonaSkinPiece as EntityPersonaSkinPiece;
 use pocketmine\entity\Skin;
 use pocketmine\entity\SkinAnimation as EntitySkinAnimation;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\serializer\LegacySkinDataConverter;
 use pocketmine\network\mcpe\protocol\types\skin\PersonaPieceTintColor;
 use pocketmine\network\mcpe\protocol\types\skin\PersonaSkinPiece;
 use pocketmine\network\mcpe\protocol\types\skin\SkinAnimation;
 use pocketmine\network\mcpe\protocol\types\skin\SkinData;
 use pocketmine\network\mcpe\protocol\types\skin\SkinImage;
+use pocketmine\utils\Filesystem;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Filesystem\Path;
 use function array_map;
 use function is_array;
 use function is_string;
 use function json_decode;
+use function json_encode;
 
 class LegacySkinAdapter implements SkinAdapter{
+	/**
+	 * Vanilla player geometries that clients reference without ever sending a definition for them.
+	 * Both the wide (Steve) and the slim (Alex) variant have to be covered - a slim skin references
+	 * geometry.humanoid.customSlim and is just as empty as a wide one.
+	 */
+	private const DEFAULT_GEOMETRY_NAMES = [
+		"geometry.humanoid.custom" => true,
+		"geometry.humanoid.customSlim" => true,
+	];
+
+	/**
+	 * @var array<string, string>|null
+	 * @phpstan-var array<string, string>|null
+	 */
+	private static ?array $defaultGeometryData = null;
+
+	public function __construct(
+		private int $protocolId = ProtocolInfo::CURRENT_PROTOCOL
+	){}
+
+	/**
+	 * Returns a standalone geometry document containing only the requested definition, so that a skin
+	 * never carries geometries it doesn't reference.
+	 */
+	private static function defaultGeometryFor(string $geometryName) : ?string{
+		if(self::$defaultGeometryData === null){
+			$decoded = json_decode(Filesystem::fileGetContents(
+				Path::join(\pocketmine\RESOURCE_PATH, "default_skin_geometry.json")
+			), true);
+			$formatVersion = is_array($decoded) && is_string($decoded["format_version"] ?? null) ? $decoded["format_version"] : "1.21.0";
+			$geometries = is_array($decoded) && is_array($decoded["minecraft:geometry"] ?? null) ? $decoded["minecraft:geometry"] : [];
+
+			$result = [];
+			foreach($geometries as $geometry){
+				$identifier = is_array($geometry) ? ($geometry["description"]["identifier"] ?? null) : null;
+				if(!is_string($identifier)){
+					continue;
+				}
+				$encoded = json_encode([
+					"format_version" => $formatVersion,
+					"minecraft:geometry" => [$geometry],
+				]);
+				if($encoded !== false){
+					$result[$identifier] = $encoded;
+				}
+			}
+			self::$defaultGeometryData = $result;
+		}
+
+		return self::$defaultGeometryData[$geometryName] ?? null;
+	}
+
+	/**
+	 * Since 1.26.40 the client drops the connection when a skin names a geometry it doesn't ship a
+	 * definition for. Default skins do exactly that, so the definition has to be filled in for them.
+	 */
+	private function geometryDataFor(Skin $skin) : string{
+		$geometryData = $skin->getGeometryData();
+		if($geometryData !== "" || $this->protocolId < ProtocolInfo::PROTOCOL_1_26_40){
+			return $geometryData;
+		}
+
+		$resourcePatch = json_decode($skin->getResourcePatch(), true);
+		$geometryName = is_array($resourcePatch) ? ($resourcePatch["geometry"]["default"] ?? null) : null;
+		if(!is_string($geometryName) || !isset(self::DEFAULT_GEOMETRY_NAMES[$geometryName])){
+			return $geometryData;
+		}
+
+		return self::defaultGeometryFor($geometryName) ?? $geometryData;
+	}
 
 	public function toSkinData(Skin $skin) : SkinData{
 		$capeData = $skin->getCapeData();
@@ -82,7 +156,7 @@ class LegacySkinAdapter implements SkinAdapter{
 			new SkinImage($skin->getSkinImageHeight(), $skin->getSkinImageWidth(), $skin->getSkinData()),
 			$animations,
 			$capeImage,
-			$skin->getGeometryData(),
+			$this->geometryDataFor($skin),
 			$skin->getGeometryDataEngineVersion(),
 			$skin->getAnimationData(),
 			$skin->getCapeId(),
