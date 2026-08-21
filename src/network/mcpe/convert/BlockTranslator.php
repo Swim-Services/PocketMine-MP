@@ -48,13 +48,17 @@ final class BlockTranslator{
 	public const BLOCK_STATE_META_MAP_PATH = 1;
 
 	private const PATHS = [
+		ProtocolInfo::CURRENT_PROTOCOL => [
+			self::CANONICAL_BLOCK_STATES_PATH => '',
+			self::BLOCK_STATE_META_MAP_PATH => '',
+		],
 		ProtocolInfo::PROTOCOL_1_26_40 => [
 			self::CANONICAL_BLOCK_STATES_PATH => '',
 			self::BLOCK_STATE_META_MAP_PATH => '',
 		],
-		ProtocolInfo::CURRENT_PROTOCOL => [
-			self::CANONICAL_BLOCK_STATES_PATH => '',
-			self::BLOCK_STATE_META_MAP_PATH => '',
+		ProtocolInfo::PROTOCOL_1_26_30 => [
+			self::CANONICAL_BLOCK_STATES_PATH => '-1.26.30',
+			self::BLOCK_STATE_META_MAP_PATH => '-1.26.30',
 		],
 		ProtocolInfo::PROTOCOL_1_26_20 => [
 			self::CANONICAL_BLOCK_STATES_PATH => '-1.26.20',
@@ -233,9 +237,7 @@ final class BlockTranslator{
 	private static function setupHashProtocols() : void{
 		if(!isset(self::$HASH_PROTOCOLS)){
 			self::$HASH_PROTOCOLS = [
-				ProtocolInfo::PROTOCOL_1_26_40 => function(BlockStateData $d) : BlockStateData {
-					return $d;
-				}
+
 			];
 		}
 	}

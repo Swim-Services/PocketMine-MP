@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bccc7b4cb46dc09162ba052074c89d0f",
+    "content-hash": "a4d3d2f0050bbcc0cddaf46087bdd859",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -808,12 +808,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockData.git",
-                "reference": "d08c5f79d051997181b4e4a75cefb6d398bba032"
+                "reference": "dc6e5076d605f35f290ff81398e93b6d356ff3a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/d08c5f79d051997181b4e4a75cefb6d398bba032",
-                "reference": "d08c5f79d051997181b4e4a75cefb6d398bba032",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/dc6e5076d605f35f290ff81398e93b6d356ff3a7",
+                "reference": "dc6e5076d605f35f290ff81398e93b6d356ff3a7",
                 "shasum": ""
             },
             "default-branch": true,
@@ -825,20 +825,20 @@
             "support": {
                 "source": "https://github.com/Swim-Services/BedrockData/tree/master"
             },
-            "time": "2026-07-16T18:37:40+00:00"
+            "time": "2026-08-21T16:40:09+00:00"
         },
         {
             "name": "swim-services/bedrock-protocol",
-            "version": "dev-1.26.40-pre",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "d521192a705bad658e60f2f46b09a229ff707f78"
+                "reference": "bd4b91fd78e67285a6f457541850e9af9a1567f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/d521192a705bad658e60f2f46b09a229ff707f78",
-                "reference": "d521192a705bad658e60f2f46b09a229ff707f78",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/bd4b91fd78e67285a6f457541850e9af9a1567f1",
+                "reference": "bd4b91fd78e67285a6f457541850e9af9a1567f1",
                 "shasum": ""
             },
             "require": {
@@ -857,6 +857,7 @@
                 "phpstan/phpstan-strict-rules": "^2.0.0",
                 "phpunit/phpunit": "^9.5 || ^10.0 || ^11.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -878,10 +879,10 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
-                "source": "https://github.com/Swim-Services/BedrockProtocol/tree/1.26.40-pre",
+                "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2026-08-14T18:37:55+00:00"
+            "time": "2026-08-21T16:12:48+00:00"
         },
         {
             "name": "symfony/filesystem",
