@@ -168,7 +168,7 @@ class LoginPacketHandler extends PacketHandler{
 					throw PacketHandlingException::wrap($e, "Error mapping self-signed certificate chain");
 				}
 				if($this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_93){
-					if(count($chain->chain) > 1 || !isset($chain->chain[0])){
+					if((count($chain->chain) > 1 && $this->session->getProtocolId() >= ProtocolInfo::PROTOCOL_1_21_100) || !isset($chain->chain[0])){
 						throw new PacketHandlingException("Expected exactly one certificate in self-signed certificate chain, got " . count($chain->chain));
 					}
 
@@ -254,6 +254,18 @@ class LoginPacketHandler extends PacketHandler{
 			$this->session->setProtocolId(ProtocolInfo::PROTOCOL_1_19_63);
 		}
 
+		//$rawPersonaPieces = [];
+		//foreach($clientData->PersonaPieces as $piece){
+		//	$rawPersonaPieces[] = "{id={$piece->PieceId} rawType=\"{$piece->PieceType}\" packId={$piece->PackId}}";
+		//}
+		//$rawTintColors = [];
+		//foreach($clientData->PieceTintColors as $tint){
+		//	$rawTintColors[] = "{rawType=\"{$tint->PieceType}\"}";
+		//}
+		//$this->session->getLogger()->debug(
+		//	"Raw ClientData persona fields: ArmSize=\"{$clientData->ArmSize}\" PersonaPieces=[" . implode(", ", $rawPersonaPieces) . "] PieceTintColors=[" . implode(", ", $rawTintColors) . "]"
+		//);
+
 		try{
 			$skin = $this->session->getTypeConverter()->getSkinAdapter()->fromSkinData(ClientDataToSkinDataHelper::fromClientData($clientData));
 		}catch(\InvalidArgumentException | InvalidSkinException $e){
@@ -264,6 +276,7 @@ class LoginPacketHandler extends PacketHandler{
 
 			return null;
 		}
+		//$this->session->getLogger()->debug("Login skin: " . $skin->describeForDebug());
 
 		if($xuid !== ""){
 			$playerInfo = new XboxLivePlayerInfo(

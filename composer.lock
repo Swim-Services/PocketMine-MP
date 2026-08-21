@@ -200,6 +200,7 @@
                 "issues": "https://github.com/pmmp/BedrockBlockUpgradeSchema/issues",
                 "source": "https://github.com/pmmp/BedrockBlockUpgradeSchema/tree/5.2.0"
             },
+            "abandoned": true,
             "time": "2025-10-02T13:22:10+00:00"
         },
         {
@@ -226,6 +227,7 @@
                 "issues": "https://github.com/pmmp/BedrockItemUpgradeSchema/issues",
                 "source": "https://github.com/pmmp/BedrockItemUpgradeSchema/tree/1.17.0"
             },
+            "abandoned": true,
             "time": "2026-05-06T13:12:04+00:00"
         },
         {
@@ -806,12 +808,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockData.git",
-                "reference": "d08c5f79d051997181b4e4a75cefb6d398bba032"
+                "reference": "dc6e5076d605f35f290ff81398e93b6d356ff3a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/d08c5f79d051997181b4e4a75cefb6d398bba032",
-                "reference": "d08c5f79d051997181b4e4a75cefb6d398bba032",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/dc6e5076d605f35f290ff81398e93b6d356ff3a7",
+                "reference": "dc6e5076d605f35f290ff81398e93b6d356ff3a7",
                 "shasum": ""
             },
             "default-branch": true,
@@ -823,7 +825,7 @@
             "support": {
                 "source": "https://github.com/Swim-Services/BedrockData/tree/master"
             },
-            "time": "2026-07-16T18:37:40+00:00"
+            "time": "2026-08-21T16:40:09+00:00"
         },
         {
             "name": "swim-services/bedrock-protocol",
@@ -831,12 +833,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "0335182458c644f5cfc9ff989f267735e8e1ad30"
+                "reference": "bd4b91fd78e67285a6f457541850e9af9a1567f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/0335182458c644f5cfc9ff989f267735e8e1ad30",
-                "reference": "0335182458c644f5cfc9ff989f267735e8e1ad30",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/bd4b91fd78e67285a6f457541850e9af9a1567f1",
+                "reference": "bd4b91fd78e67285a6f457541850e9af9a1567f1",
                 "shasum": ""
             },
             "require": {
@@ -880,20 +882,20 @@
                 "source": "https://github.com/Swim-Services/BedrockProtocol/tree/master",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2026-07-16T18:33:41+00:00"
+            "time": "2026-08-21T16:12:48+00:00"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v6.4.39",
+            "version": "v6.4.43",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "c507b077756b4e3e09adbbe7975fac81cd3722ca"
+                "reference": "9ff03da12d67649fbd1f34ca95951554624d0a16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/c507b077756b4e3e09adbbe7975fac81cd3722ca",
-                "reference": "c507b077756b4e3e09adbbe7975fac81cd3722ca",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/9ff03da12d67649fbd1f34ca95951554624d0a16",
+                "reference": "9ff03da12d67649fbd1f34ca95951554624d0a16",
                 "shasum": ""
             },
             "require": {
@@ -930,7 +932,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v6.4.39"
+                "source": "https://github.com/symfony/filesystem/tree/v6.4.43"
             },
             "funding": [
                 {
@@ -950,26 +952,26 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-07T13:11:42+00:00"
+            "time": "2026-06-27T10:13:35+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "myclabs/deep-copy",
-            "version": "1.13.4",
+            "version": "1.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a"
+                "reference": "8680aa248f8e07bc8fb43f56f0f5fc77a0c96aae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/07d290f0c47959fd5eed98c95ee5602db07e0b6a",
-                "reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/8680aa248f8e07bc8fb43f56f0f5fc77a0c96aae",
+                "reference": "8680aa248f8e07bc8fb43f56f0f5fc77a0c96aae",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1 || ^8.0"
+                "php": "^8.0"
             },
             "conflict": {
                 "doctrine/collections": "<1.6.8",
@@ -1004,15 +1006,15 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.4"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.14.0"
             },
             "funding": [
                 {
-                    "url": "https://tidelift.com/funding/github/packagist/myclabs/deep-copy",
-                    "type": "tidelift"
+                    "url": "https://github.com/mnapoli",
+                    "type": "github"
                 }
             ],
-            "time": "2025-08-01T08:46:24+00:00"
+            "time": "2026-08-11T10:17:44+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -2533,16 +2535,16 @@
         },
         {
             "name": "sebastian/recursion-context",
-            "version": "5.0.1",
+            "version": "5.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/recursion-context.git",
-                "reference": "47e34210757a2f37a97dcd207d032e1b01e64c7a"
+                "reference": "5d32fe257a9b39cb63146924d6b4e32a22d4502a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/47e34210757a2f37a97dcd207d032e1b01e64c7a",
-                "reference": "47e34210757a2f37a97dcd207d032e1b01e64c7a",
+                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/5d32fe257a9b39cb63146924d6b4e32a22d4502a",
+                "reference": "5d32fe257a9b39cb63146924d6b4e32a22d4502a",
                 "shasum": ""
             },
             "require": {
@@ -2585,7 +2587,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/recursion-context/issues",
                 "security": "https://github.com/sebastianbergmann/recursion-context/security/policy",
-                "source": "https://github.com/sebastianbergmann/recursion-context/tree/5.0.1"
+                "source": "https://github.com/sebastianbergmann/recursion-context/tree/5.0.2"
             },
             "funding": [
                 {
@@ -2605,7 +2607,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-08-10T07:50:56+00:00"
+            "time": "2026-08-11T05:27:39+00:00"
         },
         {
             "name": "sebastian/type",

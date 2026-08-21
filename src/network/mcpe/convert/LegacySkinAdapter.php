@@ -24,41 +24,85 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\convert;
 
 use pocketmine\entity\InvalidSkinException;
+use pocketmine\entity\PersonaPieceTintColor as EntityPersonaPieceTintColor;
+use pocketmine\entity\PersonaSkinPiece as EntityPersonaSkinPiece;
 use pocketmine\entity\Skin;
+use pocketmine\entity\SkinAnimation as EntitySkinAnimation;
+use pocketmine\network\mcpe\protocol\serializer\LegacySkinDataConverter;
+use pocketmine\network\mcpe\protocol\types\skin\PersonaPieceTintColor;
+use pocketmine\network\mcpe\protocol\types\skin\PersonaSkinPiece;
+use pocketmine\network\mcpe\protocol\types\skin\SkinAnimation;
 use pocketmine\network\mcpe\protocol\types\skin\SkinData;
 use pocketmine\network\mcpe\protocol\types\skin\SkinImage;
+use Ramsey\Uuid\Uuid;
+use function array_map;
 use function is_array;
 use function is_string;
 use function json_decode;
-use function json_encode;
-use function random_bytes;
-use function str_repeat;
-use const JSON_THROW_ON_ERROR;
 
 class LegacySkinAdapter implements SkinAdapter{
 
 	public function toSkinData(Skin $skin) : SkinData{
 		$capeData = $skin->getCapeData();
-		$capeImage = $capeData === "" ? new SkinImage(0, 0, "") : new SkinImage(32, 64, $capeData);
-		$geometryName = $skin->getGeometryName();
-		if($geometryName === ""){
-			$geometryName = "geometry.humanoid.custom";
-		}
+		$capeImage = $capeData === "" ? new SkinImage(0, 0, "") : new SkinImage($skin->getCapeImageHeight(), $skin->getCapeImageWidth(), $capeData);
+
+		$animations = array_map(
+			static fn(EntitySkinAnimation $animation) : SkinAnimation => new SkinAnimation(
+				new SkinImage($animation->getImageHeight(), $animation->getImageWidth(), $animation->getImageData()),
+				$animation->getAnimationType(),
+				$animation->getFrames(),
+				$animation->getExpressionType()
+			),
+			$skin->getAnimations()
+		);
+
+		$personaPieces = array_map(
+			static fn(EntityPersonaSkinPiece $piece) : PersonaSkinPiece => new PersonaSkinPiece(
+				$piece->getPieceId(),
+				$piece->getPieceType(),
+				Uuid::fromString($piece->getPackId() !== "" ? $piece->getPackId() : Uuid::NIL),
+				$piece->isDefaultPiece(),
+				$piece->getProductId()
+			),
+			$skin->getPersonaPieces()
+		);
+
+		$pieceTintColors = array_map(
+			static fn(EntityPersonaPieceTintColor $tint) : PersonaPieceTintColor => new PersonaPieceTintColor(
+				LegacySkinDataConverter::personaPieceTypeToString($tint->getPieceType()),
+				$tint->getColors()
+			),
+			$skin->getPieceTintColors()
+		);
+
 		return new SkinData(
 			$skin->getSkinId(),
-			"", //TODO: playfab ID
-			json_encode(["geometry" => ["default" => $geometryName]], JSON_THROW_ON_ERROR),
-			SkinImage::fromLegacy($skin->getSkinData()), [],
+			$skin->getPlayFabId(),
+			$skin->getResourcePatch(),
+			new SkinImage($skin->getSkinImageHeight(), $skin->getSkinImageWidth(), $skin->getSkinData()),
+			$animations,
 			$capeImage,
-			$skin->getGeometryData()
+			$skin->getGeometryData(),
+			$skin->getGeometryDataEngineVersion(),
+			$skin->getAnimationData(),
+			$skin->getCapeId(),
+			$skin->getFullSkinId(),
+			$skin->getArmSize(),
+			$skin->getSkinColor(),
+			$personaPieces,
+			$pieceTintColors,
+			true,
+			$skin->isPremium(),
+			$skin->isPersona(),
+			$skin->isPersonaCapeOnClassic(),
+			$skin->isPrimaryUser(),
+			$skin->isOverride(),
+			$skin->getTrustedSkinFlag(),
+			$skin->getProfileHash()
 		);
 	}
 
 	public function fromSkinData(SkinData $data) : Skin{
-		if($data->isPersona()){
-			return new Skin("Standard_Custom", str_repeat(random_bytes(3) . "\xff", 4096));
-		}
-
 		$capeData = $data->isPersonaCapeOnClassic() ? "" : $data->getCapeImage()->getData();
 
 		$resourcePatch = json_decode($data->getResourcePatch(), true);
@@ -68,6 +112,65 @@ class LegacySkinAdapter implements SkinAdapter{
 			throw new InvalidSkinException("Missing geometry name field");
 		}
 
-		return new Skin($data->getSkinId(), $data->getSkinImage()->getData(), $capeData, $geometryName, $data->getGeometryData());
+		$animations = array_map(
+			static fn(SkinAnimation $animation) : EntitySkinAnimation => new EntitySkinAnimation(
+				$animation->getImage()->getWidth(),
+				$animation->getImage()->getHeight(),
+				$animation->getImage()->getData(),
+				$animation->getType(),
+				$animation->getFrames(),
+				$animation->getExpressionType()
+			),
+			$data->getAnimations()
+		);
+
+		$personaPieces = array_map(
+			static fn(PersonaSkinPiece $piece) : EntityPersonaSkinPiece => new EntityPersonaSkinPiece(
+				$piece->getPieceId(),
+				$piece->getPieceType(),
+				$piece->getPackId()->toString(),
+				$piece->isDefaultPiece(),
+				$piece->getProductId()
+			),
+			$data->getPersonaPieces()
+		);
+
+		$pieceTintColors = array_map(
+			static fn(PersonaPieceTintColor $tint) : EntityPersonaPieceTintColor => new EntityPersonaPieceTintColor(
+				LegacySkinDataConverter::personaPieceTypeFromString($tint->getPieceType()),
+				$tint->getColors()
+			),
+			$data->getPieceTintColors()
+		);
+
+		return new Skin(
+			skinId: $data->getSkinId(),
+			skinData: $data->getSkinImage()->getData(),
+			capeData: $capeData,
+			geometryName: $geometryName,
+			geometryData: $data->getGeometryData(),
+			playFabId: $data->getPlayFabId(),
+			resourcePatch: $data->getResourcePatch(),
+			geometryDataEngineVersion: $data->getGeometryDataEngineVersion(),
+			animationData: $data->getAnimationData(),
+			capeId: $data->getCapeId(),
+			fullSkinId: $data->getFullSkinId(),
+			armSize: $data->getArmSize(),
+			skinColor: $data->getSkinColor(),
+			personaPieces: $personaPieces,
+			pieceTintColors: $pieceTintColors,
+			animations: $animations,
+			premium: $data->isPremium(),
+			persona: $data->isPersona(),
+			personaCapeOnClassic: $data->isPersonaCapeOnClassic(),
+			isPrimaryUser: $data->isPrimaryUser(),
+			override: $data->isOverride(),
+			trustedSkinFlag: $data->getTrustedSkinFlag(),
+			profileHash: $data->getProfileHash(),
+			skinImageWidth: $data->getSkinImage()->getWidth(),
+			skinImageHeight: $data->getSkinImage()->getHeight(),
+			capeImageWidth: $data->getCapeImage()->getWidth(),
+			capeImageHeight: $data->getCapeImage()->getHeight(),
+		);
 	}
 }

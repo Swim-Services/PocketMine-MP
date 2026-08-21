@@ -1422,11 +1422,13 @@ class NetworkSession{
 	 */
 	public function syncPlayerList(array $players) : void{
 		$this->sendDataPacket(PlayerListPacket::add(array_map(function(Player $player) : PlayerListEntry{
+			//$this->logger->debug("syncPlayerList entry for " . $player->getName() . ": " . $player->getSkin()->describeForDebug());
 			return PlayerListEntry::createAdditionEntry($player->getUniqueId(), $player->getId(), $player->getDisplayName(), $this->typeConverter->getSkinAdapter()->toSkinData($player->getSkin()), $player->getXuid());
 		}, $players)));
 	}
 
 	public function onPlayerAdded(Player $p) : void{
+		//$this->logger->debug("onPlayerAdded entry for " . $p->getName() . ": " . $p->getSkin()->describeForDebug());
 		$this->sendDataPacket(PlayerListPacket::add([PlayerListEntry::createAdditionEntry($p->getUniqueId(), $p->getId(), $p->getDisplayName(), $this->typeConverter->getSkinAdapter()->toSkinData($p->getSkin()), $p->getXuid())]));
 	}
 
