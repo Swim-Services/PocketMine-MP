@@ -55,7 +55,7 @@ final class BlockTranslator{
 			self::DATA_DRIVEN_BLOCKS_PATH => '',
 		],
 		ProtocolInfo::PROTOCOL_1_26_45 => [
-			self::CANONICAL_BLOCK_STATES_PATH => '-1.26.45',
+			self::CANONICAL_BLOCK_STATES_PATH => '-1.26.40',
 			self::BLOCK_STATE_META_MAP_PATH => '',
 		],
 		ProtocolInfo::PROTOCOL_1_26_40 => [
