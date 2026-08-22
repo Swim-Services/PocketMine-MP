@@ -34,10 +34,12 @@ use pocketmine\block\Air;
 use pocketmine\block\Block;
 use pocketmine\block\BlockTypeIds;
 use pocketmine\block\RuntimeBlockStateRegistry;
+use pocketmine\block\Stair;
 use pocketmine\block\tile\Spawnable;
 use pocketmine\block\tile\Tile;
 use pocketmine\block\tile\TileFactory;
 use pocketmine\block\UnknownBlock;
+use pocketmine\block\utils\HorizontalConnectable;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\data\bedrock\block\BlockStateData;
@@ -98,6 +100,7 @@ use pocketmine\world\format\Chunk;
 use pocketmine\world\format\io\ChunkData;
 use pocketmine\world\format\io\exception\CorruptedChunkException;
 use pocketmine\world\format\io\GlobalBlockStateHandlers;
+use pocketmine\world\format\io\LoadedChunkData;
 use pocketmine\world\format\io\WritableWorldProvider;
 use pocketmine\world\format\LightArray;
 use pocketmine\world\format\SubChunk;
@@ -308,6 +311,13 @@ class World implements ChunkManager{
 	 * @phpstan-var array<ChunkPosHash, Chunk>
 	 */
 	private array $chunks = [];
+	/**
+	 * Bitmask of horizontal chunk edges which still need connected block states reconciled when their neighbour loads.
+	 *
+	 * @var int[]
+	 * @phpstan-var array<ChunkPosHash, int>
+	 */
+	private array $pendingConnectedBlockStateBoundaryFixes = [];
 
 	/**
 	 * @var true[]
@@ -2831,6 +2841,8 @@ class World implements ChunkManager{
 		unset($this->blockCollisionBoxCache[$chunkHash]);
 		unset($this->changedBlocks[$chunkHash]);
 		$chunk->setTerrainDirty();
+		$this->pendingConnectedBlockStateBoundaryFixes[$chunkHash] ??= 0;
+		$this->recalculateLoadedChunkBoundaryBlockStates($chunkX, $chunkZ, $chunk);
 		$this->markTickingChunkForRecheck($chunkX, $chunkZ); //this replacement chunk may not meet the conditions for ticking
 
 		if(!$this->isChunkInUse($chunkX, $chunkZ)){
@@ -3128,6 +3140,24 @@ class World implements ChunkManager{
 		unset($this->blockCache[$chunkHash]);
 		unset($this->blockCollisionBoxCache[$chunkHash]);
 
+		$requiresConnectedBlockStateFix = ($loadedChunkData->getFixerFlags() & LoadedChunkData::FIXER_FLAG_RECALCULATE_CONNECTED_BLOCK_STATES) !== 0;
+		if($requiresConnectedBlockStateFix){
+			$this->logger->debug(
+				"[ConnectedBlockStateUpgrade] Loaded chunk $x $z requiring full fix, fixer flags=" . $loadedChunkData->getFixerFlags()
+			);
+			$this->recalculateChunkBlockStates($x, $z, $chunk);
+		}
+		if(!isset($this->pendingConnectedBlockStateBoundaryFixes[$chunkHash])){
+			$pendingEdges = 0;
+			if($requiresConnectedBlockStateFix){
+				foreach(Facing::HORIZONTAL as $facing){
+					$pendingEdges |= 1 << $facing;
+				}
+			}
+			$this->pendingConnectedBlockStateBoundaryFixes[$chunkHash] = $pendingEdges;
+		}
+		$this->recalculateLoadedChunkBoundaryBlockStates($x, $z, $chunk);
+
 		$this->initChunk($x, $z, $chunkData, $chunk);
 
 		if(ChunkLoadEvent::hasHandlers()){
@@ -3146,6 +3176,187 @@ class World implements ChunkManager{
 		$this->timings->syncChunkLoad->stopTiming();
 
 		return $this->chunks[$chunkHash];
+	}
+
+	private function recalculateLoadedChunkBoundaryBlockStates(int $chunkX, int $chunkZ, Chunk $chunk) : void{
+		$chunkHash = World::chunkHash($chunkX, $chunkZ);
+		foreach(Facing::HORIZONTAL as $facing){
+			[$offsetX, , $offsetZ] = Facing::OFFSET[$facing];
+			$neighbourChunkX = $chunkX + $offsetX;
+			$neighbourChunkZ = $chunkZ + $offsetZ;
+			$neighbourChunkHash = World::chunkHash($neighbourChunkX, $neighbourChunkZ);
+			$neighbourChunk = $this->chunks[$neighbourChunkHash] ?? null;
+			if($neighbourChunk === null){
+				continue;
+			}
+
+			$oppositeFacing = Facing::opposite($facing);
+			$edgeFlag = 1 << $facing;
+			$oppositeEdgeFlag = 1 << $oppositeFacing;
+			if(
+				(($this->pendingConnectedBlockStateBoundaryFixes[$chunkHash] ?? 0) & $edgeFlag) === 0 &&
+				(($this->pendingConnectedBlockStateBoundaryFixes[$neighbourChunkHash] ?? 0) & $oppositeEdgeFlag) === 0
+			){
+				continue;
+			}
+
+			$this->logger->debug(
+				"[ConnectedBlockStateUpgrade] Reconciling boundary $chunkX $chunkZ " . Facing::toString($facing) .
+				" <-> $neighbourChunkX $neighbourChunkZ " . Facing::toString($oppositeFacing)
+			);
+			[$currentStairCandidates, $currentStairChanges] = $this->recalculateChunkBlockStatePass($chunkX, $chunkZ, $chunk, $facing, true, false);
+			[$neighbourStairCandidates, $neighbourStairChanges] = $this->recalculateChunkBlockStatePass($neighbourChunkX, $neighbourChunkZ, $neighbourChunk, $oppositeFacing, true, true);
+			$this->clearConnectedBlockStateCalculationCaches($chunkX, $chunkZ);
+			$this->clearConnectedBlockStateCalculationCaches($neighbourChunkX, $neighbourChunkZ);
+			[$currentConnectionCandidates, $currentConnectionChanges] = $this->recalculateChunkBlockStatePass($chunkX, $chunkZ, $chunk, $facing, false, false);
+			[$neighbourConnectionCandidates, $neighbourConnectionChanges] = $this->recalculateChunkBlockStatePass($neighbourChunkX, $neighbourChunkZ, $neighbourChunk, $oppositeFacing, false, true);
+			$this->clearConnectedBlockStateCalculationCaches($chunkX, $chunkZ);
+			$this->clearConnectedBlockStateCalculationCaches($neighbourChunkX, $neighbourChunkZ);
+			$this->logger->debug(
+				"[ConnectedBlockStateUpgrade] Boundary result: candidates=" .
+				($currentStairCandidates + $neighbourStairCandidates + $currentConnectionCandidates + $neighbourConnectionCandidates) .
+				", changes=" . ($currentStairChanges + $neighbourStairChanges + $currentConnectionChanges + $neighbourConnectionChanges)
+			);
+
+			$this->pendingConnectedBlockStateBoundaryFixes[$chunkHash] &= ~$edgeFlag;
+			$this->pendingConnectedBlockStateBoundaryFixes[$neighbourChunkHash] =
+				($this->pendingConnectedBlockStateBoundaryFixes[$neighbourChunkHash] ?? 0) & ~$oppositeEdgeFlag;
+		}
+	}
+
+	/** @return array{int, int} number of candidates and changed states */
+	private function recalculateChunkBlockStates(int $chunkX, int $chunkZ, Chunk $chunk) : array{
+		$this->logger->debug("[ConnectedBlockStateUpgrade] Starting full scan of chunk $chunkX $chunkZ");
+		[$stairCandidates, $stairChanges] = $this->recalculateChunkBlockStatePass($chunkX, $chunkZ, $chunk, null, true, false);
+		$this->clearConnectedBlockStateCalculationCaches($chunkX, $chunkZ);
+		[$connectionCandidates, $connectionChanges] = $this->recalculateChunkBlockStatePass($chunkX, $chunkZ, $chunk, null, false, false);
+		$this->clearConnectedBlockStateCalculationCaches($chunkX, $chunkZ);
+		$candidates = $stairCandidates + $connectionCandidates;
+		$changes = $stairChanges + $connectionChanges;
+		$this->logger->debug("[ConnectedBlockStateUpgrade] Finished full scan of chunk $chunkX $chunkZ: candidates=$candidates, changes=$changes");
+		return [$candidates, $changes];
+	}
+
+	private function clearConnectedBlockStateCalculationCaches(int $chunkX, int $chunkZ) : void{
+		$chunksToClear = [[$chunkX, $chunkZ]];
+		foreach(Facing::HORIZONTAL as $facing){
+			[$offsetX, , $offsetZ] = Facing::OFFSET[$facing];
+			$chunksToClear[] = [$chunkX + $offsetX, $chunkZ + $offsetZ];
+		}
+		foreach($chunksToClear as [$clearX, $clearZ]){
+			$chunkHash = World::chunkHash($clearX, $clearZ);
+			$this->blockCacheSize -= count($this->blockCache[$chunkHash] ?? []);
+			unset($this->blockCache[$chunkHash], $this->blockCollisionBoxCache[$chunkHash]);
+		}
+	}
+
+	/** @return array{int, int} number of candidates and changed states */
+	private function recalculateChunkBlockStatePass(int $chunkX, int $chunkZ, Chunk $chunk, ?int $edge, bool $stairs, bool $notify) : array{
+		$candidates = 0;
+		$changes = 0;
+		foreach($chunk->getSubChunks() as $subChunkY => $subChunk){
+			$blockLayers = $subChunk->getBlockLayers();
+			if(count($blockLayers) === 0){
+				continue;
+			}
+
+			$affectedStateIds = [];
+			foreach($blockLayers[0]->getPalette() as $stateId){
+				$block = $this->blockStateRegistry->fromStateId($stateId);
+				if($stairs ? $block instanceof Stair : $block instanceof HorizontalConnectable){
+					$affectedStateIds[$stateId] = true;
+				}
+			}
+			if(count($affectedStateIds) === 0){
+				continue;
+			}
+
+			$minY = max($this->minY, $subChunkY << SubChunk::COORD_BIT_SIZE);
+			$maxY = min($this->maxY - 1, (($subChunkY + 1) << SubChunk::COORD_BIT_SIZE) - 1);
+			for($y = $minY; $y <= $maxY; ++$y){
+				if($edge === Facing::WEST || $edge === Facing::EAST){
+					$minX = $edge === Facing::WEST ? 0 : Chunk::COORD_MASK - ($stairs ? 0 : 1);
+					$maxX = $edge === Facing::WEST ? ($stairs ? 0 : 1) : Chunk::COORD_MASK;
+					for($x = $minX; $x <= $maxX; ++$x){
+						for($z = 0; $z < Chunk::EDGE_LENGTH; ++$z){
+							$result = $this->recalculateChunkBlockStateAt($chunkX, $chunkZ, $chunk, $x, $y, $z, $affectedStateIds, $notify);
+							if($result !== null){
+								++$candidates;
+							}
+							if($result === true){
+								++$changes;
+							}
+						}
+					}
+				}elseif($edge === Facing::NORTH || $edge === Facing::SOUTH){
+					$minZ = $edge === Facing::NORTH ? 0 : Chunk::COORD_MASK - ($stairs ? 0 : 1);
+					$maxZ = $edge === Facing::NORTH ? ($stairs ? 0 : 1) : Chunk::COORD_MASK;
+					for($z = $minZ; $z <= $maxZ; ++$z){
+						for($x = 0; $x < Chunk::EDGE_LENGTH; ++$x){
+							$result = $this->recalculateChunkBlockStateAt($chunkX, $chunkZ, $chunk, $x, $y, $z, $affectedStateIds, $notify);
+							if($result !== null){
+								++$candidates;
+							}
+							if($result === true){
+								++$changes;
+							}
+						}
+					}
+				}else{
+					for($z = 0; $z < Chunk::EDGE_LENGTH; ++$z){
+						for($x = 0; $x < Chunk::EDGE_LENGTH; ++$x){
+							$result = $this->recalculateChunkBlockStateAt($chunkX, $chunkZ, $chunk, $x, $y, $z, $affectedStateIds, $notify);
+							if($result !== null){
+								++$candidates;
+							}
+							if($result === true){
+								++$changes;
+							}
+						}
+					}
+				}
+			}
+		}
+		$pass = $stairs ? "stairs" : "connections";
+		$region = $edge === null ? "full chunk" : "edge " . Facing::toString($edge);
+		$this->logger->debug("[ConnectedBlockStateUpgrade] Pass $pass on chunk $chunkX $chunkZ ($region): candidates=$candidates, changes=$changes");
+		return [$candidates, $changes];
+	}
+
+	/** @param true[] $affectedStateIds */
+	private function recalculateChunkBlockStateAt(int $chunkX, int $chunkZ, Chunk $chunk, int $x, int $y, int $z, array $affectedStateIds, bool $notify) : ?bool{
+		$oldStateId = $chunk->getBlockStateId($x, $y, $z);
+		if(!isset($affectedStateIds[$oldStateId])){
+			return null;
+		}
+
+		$worldX = ($chunkX << Chunk::COORD_BIT_SIZE) + $x;
+		$worldZ = ($chunkZ << Chunk::COORD_BIT_SIZE) + $z;
+		$block = $this->blockStateRegistry->fromStateId($oldStateId);
+		$block->position($this, $worldX, $y, $worldZ);
+		if($block instanceof Stair){
+			$block->setShape($block->calculateShape());
+		}elseif($block instanceof HorizontalConnectable){
+			$block->recalculateConnections();
+		}else{
+			throw new \LogicException("Unexpected connected block state candidate " . get_class($block));
+		}
+		$newStateId = $block->getStateId();
+		$this->logger->debug(
+			"[ConnectedBlockStateUpgrade] Candidate " . get_class($block) . " at $worldX $y $worldZ: " .
+			"state $oldStateId -> $newStateId"
+		);
+		if($newStateId === $oldStateId){
+			return false;
+		}
+
+		if($notify){
+			$this->setBlockAt($worldX, $y, $worldZ, $block, false);
+		}else{
+			$chunk->setBlockStateId($x, $y, $z, $newStateId);
+		}
+		$this->logger->debug("[ConnectedBlockStateUpgrade] Changed block state at $worldX $y $worldZ from $oldStateId to $newStateId");
+		return true;
 	}
 
 	private function initChunk(int $chunkX, int $chunkZ, ChunkData $chunkData, Chunk $chunk) : void{

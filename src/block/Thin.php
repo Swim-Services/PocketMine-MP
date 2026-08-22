@@ -84,7 +84,7 @@ class Thin extends Transparent implements HorizontalConnectable{
 		return $this;
 	}
 
-	protected function recalculateConnections() : bool{
+	public function recalculateConnections() : bool{
 		$oldConnections = $this->connections;
 		foreach(Facing::HORIZONTAL as $facing){
 			$side = $this->getSide($facing);
@@ -95,14 +95,6 @@ class Thin extends Transparent implements HorizontalConnectable{
 			}
 		}
 		return $this->connections !== $oldConnections;
-	}
-
-	public function readStateFromWorld() : Block{
-		parent::readStateFromWorld();
-
-		$this->connectionsRecalculated = $this->recalculateConnections();
-		$this->collisionBoxes = null;
-		return $this;
 	}
 
 	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{

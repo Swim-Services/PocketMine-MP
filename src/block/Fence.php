@@ -85,7 +85,7 @@ class Fence extends Transparent implements HorizontalConnectable{
 		return 0.25;
 	}
 
-	protected function recalculateConnections() : bool{
+	public function recalculateConnections() : bool{
 		$oldConnections = $this->connections;
 		foreach(Facing::HORIZONTAL as $facing){
 			$block = $this->getSide($facing);
@@ -96,14 +96,6 @@ class Fence extends Transparent implements HorizontalConnectable{
 			}
 		}
 		return $this->connections !== $oldConnections;
-	}
-
-	public function readStateFromWorld() : Block{
-		parent::readStateFromWorld();
-
-		$this->connectionsRecalculated = $this->recalculateConnections();
-		$this->collisionBoxes = null;
-		return $this;
 	}
 
 	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{

@@ -84,6 +84,7 @@ class LevelDB extends BaseWorldProvider implements WritableWorldProvider{
 	protected const CURRENT_LEVEL_SUBCHUNK_VERSION = WorldDataVersions::SUBCHUNK;
 
 	private const CAVES_CLIFFS_EXPERIMENTAL_SUBCHUNK_KEY_OFFSET = 4;
+	private const PM_DATA_VERSION_CONNECTED_BLOCK_STATES = 3;
 
 	protected \LevelDB $db;
 
@@ -655,9 +656,27 @@ class LevelDB extends BaseWorldProvider implements WritableWorldProvider{
 			return null;
 		}
 
-		//TODO: read PM_DATA_VERSION - we'll need it to fix up old chunks
-
 		$logger = new \PrefixedLogger($this->logger, "Loading chunk x=$chunkX z=$chunkZ v$chunkVersion");
+		$pmDataVersionBinary = $this->db->get($index . ChunkDataKey::PM_DATA_VERSION);
+		if($pmDataVersionBinary === false){
+			$pmDataVersion = 0;
+		}else{
+			try{
+				$pmDataVersion = Binary::readLLong($pmDataVersionBinary);
+			}catch(BinaryDataException $e){
+				$logger->warning("Invalid " . ChunkDataKey::PM_DATA_VERSION . " value, recalculating connected block states");
+				$pmDataVersion = 0;
+			}
+		}
+		$fixerFlags = $pmDataVersion < self::PM_DATA_VERSION_CONNECTED_BLOCK_STATES ?
+			LoadedChunkData::FIXER_FLAG_RECALCULATE_CONNECTED_BLOCK_STATES :
+			LoadedChunkData::FIXER_FLAG_NONE;
+		if($fixerFlags !== LoadedChunkData::FIXER_FLAG_NONE){
+			$logger->debug(
+				"Connected block state upgrade required: PM data version=$pmDataVersion, " .
+				"required version=" . self::PM_DATA_VERSION_CONNECTED_BLOCK_STATES . ", fixer flags=$fixerFlags"
+			);
+		}
 
 		$hasBeenUpgraded = $chunkVersion < self::CURRENT_LEVEL_CHUNK_VERSION;
 
@@ -751,7 +770,7 @@ class LevelDB extends BaseWorldProvider implements WritableWorldProvider{
 		return new LoadedChunkData(
 			data: new ChunkData($subChunks, $terrainPopulated, $entities, $tiles),
 			upgraded: $hasBeenUpgraded,
-			fixerFlags: LoadedChunkData::FIXER_FLAG_ALL //TODO: fill this by version rather than just setting all flags
+			fixerFlags: $fixerFlags
 		);
 	}
 

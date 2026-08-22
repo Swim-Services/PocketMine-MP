@@ -49,7 +49,7 @@ class Stair extends Transparent implements HorizontalFacing{
 		$w->enum($this->shape);
 	}
 
-	private function calculateShape() : StairShape{
+	public function calculateShape() : StairShape{
 		$clockwise = Facing::rotateY($this->facing, true);
 		if(($backFacing = $this->getPossibleCornerFacing(false)) !== null){
 			if($backFacing === $clockwise){
@@ -73,16 +73,6 @@ class Stair extends Transparent implements HorizontalFacing{
 	private function isContinuedOnRight() : bool{
 		$side = $this->getSide(Facing::rotateY($this->facing, true));
 		return $side instanceof Stair && $side->facing === $this->facing && $side->upsideDown === $this->upsideDown;
-	}
-
-	public function readStateFromWorld() : Block{
-		parent::readStateFromWorld();
-
-		$shape = $this->calculateShape();
-		$this->shapeRecalculated = $shape !== $this->shape;
-		$this->shape = $shape;
-		$this->collisionBoxes = null;
-		return $this;
 	}
 
 	public function onNearbyBlockChange() : void{

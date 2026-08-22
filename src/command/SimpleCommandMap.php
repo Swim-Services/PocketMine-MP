@@ -61,6 +61,7 @@ use pocketmine\command\defaults\TimeCommand;
 use pocketmine\command\defaults\TimingsCommand;
 use pocketmine\command\defaults\TitleCommand;
 use pocketmine\command\defaults\TransferServerCommand;
+use pocketmine\command\defaults\UpgradeWorldsCommand;
 use pocketmine\command\defaults\VanillaCommand;
 use pocketmine\command\defaults\VersionCommand;
 use pocketmine\command\defaults\WhitelistCommand;
@@ -133,6 +134,7 @@ class SimpleCommandMap implements CommandMap{
 			new TimingsCommand(),
 			new TitleCommand(),
 			new TransferServerCommand(),
+			new UpgradeWorldsCommand(),
 			new VersionCommand(),
 			new WhitelistCommand(),
 			new XpCommand(),

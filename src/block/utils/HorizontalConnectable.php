@@ -25,6 +25,8 @@ namespace pocketmine\block\utils;
 
 interface HorizontalConnectable{
 
+	public function recalculateConnections() : bool;
+
 	public function hasConnection(int $facing) : bool;
 
 	/** @return $this */

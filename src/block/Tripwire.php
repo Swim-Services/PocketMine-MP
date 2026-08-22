@@ -113,26 +113,22 @@ class Tripwire extends Flowable implements HorizontalConnectable{
 		return $connections;
 	}
 
-	public function readStateFromWorld() : Block{
-		parent::readStateFromWorld();
-
+	public function recalculateConnections() : bool{
 		$connections = $this->calculateConnections();
-		$this->connectionsRecalculated = $connections !== $this->connections;
+		$changed = $connections !== $this->connections;
 		$this->connections = $connections;
-		return $this;
+		return $changed;
 	}
 
 	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
-		$this->connections = $this->calculateConnections();
+		$this->recalculateConnections();
 		return parent::place($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 	}
 
 	public function onNearbyBlockChange() : void{
-		$connections = $this->calculateConnections();
-		$changed = $this->connectionsRecalculated || $connections !== $this->connections;
+		$changed = $this->connectionsRecalculated;
 		$this->connectionsRecalculated = false;
-		if($changed){
-			$this->connections = $connections;
+		if($this->recalculateConnections() || $changed){
 			$this->position->getWorld()->setBlock($this->position, $this);
 		}
 	}
