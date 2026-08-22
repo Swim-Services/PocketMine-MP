@@ -36,7 +36,7 @@ use function round;
 final class UpgradeWorldsCommand extends VanillaCommand{
 
 	public function __construct(){
-		parent::__construct("upgradeworlds", "Loads and saves every chunk to upgrade its block states");
+		parent::__construct("upgradeworlds", "Loads and saves every chunk to upgrade its block states", "/upgradeworlds [world]");
 		$this->setPermission(DefaultPermissionNames::COMMAND_SAVE_PERFORM);
 	}
 
@@ -44,13 +44,25 @@ final class UpgradeWorldsCommand extends VanillaCommand{
 		if(!$this->testPermission($sender)){
 			return true;
 		}
-		if(count($args) !== 0){
+		if(count($args) > 1){
 			return false;
+		}
+
+		$worldManager = $sender->getServer()->getWorldManager();
+		if(isset($args[0])){
+			$world = $worldManager->getWorldByName($args[0]);
+			if($world === null){
+				$sender->sendMessage("World \"" . $args[0] . "\" is not loaded");
+				return true;
+			}
+			$worlds = [$world];
+		}else{
+			$worlds = $worldManager->getWorlds();
 		}
 
 		$start = microtime(true);
 		$totalChunks = 0;
-		foreach($sender->getServer()->getWorldManager()->getWorlds() as $world){
+		foreach($worlds as $world){
 			$chunkCoordinates = [];
 			foreach($world->getProvider()->getAllChunks(true, $world->getLogger()) as $coordinates => $_){
 				[$chunkX, $chunkZ] = $coordinates;
