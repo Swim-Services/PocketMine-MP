@@ -46,14 +46,20 @@ final class BlockTranslator{
 
 	public const CANONICAL_BLOCK_STATES_PATH = 0;
 	public const BLOCK_STATE_META_MAP_PATH = 1;
+	public const DATA_DRIVEN_BLOCKS_PATH = 2;
 
 	private const PATHS = [
 		ProtocolInfo::CURRENT_PROTOCOL => [
 			self::CANONICAL_BLOCK_STATES_PATH => '',
 			self::BLOCK_STATE_META_MAP_PATH => '',
+			self::DATA_DRIVEN_BLOCKS_PATH => '',
+		],
+		ProtocolInfo::PROTOCOL_1_26_45 => [
+			self::CANONICAL_BLOCK_STATES_PATH => '-1.26.45',
+			self::BLOCK_STATE_META_MAP_PATH => '',
 		],
 		ProtocolInfo::PROTOCOL_1_26_40 => [
-			self::CANONICAL_BLOCK_STATES_PATH => '',
+			self::CANONICAL_BLOCK_STATES_PATH => '-1.26.40',
 			self::BLOCK_STATE_META_MAP_PATH => '',
 		],
 		ProtocolInfo::PROTOCOL_1_26_30 => [
@@ -246,9 +252,12 @@ final class BlockTranslator{
 		self::setupHashProtocols();
 		$canonicalBlockStatesRaw = Filesystem::fileGetContents(str_replace(".nbt", self::PATHS[$protocolId][self::CANONICAL_BLOCK_STATES_PATH] . ".nbt", BedrockDataFiles::CANONICAL_BLOCK_STATES_NBT));
 		$metaMappingRaw = Filesystem::fileGetContents(str_replace(".json", self::PATHS[$protocolId][self::BLOCK_STATE_META_MAP_PATH] . ".json", BedrockDataFiles::BLOCK_STATE_META_MAP_JSON));
+		if (isset(self::PATHS[$protocolId][self::DATA_DRIVEN_BLOCKS_PATH])) {
+			$dataDrivenRaw = Filesystem::fileGetContents(str_replace(".nbt", self::PATHS[$protocolId][self::DATA_DRIVEN_BLOCKS_PATH] . ".nbt", BedrockDataFiles::DATA_DRIVEN_BLOCKS_NBT));
+		}
 		$isHash = isset(self::$HASH_PROTOCOLS[$protocolId]);
 		return new self(
-			BlockStateDictionary::loadFromString($canonicalBlockStatesRaw, $metaMappingRaw, $isHash, $isHash ? self::$HASH_PROTOCOLS[$protocolId] : null),
+			BlockStateDictionary::loadFromString($canonicalBlockStatesRaw, $metaMappingRaw, $isHash, $isHash ? self::$HASH_PROTOCOLS[$protocolId] : null, $dataDrivenRaw ?? null),
 			GlobalBlockStateHandlers::getSerializer(),
 		);
 	}
@@ -285,6 +294,10 @@ final class BlockTranslator{
 
 	public function networkIdsAreHashes() : bool{
 		return $this->blockStateDictionary->networkIdsAreHashes();
+	}
+
+		public function getDataDrivenBlocks() : array{
+		return $this->blockStateDictionary->getDataDrivenBlocks();
 	}
 
 	/**

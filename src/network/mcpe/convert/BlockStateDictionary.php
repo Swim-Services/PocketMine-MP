@@ -30,6 +30,8 @@ use pocketmine\nbt\NbtDataException;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\network\mcpe\protocol\serializer\NetworkNbtSerializer;
+use pocketmine\network\mcpe\protocol\types\BlockPaletteEntry;
+use pocketmine\network\mcpe\protocol\types\CacheableNbt;
 use pocketmine\utils\Utils;
 use pocketmine\world\format\io\GlobalBlockStateHandlers;
 use function array_key_first;
@@ -68,7 +70,8 @@ final class BlockStateDictionary{
 	 */
 	public function __construct(
 		private array $states,
-		private bool $useHash = false
+		private bool $useHash = false,
+		private array $dataDrivenBlocks = [],
 	){
 		$table = [];
 		foreach($this->states as $stateId => $stateNbt){
@@ -190,6 +193,20 @@ final class BlockStateDictionary{
 		);
 	}
 
+	public static function loadDataDrivenBlocksFromString(string $dataDrivenContents) : array{
+		$dataDrivenNbt = (new LittleEndianNbtSerializer())->read($dataDrivenContents);
+		$blocks = $dataDrivenNbt->mustGetCompoundTag()->getListTag("blocks");
+		$out = [];
+		foreach($blocks as $b) {
+			$out[] = self::blockEntryFromNbt($b);
+		}
+		return $out;
+	}
+
+	private static function blockEntryFromNbt(CompoundTag $nbt) : BlockPaletteEntry {
+		return new BlockPaletteEntry($nbt->getString("name"), new CacheableNbt($nbt->getCompoundTag("components")));
+	}
+
 	private static function getHashStateId(BlockStateData $data) : int
 	{
 		$name = $data->getName();
@@ -214,7 +231,7 @@ final class BlockStateDictionary{
 		return hexdec($hash);
 	}
 
-	public static function loadFromString(string $blockPaletteContents, string $metaMapContents, bool $useHash = false, ?\Closure $upgradeFunc = null) : self{
+	public static function loadFromString(string $blockPaletteContents, string $metaMapContents, bool $useHash = false, ?\Closure $upgradeFunc = null, ?string $dataDrivenRaw = null) : self{
 		$upgrader = GlobalBlockStateHandlers::getUpgrader()->getBlockStateUpgrader();
 		$metaMap = json_decode($metaMapContents, flags: JSON_THROW_ON_ERROR);
 		if(!is_array($metaMap)){
@@ -236,7 +253,8 @@ final class BlockStateDictionary{
 		foreach(self::loadPaletteFromString($blockPaletteContents) as $i => $state){
 			$meta = $metaMap[$i] ?? null;
 			if($meta === null){
-				throw new \InvalidArgumentException("Missing associated meta value for state $i (" . $state->toNbt() . ")");
+				$meta = 0;
+				//throw new \InvalidArgumentException("Missing associated meta value for state $i (" . $state->toNbt() . ")");
 			}
 			if(!is_int($meta)){
 				throw new \InvalidArgumentException("Invalid metaMap offset $i, expected int, got " . get_debug_type($meta));
@@ -251,10 +269,14 @@ final class BlockStateDictionary{
 			}
 		}
 
-		return new self($entries, $useHash);
+		return new self($entries, $useHash, $dataDrivenRaw === null ? [] : self::loadDataDrivenBlocksFromString($dataDrivenRaw));
 	}
 
 	public function networkIdsAreHashes() : bool {
 		return $this->useHash;
+	}
+
+	public function getDataDrivenBlocks() : array {
+		return $this->dataDrivenBlocks;
 	}
 }

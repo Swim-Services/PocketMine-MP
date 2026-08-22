@@ -97,6 +97,7 @@ final class BedrockDataFiles{
 	public const CANONICAL_BLOCK_STATES_1_26_10_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.26.10.nbt';
 	public const CANONICAL_BLOCK_STATES_1_26_20_NBT = BEDROCK_DATA_PATH . '/canonical_block_states-1.26.20.nbt';
 	public const CANONICAL_BLOCK_STATES_NBT = BEDROCK_DATA_PATH . '/canonical_block_states.nbt';
+	public const DATA_DRIVEN_BLOCKS_NBT = BEDROCK_DATA_PATH . '/data_driven_blocks.nbt';
 	public const COMMAND_ARG_TYPES_JSON = BEDROCK_DATA_PATH . '/command_arg_types.json';
 	public const CREATIVE = BEDROCK_DATA_PATH . '/creative';
 	public const ENTITY_ID_MAP_JSON = BEDROCK_DATA_PATH . '/entity_id_map.json';

@@ -34,10 +34,10 @@
       "composer-runtime-api": "^2.0",
       "adhocore/json-comment": "~1.2.0",
       "netresearch/jsonmapper": "~v5.0.0",
-      "pocketmine/bedrock-block-upgrade-schema": "~5.2.0+bedrock-1.21.110",
-      "swim-services/bedrock-data": "dev-master",
-      "pocketmine/bedrock-item-upgrade-schema": "~1.17.0+bedrock-1.26.20",
-      "swim-services/bedrock-protocol": "dev-master",
+      "swim-services/bedrock-block-upgrade-schema": "dev-master",
+      "swim-services/bedrock-data": "1.26.50.x-dev",
+      "swim-services/bedrock-item-upgrade-schema": "dev-master",
+      "swim-services/bedrock-protocol": "1.26.50.x-dev",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "~1.0.4",
       "pocketmine/color": "^0.3.0",
@@ -109,6 +109,14 @@
       {
          "type": "vcs",
          "url": "https://github.com/Swim-Services/BedrockData.git"
+      },
+      {
+         "type": "vcs",
+         "url": "https://github.com/Swim-Services/BedrockBlockUpgradeSchema.git"
+      },
+      {
+         "type": "vcs",
+         "url": "https://github.com/Swim-Services/BedrockItemUpgradeSchema.git"
       }
    ]
 }

@@ -23,35 +23,100 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\HorizontalConnectable;
 use pocketmine\block\utils\SupportType;
+use pocketmine\data\runtime\RuntimeDataDescriber;
+use pocketmine\item\Item;
 use pocketmine\math\Axis;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
+use pocketmine\math\Vector3;
+use pocketmine\player\Player;
+use pocketmine\world\BlockTransaction;
 use function count;
+use function in_array;
 
-class Fence extends Transparent{
-	/** @var bool[] facing => dummy */
+class Fence extends Transparent implements HorizontalConnectable{
+	/** @var int[] facing => facing */
 	protected array $connections = [];
+	private bool $connectionsRecalculated = false;
+
+	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
+		$w->horizontalFacingFlags($this->connections);
+	}
+
+	/** @return int[] */
+	public function getConnections() : array{ return $this->connections; }
+
+	public function hasConnection(int $facing) : bool{
+		return isset($this->connections[$facing]);
+	}
+
+	/**
+	 * @param int[] $connections
+	 * @return $this
+	 */
+	public function setConnections(array $connections) : self{
+		$result = [];
+		foreach($connections as $facing){
+			if(!in_array($facing, Facing::HORIZONTAL, true)){
+				throw new \InvalidArgumentException("Facing must be horizontal");
+			}
+			$result[$facing] = $facing;
+		}
+		$this->connections = $result;
+		return $this;
+	}
+
+	/** @return $this */
+	public function setConnection(int $facing, bool $connected) : self{
+		if(!in_array($facing, Facing::HORIZONTAL, true)){
+			throw new \InvalidArgumentException("Facing must be horizontal");
+		}
+		if($connected){
+			$this->connections[$facing] = $facing;
+		}else{
+			unset($this->connections[$facing]);
+		}
+		return $this;
+	}
 
 	public function getThickness() : float{
 		return 0.25;
 	}
 
-	public function readStateFromWorld() : Block{
-		parent::readStateFromWorld();
-
-		$this->collisionBoxes = null;
-
+	protected function recalculateConnections() : bool{
+		$oldConnections = $this->connections;
 		foreach(Facing::HORIZONTAL as $facing){
 			$block = $this->getSide($facing);
 			if($block instanceof static || $block instanceof FenceGate || $block->getSupportType(Facing::opposite($facing)) === SupportType::FULL){
-				$this->connections[$facing] = true;
+				$this->connections[$facing] = $facing;
 			}else{
 				unset($this->connections[$facing]);
 			}
 		}
+		return $this->connections !== $oldConnections;
+	}
 
+	public function readStateFromWorld() : Block{
+		parent::readStateFromWorld();
+
+		$this->connectionsRecalculated = $this->recalculateConnections();
+		$this->collisionBoxes = null;
 		return $this;
+	}
+
+	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
+		$this->recalculateConnections();
+		return parent::place($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);
+	}
+
+	public function onNearbyBlockChange() : void{
+		$changed = $this->connectionsRecalculated;
+		$this->connectionsRecalculated = false;
+		if($this->recalculateConnections() || $changed){
+			$this->position->getWorld()->setBlock($this->position, $this);
+		}
 	}
 
 	protected function recalculateCollisionBoxes() : array{

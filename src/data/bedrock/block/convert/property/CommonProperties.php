@@ -44,12 +44,14 @@ use pocketmine\block\utils\CopperOxidation;
 use pocketmine\block\utils\CoralMaterial;
 use pocketmine\block\utils\CoralType;
 use pocketmine\block\utils\DyeColor;
+use pocketmine\block\utils\HorizontalConnectable;
 use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\Lightable;
 use pocketmine\block\utils\MultiAnyFacing;
 use pocketmine\block\utils\PillarRotation;
 use pocketmine\block\utils\SignLikeRotation;
 use pocketmine\block\utils\SlabType;
+use pocketmine\block\utils\StairShape;
 use pocketmine\block\Wall;
 use pocketmine\block\Wood;
 use pocketmine\data\bedrock\block\BlockLegacyMetadata;
@@ -178,6 +180,12 @@ final class CommonProperties{
 	 * @phpstan-var non-empty-list<Property<contravariant SimplePressurePlate>>
 	 */
 	public readonly array $simplePressurePlateProperties;
+
+	/**
+	 * @var Property[]
+	 * @phpstan-var non-empty-list<Property<contravariant HorizontalConnectable>>
+	 */
+	public readonly array $horizontalConnectionProperties;
 
 	/**
 	 * @var Property[]
@@ -389,7 +397,26 @@ final class CommonProperties{
 			)
 		];
 
+		$this->horizontalConnectionProperties = [
+			new BoolProperty(StateNames::MC_CONNECTION_EAST, fn(HorizontalConnectable $b) => $b->hasConnection(Facing::EAST), fn(HorizontalConnectable $b, bool $v) => $b->setConnection(Facing::EAST, $v)),
+			new BoolProperty(StateNames::MC_CONNECTION_NORTH, fn(HorizontalConnectable $b) => $b->hasConnection(Facing::NORTH), fn(HorizontalConnectable $b, bool $v) => $b->setConnection(Facing::NORTH, $v)),
+			new BoolProperty(StateNames::MC_CONNECTION_SOUTH, fn(HorizontalConnectable $b) => $b->hasConnection(Facing::SOUTH), fn(HorizontalConnectable $b, bool $v) => $b->setConnection(Facing::SOUTH, $v)),
+			new BoolProperty(StateNames::MC_CONNECTION_WEST, fn(HorizontalConnectable $b) => $b->hasConnection(Facing::WEST), fn(HorizontalConnectable $b, bool $v) => $b->setConnection(Facing::WEST, $v)),
+		];
+
 		$this->stairProperties = [
+			new ValueFromStringProperty(
+				StateNames::MC_CORNER,
+				EnumFromRawStateMap::string(StairShape::class, fn(StairShape $shape) => match($shape){
+					StairShape::STRAIGHT => "none",
+					StairShape::INNER_LEFT => "inner_left",
+					StairShape::INNER_RIGHT => "inner_right",
+					StairShape::OUTER_LEFT => "outer_left",
+					StairShape::OUTER_RIGHT => "outer_right",
+				}),
+				fn(Stair $b) => $b->getShape(),
+				fn(Stair $b, StairShape $v) => $b->setShape($v)
+			),
 			new BoolProperty(StateNames::UPSIDE_DOWN_BIT, fn(Stair $b) => $b->isUpsideDown(), fn(Stair $b, bool $v) => $b->setUpsideDown($v)),
 			new ValueFromIntProperty(StateNames::WEIRDO_DIRECTION, $vm->horizontalFacing5Minus, $hfGet, $hfSet),
 		];
