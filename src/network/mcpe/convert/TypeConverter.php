@@ -112,7 +112,7 @@ class TypeConverter{
 			$this->itemDataDowngrader
 		);
 
-		$this->skinAdapter = new LegacySkinAdapter();
+		$this->skinAdapter = new LegacySkinAdapter($protocolId);
 	}
 
 	public function getBlockTranslator() : BlockTranslator{ return $this->blockTranslator; }
