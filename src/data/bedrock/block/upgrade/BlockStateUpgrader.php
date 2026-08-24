@@ -73,10 +73,12 @@ final class BlockStateUpgrader{
 		$this->outputVersion = max($this->outputVersion, $schema->getVersionId());
 	}
 
-	public function upgrade(BlockStateData $blockStateData) : BlockStateData{
+	/** @param-out array<string, Tag> $addedPropertyDefaults */
+	public function upgrade(BlockStateData $blockStateData, ?array &$addedPropertyDefaults = null) : BlockStateData{
 		$version = $blockStateData->getVersion();
 		$name = $blockStateData->getName();
 		$states = $blockStateData->getStates();
+		$addedPropertyDefaults = [];
 		foreach($this->upgradeSchemas as $resultVersion => $schemaList){
 			/*
 			 * Sometimes Mojang made changes without bumping the version ID.
@@ -93,7 +95,7 @@ final class BlockStateUpgrader{
 			}
 
 			foreach($schemaList as $schema){
-				[$name, $states] = $this->applySchema($schema, $name, $states);
+				[$name, $states] = $this->applySchema($schema, $name, $states, $addedPropertyDefaults);
 			}
 		}
 
@@ -107,9 +109,11 @@ final class BlockStateUpgrader{
 	 * @return (string|Tag[])[]
 	 * @phpstan-return array{0: string, 1: array<string, Tag>}
 	 */
-	private function applySchema(BlockStateUpgradeSchema $schema, string $oldName, array $states) : array{
+	/** @param array<string, Tag> $addedPropertyDefaults */
+	private function applySchema(BlockStateUpgradeSchema $schema, string $oldName, array $states, array &$addedPropertyDefaults) : array{
 		$remapped = $this->applyStateRemapped($schema, $oldName, $states);
 		if($remapped !== null){
+			$addedPropertyDefaults = [];
 			return $remapped;
 		}
 
@@ -120,15 +124,35 @@ final class BlockStateUpgrader{
 		if(isset($schema->renamedIds[$oldName])){
 			$newName = $schema->renamedIds[$oldName];
 		}elseif(isset($schema->flattenedProperties[$oldName])){
+			unset($addedPropertyDefaults[$schema->flattenedProperties[$oldName]->flattenedProperty]);
 			[$newName, $states] = $this->applyPropertyFlattened($schema->flattenedProperties[$oldName], $oldName, $states);
 		}else{
 			$newName = $oldName;
 		}
 
+		foreach(Utils::stringifyKeys($schema->addedProperties[$oldName] ?? []) as $propertyName => $defaultValue){
+			if(!isset($states[$propertyName])){
+				$addedPropertyDefaults[$propertyName] = $defaultValue;
+			}
+		}
 		$states = $this->applyPropertyAdded($schema, $oldName, $states);
+		foreach($schema->removedProperties[$oldName] ?? [] as $propertyName){
+			unset($addedPropertyDefaults[$propertyName]);
+		}
 		$states = $this->applyPropertyRemoved($schema, $oldName, $states);
+		foreach(Utils::stringifyKeys($schema->renamedProperties[$oldName] ?? []) as $oldPropertyName => $newPropertyName){
+			if(isset($addedPropertyDefaults[$oldPropertyName])){
+				$addedPropertyDefaults[$newPropertyName] = $addedPropertyDefaults[$oldPropertyName];
+				unset($addedPropertyDefaults[$oldPropertyName]);
+			}
+		}
 		$states = $this->applyPropertyRenamedOrValueChanged($schema, $oldName, $states);
 		$states = $this->applyPropertyValueChanged($schema, $oldName, $states);
+		foreach($addedPropertyDefaults as $propertyName => $_){
+			if(isset($states[$propertyName])){
+				$addedPropertyDefaults[$propertyName] = $states[$propertyName];
+			}
+		}
 
 		return [$newName, $states];
 	}

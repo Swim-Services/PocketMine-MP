@@ -28,6 +28,7 @@ use pocketmine\data\bedrock\block\BlockTypeNames;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\NbtDataException;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\Tag;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\network\mcpe\protocol\serializer\NetworkNbtSerializer;
 use pocketmine\network\mcpe\protocol\types\BlockPaletteEntry;
@@ -62,6 +63,8 @@ final class BlockStateDictionary{
 	 * @phpstan-var array<string, array<int, int>|int>|null
 	 */
 	private ?array $idMetaToStateIdLookupCache = null;
+	/** @phpstan-var array<string, array<string, Tag>> */
+	private array $addedPropertyDefaults = [];
 
 	/**
 	 * @param BlockStateDictionaryEntry[] $states
@@ -145,11 +148,22 @@ final class BlockStateDictionary{
 		$name = $data->getName();
 
 		$lookup = $this->stateDataToStateIdLookup[$name] ?? null;
-		return match(true){
+		$result = match(true){
 			$lookup === null => null,
 			is_int($lookup) => $lookup,
 			is_array($lookup) => $lookup[BlockStateDictionaryEntry::encodeStateProperties($data->getStates())] ?? null
 		};
+		if($result !== null || !is_array($lookup) || !isset($this->addedPropertyDefaults[$name])){
+			return $result;
+		}
+
+		$states = $data->getStates();
+		foreach(Utils::stringifyKeys($this->addedPropertyDefaults[$name]) as $propertyName => $defaultValue){
+			if(isset($states[$propertyName])){
+				$states[$propertyName] = $defaultValue;
+			}
+		}
+		return $lookup[BlockStateDictionaryEntry::encodeStateProperties($states)] ?? null;
 	}
 
 	/**
@@ -239,6 +253,7 @@ final class BlockStateDictionary{
 		}
 
 		$entries = [];
+		$addedPropertyDefaults = [];
 
 		$uniqueNames = [];
 
@@ -259,8 +274,11 @@ final class BlockStateDictionary{
 			if(!is_int($meta)){
 				throw new \InvalidArgumentException("Invalid metaMap offset $i, expected int, got " . get_debug_type($meta));
 			}
-			$newState = $upgrader->upgrade($state);
+			$newState = $upgrader->upgrade($state, $stateAddedPropertyDefaults);
 			$uniqueName = $uniqueNames[$newState->getName()] ??= $newState->getName();
+			foreach(Utils::stringifyKeys($stateAddedPropertyDefaults) as $propertyName => $defaultValue){
+				$addedPropertyDefaults[$uniqueName][$propertyName] = $defaultValue;
+			}
 			$entries[$useHash ? self::getHashStateId($state) : $i] = new BlockStateDictionaryEntry($uniqueName, $newState->getStates(), $meta, $newState->equals($state) ? null : $state);
 
 			if ($upgradeFunc !== null) {
@@ -269,7 +287,9 @@ final class BlockStateDictionary{
 			}
 		}
 
-		return new self($entries, $useHash, $dataDrivenRaw === null ? [] : self::loadDataDrivenBlocksFromString($dataDrivenRaw));
+		$result = new self($entries, $useHash, $dataDrivenRaw === null ? [] : self::loadDataDrivenBlocksFromString($dataDrivenRaw));
+		$result->addedPropertyDefaults = $addedPropertyDefaults;
+		return $result;
 	}
 
 	public function networkIdsAreHashes() : bool {
