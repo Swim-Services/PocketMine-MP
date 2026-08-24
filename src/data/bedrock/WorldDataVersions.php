@@ -39,9 +39,9 @@ final class WorldDataVersions{
 	 */
 	public const BLOCK_STATES =
 		(1 << 24) | //major
-		(21 << 16) | //minor
-		(60 << 8) | //patch
-		(33); //revision
+		(26 << 16) | //minor
+		(50 << 8) | //patch
+		(26); //revision
 
 	public const CHUNK = ChunkVersion::v1_21_120;
 	public const SUBCHUNK = SubChunkVersion::PALETTED_MULTI;

@@ -754,12 +754,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockBlockUpgradeSchema.git",
-                "reference": "72bd9330711716072ffc1e32ddd1791a28a91fdf"
+                "reference": "6bc001d71f7b11790f6ede4dac2f97c25a425134"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockBlockUpgradeSchema/zipball/72bd9330711716072ffc1e32ddd1791a28a91fdf",
-                "reference": "72bd9330711716072ffc1e32ddd1791a28a91fdf",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockBlockUpgradeSchema/zipball/6bc001d71f7b11790f6ede4dac2f97c25a425134",
+                "reference": "6bc001d71f7b11790f6ede4dac2f97c25a425134",
                 "shasum": ""
             },
             "default-branch": true,
@@ -771,7 +771,7 @@
             "support": {
                 "source": "https://github.com/Swim-Services/BedrockBlockUpgradeSchema/tree/master"
             },
-            "time": "2026-08-22T03:58:22+00:00"
+            "time": "2026-08-24T00:47:32+00:00"
         },
         {
             "name": "swim-services/bedrock-data",
@@ -880,16 +880,16 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v6.4.43",
+            "version": "v6.4.44",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "9ff03da12d67649fbd1f34ca95951554624d0a16"
+                "reference": "e84ffb3e77e3a7144727a0d0735d0d9cc0ca77a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/9ff03da12d67649fbd1f34ca95951554624d0a16",
-                "reference": "9ff03da12d67649fbd1f34ca95951554624d0a16",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/e84ffb3e77e3a7144727a0d0735d0d9cc0ca77a7",
+                "reference": "e84ffb3e77e3a7144727a0d0735d0d9cc0ca77a7",
                 "shasum": ""
             },
             "require": {
@@ -926,7 +926,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v6.4.43"
+                "source": "https://github.com/symfony/filesystem/tree/v6.4.44"
             },
             "funding": [
                 {
@@ -946,7 +946,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-27T10:13:35+00:00"
+            "time": "2026-08-20T20:21:47+00:00"
         }
     ],
     "packages-dev": [
