@@ -779,12 +779,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockData.git",
-                "reference": "d9663eef7d66d7b773d64c3e9c713bcd428fd9f9"
+                "reference": "bc1c09f3d203e1f0cbc5a49a6ea3803c09544a5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/d9663eef7d66d7b773d64c3e9c713bcd428fd9f9",
-                "reference": "d9663eef7d66d7b773d64c3e9c713bcd428fd9f9",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockData/zipball/bc1c09f3d203e1f0cbc5a49a6ea3803c09544a5a",
+                "reference": "bc1c09f3d203e1f0cbc5a49a6ea3803c09544a5a",
                 "shasum": ""
             },
             "type": "library",
@@ -795,7 +795,7 @@
             "support": {
                 "source": "https://github.com/Swim-Services/BedrockData/tree/1.26.50"
             },
-            "time": "2026-08-22T03:42:01+00:00"
+            "time": "2026-08-24T01:51:38+00:00"
         },
         {
             "name": "swim-services/bedrock-item-upgrade-schema",
