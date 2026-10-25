@@ -76,6 +76,8 @@ use pocketmine\block\RedMushroomBlock;
 use pocketmine\block\RedstoneComparator;
 use pocketmine\block\RedstoneRepeater;
 use pocketmine\block\RedstoneTorch;
+use pocketmine\block\RedstoneWire;
+use pocketmine\block\utils\RedstoneWireConnection;
 use pocketmine\block\RespawnAnchor;
 use pocketmine\block\Sapling;
 use pocketmine\block\SeaPickle;
@@ -119,6 +121,7 @@ use pocketmine\data\bedrock\block\convert\property\EnumFromRawStateMap;
 use pocketmine\data\bedrock\block\convert\property\FlattenedCaveVinesVariant;
 use pocketmine\data\bedrock\block\convert\property\IntFromRawStateMap;
 use pocketmine\data\bedrock\block\convert\property\IntProperty;
+use pocketmine\data\bedrock\block\convert\property\OptionalProperty;
 use pocketmine\data\bedrock\block\convert\property\ValueFromIntProperty;
 use pocketmine\data\bedrock\block\convert\property\ValueFromStringProperty;
 use pocketmine\data\bedrock\block\convert\property\ValueMappings;
@@ -1371,7 +1374,12 @@ final class VanillaBlockMappings{
 			new IntProperty(StateNames::MOISTURIZED_AMOUNT, 0, 7, fn(Farmland $b) => $b->getWetness(), fn(Farmland $b, int $v) => $b->setWetness($v))
 		]));
 		$reg->mapModel(Model::create(Blocks::FIRE(), Ids::FIRE)->properties([
-			new IntProperty(StateNames::AGE, 0, 15, fn(Fire $b) => $b->getAge(), fn(Fire $b, int $v) => $b->setAge($v))
+			new IntProperty(StateNames::AGE, 0, 15, fn(Fire $b) => $b->getAge(), fn(Fire $b, int $v) => $b->setAge($v)),
+			...array_map(
+				fn(int $face, string $name) => new OptionalProperty(new BoolProperty($name, fn(Fire $b) => $b->hasConnection($face), fn(Fire $b, bool $v) => $b->setConnection($face, $v))),
+				[Facing::NORTH, Facing::EAST, Facing::SOUTH, Facing::WEST, Facing::UP],
+				["minecraft:connection_north", "minecraft:connection_east", "minecraft:connection_south", "minecraft:connection_west", "minecraft:connection_up"]
+			)
 		]));
 		$reg->mapModel(Model::create(Blocks::FLOWER_POT(), Ids::FLOWER_POT)->properties([
 			BoolProperty::unused(StateNames::UPDATE_BIT, false)
@@ -1460,7 +1468,16 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::RAIL(), Ids::RAIL)->properties([
 			new IntProperty(StateNames::RAIL_DIRECTION, 0, 9, fn(Rail $b) => $b->getShape(), fn(Rail $b, int $v) => $b->setShape($v))
 		]));
-		$reg->mapModel(Model::create(Blocks::REDSTONE_WIRE(), Ids::REDSTONE_WIRE)->properties([$commonProperties->analogRedstoneSignal]));
+		$reg->mapModel(Model::create(Blocks::REDSTONE_WIRE(), Ids::REDSTONE_WIRE)->properties([$commonProperties->analogRedstoneSignal, ...array_map(
+			fn(int $face, string $name) => new OptionalProperty(new ValueFromStringProperty(
+				$name,
+				EnumFromRawStateMap::string(RedstoneWireConnection::class, fn(RedstoneWireConnection $v) => $v->value),
+				fn(RedstoneWire $b) => $b->getConnection($face),
+				fn(RedstoneWire $b, RedstoneWireConnection $v) => $b->setConnection($face, $v)
+			)),
+			[Facing::NORTH, Facing::EAST, Facing::SOUTH, Facing::WEST],
+			["redstone_north", "redstone_east", "redstone_south", "redstone_west"]
+		)]));
 		$reg->mapModel(Model::create(Blocks::RESPAWN_ANCHOR(), Ids::RESPAWN_ANCHOR)->properties([
 			new IntProperty(StateNames::RESPAWN_ANCHOR_CHARGE, 0, 4, fn(RespawnAnchor $b) => $b->getCharges(), fn(RespawnAnchor $b, int $v) => $b->setCharges($v))
 		]));

@@ -84,7 +84,7 @@ class LevelDB extends BaseWorldProvider implements WritableWorldProvider{
 	protected const CURRENT_LEVEL_SUBCHUNK_VERSION = WorldDataVersions::SUBCHUNK;
 
 	private const CAVES_CLIFFS_EXPERIMENTAL_SUBCHUNK_KEY_OFFSET = 4;
-	private const PM_DATA_VERSION_CONNECTED_BLOCK_STATES = 3;
+	private const PM_DATA_VERSION_CONNECTED_BLOCK_STATES = 4;
 
 	protected \LevelDB $db;
 

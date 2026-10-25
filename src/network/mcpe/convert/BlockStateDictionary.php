@@ -274,16 +274,13 @@ final class BlockStateDictionary{
 			if(!is_int($meta)){
 				throw new \InvalidArgumentException("Invalid metaMap offset $i, expected int, got " . get_debug_type($meta));
 			}
-			$newState = $upgrader->upgrade($state, $stateAddedPropertyDefaults);
-			$uniqueName = $uniqueNames[$newState->getName()] ??= $newState->getName();
-			foreach(Utils::stringifyKeys($stateAddedPropertyDefaults) as $propertyName => $defaultValue){
-				$addedPropertyDefaults[$uniqueName][$propertyName] = $defaultValue;
-			}
-			$entries[$useHash ? self::getHashStateId($state) : $i] = new BlockStateDictionaryEntry($uniqueName, $newState->getStates(), $meta, $newState->equals($state) ? null : $state);
-
-			if ($upgradeFunc !== null) {
-				$state = $upgradeFunc($state);
-				$entries[$useHash ? self::getHashStateId($state) : $i] = new BlockStateDictionaryEntry($uniqueName, $newState->getStates(), $meta, null);
+			foreach($upgradeFunc !== null ? $upgradeFunc($state) : [$state] as $networkState){
+				$newState = $upgrader->upgrade($networkState, $stateAddedPropertyDefaults);
+				$uniqueName = $uniqueNames[$newState->getName()] ??= $newState->getName();
+				foreach(Utils::stringifyKeys($stateAddedPropertyDefaults) as $propertyName => $defaultValue){
+					$addedPropertyDefaults[$uniqueName][$propertyName] = $defaultValue;
+				}
+				$entries[$useHash ? self::getHashStateId($networkState) : $i] = new BlockStateDictionaryEntry($uniqueName, $newState->getStates(), $meta, $newState->equals($networkState) ? null : $networkState);
 			}
 		}
 

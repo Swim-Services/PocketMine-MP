@@ -39,7 +39,7 @@ use pocketmine\block\tile\Spawnable;
 use pocketmine\block\tile\Tile;
 use pocketmine\block\tile\TileFactory;
 use pocketmine\block\UnknownBlock;
-use pocketmine\block\utils\HorizontalConnectable;
+use pocketmine\block\utils\ConnectedBlock;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\data\bedrock\block\BlockStateData;
@@ -2191,9 +2191,10 @@ class World implements ChunkManager{
 		}
 		$chunkX = $x >> Chunk::COORD_BIT_SIZE;
 		$chunkZ = $z >> Chunk::COORD_BIT_SIZE;
-		if($this->loadChunk($chunkX, $chunkZ) === null){ //current expected behaviour is to try to load the terrain synchronously
+		if(($chunk = $this->loadChunk($chunkX, $chunkZ)) === null){ //current expected behaviour is to try to load the terrain synchronously
 			throw new WorldException("Cannot set a block in un-generated terrain");
 		}
+		$oldBlockTypeId = $chunk->getBlockStateId($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK) >> Block::INTERNAL_STATE_DATA_BITS;
 
 		//TODO: this computes state ID twice (we do it again in writeStateToWorld()). Not great for performance :(
 		$stateId = $block->getStateId();
@@ -2240,6 +2241,12 @@ class World implements ChunkManager{
 		if($update){
 			$this->updateAllLight($x, $y, $z);
 			$this->internalNotifyNeighbourBlockUpdate($x, $y, $z);
+			if($oldBlockTypeId === BlockTypeIds::REDSTONE_WIRE || $block->getTypeId() === BlockTypeIds::REDSTONE_WIRE){
+				// The other end of a climbing wire is diagonally adjacent. Include
+				// removal as well as placement so its former neighbour disconnects.
+				$this->internalNotifyNeighbourBlockUpdate($x, $y - 1, $z);
+				$this->internalNotifyNeighbourBlockUpdate($x, $y + 1, $z);
+			}
 		}
 
 		$this->timings->setBlock->stopTiming();
@@ -3263,7 +3270,7 @@ class World implements ChunkManager{
 			$affectedStateIds = [];
 			foreach($blockLayers[0]->getPalette() as $stateId){
 				$block = $this->blockStateRegistry->fromStateId($stateId);
-				if($stairs ? $block instanceof Stair : $block instanceof HorizontalConnectable){
+				if($stairs ? $block instanceof Stair : $block instanceof ConnectedBlock){
 					$affectedStateIds[$stateId] = true;
 				}
 			}
@@ -3336,7 +3343,7 @@ class World implements ChunkManager{
 		$block->position($this, $worldX, $y, $worldZ);
 		if($block instanceof Stair){
 			$block->setShape($block->calculateShape());
-		}elseif($block instanceof HorizontalConnectable){
+		}elseif($block instanceof ConnectedBlock){
 			$block->recalculateConnections();
 		}else{
 			throw new \LogicException("Unexpected connected block state candidate " . get_class($block));

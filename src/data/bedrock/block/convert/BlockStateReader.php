@@ -63,6 +63,10 @@ final class BlockStateReader{
 		return new BlockStateDeserializeException("Property \"$name\" " . ($tag !== null ? "has unexpected type " . get_class($tag) : "is missing"));
 	}
 
+	public function hasState(string $name) : bool{
+		return $this->data->getState($name) !== null;
+	}
+
 	public function badValueException(string $name, string $stringifiedValue, ?string $reason = null) : BlockStateDeserializeException{
 		return new BlockStateDeserializeException(
 			"Property \"$name\" has unexpected value \"$stringifiedValue\"" . (
