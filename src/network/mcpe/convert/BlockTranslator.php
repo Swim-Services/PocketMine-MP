@@ -28,6 +28,7 @@ use pocketmine\data\bedrock\block\BlockStateData;
 use pocketmine\data\bedrock\block\BlockStateSerializeException;
 use pocketmine\data\bedrock\block\BlockStateSerializer;
 use pocketmine\data\bedrock\block\BlockTypeNames;
+use pocketmine\nbt\tag\ByteTag;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Filesystem;
@@ -251,12 +252,12 @@ final class BlockTranslator{
 				ProtocolInfo::PROTOCOL_1_26_60 => function(BlockStateData $d) {
 					if ($d->getName() === "minecraft:fire") {
 						$states = $d->getStates();
-						$states["minecraft:connection_north"] = false;
-						$states["minecraft:connection_east"] = false;
-						$states["minecraft:connection_south"] = false;
-						$states["minecraft:connection_west"] = false;
-						$states["minecraft:connection_up"] = false;
-						$states["minecraft:connection_down"] = true;
+						$states["minecraft:connection_north"] = new ByteTag(0);
+						$states["minecraft:connection_east"] = new ByteTag(0);
+						$states["minecraft:connection_south"] = new ByteTag(0);
+						$states["minecraft:connection_west"] = new ByteTag(0);
+						$states["minecraft:connection_up"] = new ByteTag(0);
+						$states["minecraft:connection_down"] = new ByteTag(1);
 						$d = new BlockStateData("minecraft:fire", $states, $d->getVersion());
 					}
 					return $d;
