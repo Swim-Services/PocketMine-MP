@@ -249,6 +249,16 @@ final class BlockTranslator{
 		if(!isset(self::$HASH_PROTOCOLS)){
 			self::$HASH_PROTOCOLS = [
 				ProtocolInfo::PROTOCOL_1_26_60 => function(BlockStateData $d) {
+					if ($d->getName() === "minecraft:fire") {
+						$states = $d->getStates();
+						$states["minecraft:connection_north"] = false;
+						$states["minecraft:connection_east"] = false;
+						$states["minecraft:connection_south"] = false;
+						$states["minecraft:connection_west"] = false;
+						$states["minecraft:connection_up"] = false;
+						$states["minecraft:connection_down"] = true;
+						$d = new BlockStateData("minecraft:fire", $states, $d->getVersion());
+					}
 					return $d;
 				}
 			];
