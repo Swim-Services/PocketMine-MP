@@ -486,8 +486,9 @@ class NetworkSession{
 					$this->gamePacketLimiter->decrement();
 					$packet = $this->packetPool->getPacket($buffer);
 					if($packet === null){
-						$this->logger->debug("Unknown packet: " . base64_encode($buffer));
-						throw new PacketHandlingException("Unknown packet received");
+						continue;
+						//$this->logger->debug("Unknown packet: " . base64_encode($buffer));
+						//throw new PacketHandlingException("Unknown packet received");
 					}
 					try{
 						$this->handleDataPacket($packet, $buffer);
