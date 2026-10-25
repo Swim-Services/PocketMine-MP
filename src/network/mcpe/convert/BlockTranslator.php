@@ -258,7 +258,7 @@ final class BlockTranslator{
 						$states["minecraft:connection_west"] = new ByteTag(0);
 						$states["minecraft:connection_up"] = new ByteTag(0);
 						$states["minecraft:connection_down"] = new ByteTag(1);
-						$d = new BlockStateData("minecraft:fire", $states, $d->getVersion());
+						return new BlockStateData("minecraft:fire", $states, $d->getVersion());
 					}
 					return $d;
 				}
