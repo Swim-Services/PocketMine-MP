@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6fbdc11c01984381b8e8586d018dcf44",
+    "content-hash": "a0433c6d62fcc0699c78ba791d5123de",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -682,20 +682,20 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "4.9.3",
+            "version": "4.9.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "1df15849d00943a67d677dc9cfd80795f038c9f8"
+                "reference": "75d73f48d02797c2c285a7e9f348fadc0102ffe2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/1df15849d00943a67d677dc9cfd80795f038c9f8",
-                "reference": "1df15849d00943a67d677dc9cfd80795f038c9f8",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/75d73f48d02797c2c285a7e9f348fadc0102ffe2",
+                "reference": "75d73f48d02797c2c285a7e9f348fadc0102ffe2",
                 "shasum": ""
             },
             "require": {
-                "brick/math": ">=0.8.16 <=0.18",
+                "brick/math": "^0.8.16 || ^0.9 || ^0.10 || ^0.11 || ^0.12 || ^0.13 || ^0.14 || ^0.15 || ^0.16 || ^0.17 || ^0.18 || ^0.19 || ^0.20 || ^1.0",
                 "php": "^8.0",
                 "ramsey/collection": "^1.2 || ^2.0"
             },
@@ -754,9 +754,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ramsey/uuid/issues",
-                "source": "https://github.com/ramsey/uuid/tree/4.9.3"
+                "source": "https://github.com/ramsey/uuid/tree/4.9.4"
             },
-            "time": "2026-06-18T03:57:49+00:00"
+            "time": "2026-09-16T11:39:30+00:00"
         },
         {
             "name": "swim-services/bedrock-block-upgrade-schema",
@@ -834,16 +834,16 @@
         },
         {
             "name": "swim-services/bedrock-protocol",
-            "version": "1.26.50.x-dev",
+            "version": "dev-1.26.60-pre",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Swim-Services/BedrockProtocol.git",
-                "reference": "a2f143310d69c2bed65b707c06533f5651b63270"
+                "reference": "72a4127086a9133dda1e4462c64aed339cab1040"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/a2f143310d69c2bed65b707c06533f5651b63270",
-                "reference": "a2f143310d69c2bed65b707c06533f5651b63270",
+                "url": "https://api.github.com/repos/Swim-Services/BedrockProtocol/zipball/72a4127086a9133dda1e4462c64aed339cab1040",
+                "reference": "72a4127086a9133dda1e4462c64aed339cab1040",
                 "shasum": ""
             },
             "require": {
@@ -883,23 +883,23 @@
             ],
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
-                "source": "https://github.com/Swim-Services/BedrockProtocol/tree/1.26.50",
+                "source": "https://github.com/Swim-Services/BedrockProtocol/tree/1.26.60-pre",
                 "issues": "https://github.com/Swim-Services/BedrockProtocol/issues"
             },
-            "time": "2026-09-15T16:10:17+00:00"
+            "time": "2026-10-25T17:59:28+00:00"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v6.4.45",
+            "version": "v6.4.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "6dabf41c21957a2060f101bd7bf7e322989866bd"
+                "reference": "e3ff48b19ac71ee79f89021122211710b892ae0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/6dabf41c21957a2060f101bd7bf7e322989866bd",
-                "reference": "6dabf41c21957a2060f101bd7bf7e322989866bd",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/e3ff48b19ac71ee79f89021122211710b892ae0b",
+                "reference": "e3ff48b19ac71ee79f89021122211710b892ae0b",
                 "shasum": ""
             },
             "require": {
@@ -936,7 +936,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v6.4.45"
+                "source": "https://github.com/symfony/filesystem/tree/v6.4.48"
             },
             "funding": [
                 {
@@ -956,7 +956,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-23T07:59:31+00:00"
+            "time": "2026-10-06T17:30:58+00:00"
         }
     ],
     "packages-dev": [
@@ -1678,16 +1678,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.64",
+            "version": "10.5.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "0e8c1d19cea35ad97d4887f363d07c78e30fbf06"
+                "reference": "747c9889613d0b3ffa08b74272e50ed3b8fa6d72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/0e8c1d19cea35ad97d4887f363d07c78e30fbf06",
-                "reference": "0e8c1d19cea35ad97d4887f363d07c78e30fbf06",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/747c9889613d0b3ffa08b74272e50ed3b8fa6d72",
+                "reference": "747c9889613d0b3ffa08b74272e50ed3b8fa6d72",
                 "shasum": ""
             },
             "require": {
@@ -1697,7 +1697,7 @@
                 "ext-libxml": "*",
                 "ext-mbstring": "*",
                 "ext-xmlwriter": "*",
-                "myclabs/deep-copy": "^1.13.4",
+                "myclabs/deep-copy": "^1.14.0",
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.1",
@@ -1714,7 +1714,7 @@
                 "sebastian/exporter": "^5.1.4",
                 "sebastian/global-state": "^6.0.2",
                 "sebastian/object-enumerator": "^5.0.0",
-                "sebastian/recursion-context": "^5.0.1",
+                "sebastian/recursion-context": "^5.0.2",
                 "sebastian/type": "^4.0.0",
                 "sebastian/version": "^4.0.1"
             },
@@ -1759,7 +1759,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.64"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.66"
             },
             "funding": [
                 {
@@ -1767,7 +1767,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-07-06T14:50:35+00:00"
+            "time": "2026-10-05T05:46:26+00:00"
         },
         {
             "name": "sebastian/cli-parser",
