@@ -49,7 +49,7 @@ final class BlockTranslator{
 	public const DATA_DRIVEN_BLOCKS_PATH = 2;
 
 	private const PATHS = [
-		ProtocolInfo::PROTOCOL_1_26_50 => [
+		ProtocolInfo::CURRENT_PROTOCOL => [
 			self::CANONICAL_BLOCK_STATES_PATH => '',
 			self::BLOCK_STATE_META_MAP_PATH => '',
 			self::DATA_DRIVEN_BLOCKS_PATH => '',

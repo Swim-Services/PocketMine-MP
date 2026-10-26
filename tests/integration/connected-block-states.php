@@ -135,6 +135,8 @@ foreach([
 		}
 	}
 }
-check(ProtocolInfo::MINECRAFT_VERSION_NETWORK === '1.26.60', 'Advertised version must be 1.26.60');
+check(ProtocolInfo::CURRENT_PROTOCOL === ProtocolInfo::PROTOCOL_1_26_50, 'Current protocol must remain 1.26.50');
+check(ProtocolInfo::MINECRAFT_VERSION_NETWORK === '1.26.50', 'Advertised base version must remain 1.26.50');
+check(in_array(ProtocolInfo::PROTOCOL_1_26_60, ProtocolInfo::ACCEPTED_PROTOCOL, true), '1.26.60 must remain accepted through forward multiversion');
 check(in_array(ProtocolInfo::PROTOCOL_1_26_50, ProtocolInfo::ACCEPTED_PROTOCOL, true), '1.26.50 must remain accepted');
 echo "Passed topology and chunk migration/boundary checks, plus $count connected state/hash/disk/legacy roundtrips\n";
