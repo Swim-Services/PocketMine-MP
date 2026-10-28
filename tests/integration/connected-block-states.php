@@ -10,15 +10,22 @@ use pocketmine\block\RuntimeBlockStateRegistry;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\block\utils\RedstoneWireConnection as Connection;
 use pocketmine\data\bedrock\block\BlockStateData;
+use pocketmine\data\bedrock\item\BlockItemIdMap;
+use pocketmine\data\bedrock\item\downgrade\ItemIdMetaDowngrader;
+use pocketmine\item\ItemBlock;
 use pocketmine\math\Facing;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\network\mcpe\convert\BlockTranslator;
+use pocketmine\network\mcpe\convert\BlockStateDictionaryEntry;
 use pocketmine\network\mcpe\convert\ConnectedBlockStateUpgrade;
+use pocketmine\network\mcpe\convert\ItemTranslator;
+use pocketmine\network\mcpe\convert\ItemTypeDictionaryFromDataHelper;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\world\format\io\GlobalBlockStateHandlers;
+use pocketmine\world\format\io\GlobalItemDataHandlers;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\World;
 
@@ -84,6 +91,30 @@ $deserializer = GlobalBlockStateHandlers::getDeserializer();
 $translator = BlockTranslator::loadFromProtocolId(ProtocolInfo::PROTOCOL_1_26_60);
 $legacy = BlockTranslator::loadFromProtocolId(ProtocolInfo::PROTOCOL_1_26_50);
 $registry = RuntimeBlockStateRegistry::getInstance();
+// FortunePillars can give fire as an ItemBlock. Equipment/inventory broadcasts
+// use ItemTranslator directly, bypassing BlockTranslator's world-block path.
+foreach([ProtocolInfo::PROTOCOL_1_26_50 => $legacy, ProtocolInfo::PROTOCOL_1_26_60 => $translator] as $protocol => $blocks){
+	$items = ItemTypeDictionaryFromDataHelper::loadFromProtocolId($protocol);
+	$downgrader = new ItemIdMetaDowngrader($items, ItemTranslator::getItemSchemaId($protocol));
+	$itemTranslator = new ItemTranslator(
+		$items, $blocks->getBlockStateDictionary(),
+		GlobalItemDataHandlers::getSerializer(), GlobalItemDataHandlers::getDeserializer(),
+		BlockItemIdMap::getInstance(), $downgrader
+	);
+	foreach([VanillaBlocks::FIRE(), VanillaBlocks::FIRE()->setAge(7)->setConnection(Facing::EAST, true), VanillaBlocks::REDSTONE_WIRE()->setConnection(Facing::EAST, Connection::UP)] as $block){
+		$item = new ItemBlock($block);
+		$result = $itemTranslator->toNetworkId($item);
+		check($itemTranslator->toNetworkIdQuiet($item) === $result, 'Quiet item conversion must also serialize connected blocks');
+		check($result[2] !== null, 'Connected block item must have a runtime ID');
+		$state = $blocks->getBlockStateDictionary()->generateDataFromStateId($result[2]);
+		check($state !== null && $state->getName() === $serializer->serialize($block->getStateId())->getName(), 'Connected item must retain its block type, not use a fallback');
+		$savedBlock = GlobalItemDataHandlers::getSerializer()->serializeType($item, $downgrader)->getBlock();
+		check($savedBlock !== null, 'Regression item must serialize a real blockstate');
+		$expected = $protocol === ProtocolInfo::PROTOCOL_1_26_60 ? $savedBlock : ConnectedBlockStateUpgrade::stripConnectionProperties($savedBlock);
+		check(BlockStateDictionaryEntry::encodeStateProperties($state->getStates()) === BlockStateDictionaryEntry::encodeStateProperties($expected->getStates()), 'Item must use the recipient palette: legacy states for 1.26.50, connections retained for 1.26.60');
+	}
+}
+check($legacy->getBlockStateDictionary()->lookupStateIdFromData(BlockStateData::current('minecraft:fire', ['age' => new IntTag(16)])) === null, 'Invalid fire age must still be rejected');
 foreach(['blockStateRegistry' => $registry, 'logger' => new class extends SimpleLogger{
 	public function log($level, $message){}
 }, 'minY' => 0, 'maxY' => 16] as $property => $value){

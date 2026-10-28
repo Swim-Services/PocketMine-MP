@@ -264,14 +264,12 @@ final class BlockTranslator{
 		return new self(
 			BlockStateDictionary::loadFromString($canonicalBlockStatesRaw, $metaMappingRaw, $isHash, $isHash ? self::$HASH_PROTOCOLS[$protocolId] : null, $dataDrivenRaw ?? null),
 			GlobalBlockStateHandlers::getSerializer(),
-			$isHash,
 		);
 	}
 
 	public function __construct(
 		private BlockStateDictionary $blockStateDictionary,
-		private BlockStateSerializer $blockStateSerializer,
-		private bool $connectedFireAndRedstoneStates = false
+		private BlockStateSerializer $blockStateSerializer
 	){
 		$this->fallbackStateData = BlockStateData::current(BlockTypeNames::INFO_UPDATE, []);
 		$this->fallbackStateId = $this->blockStateDictionary->lookupStateIdFromData($this->fallbackStateData) ??
@@ -285,9 +283,6 @@ final class BlockTranslator{
 
 		try{
 			$blockStateData = $this->blockStateSerializer->serialize($internalStateId);
-			if(!$this->connectedFireAndRedstoneStates){
-				$blockStateData = ConnectedBlockStateUpgrade::stripConnectionProperties($blockStateData);
-			}
 
 			$networkId = $this->blockStateDictionary->lookupStateIdFromData($blockStateData);
 			if($networkId === null){

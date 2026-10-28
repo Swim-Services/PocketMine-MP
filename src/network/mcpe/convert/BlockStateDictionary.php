@@ -145,6 +145,11 @@ final class BlockStateDictionary{
 	 * Returns null if there were no matches.
 	 */
 	public function lookupStateIdFromData(BlockStateData $data) : ?int{
+		// Item/equipment and fake-block updates also look up saved blockstates
+		// directly. Apply the legacy downgrade here so every caller agrees.
+		if(!$this->useHash){
+			$data = ConnectedBlockStateUpgrade::stripConnectionProperties($data);
+		}
 		$name = $data->getName();
 
 		$lookup = $this->stateDataToStateIdLookup[$name] ?? null;
